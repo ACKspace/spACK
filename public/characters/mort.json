@@ -1,0 +1,461 @@
+{
+    "frames": {
+        "0_mort": {
+            "frame": {
+                "x": 0,
+                "y": 0,
+                "w": 24,
+                "h": 24
+            },
+            "sourceSize": {
+                "w": 24,
+                "h": 24
+            },
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "h": 24,
+                "w": 24
+            }
+        },
+        "1_mort": {
+            "frame": {
+                "x": 24,
+                "y": 0,
+                "w": 24,
+                "h": 24
+            },
+            "sourceSize": {
+                "w": 24,
+                "h": 24
+            },
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "h": 24,
+                "w": 24
+            }
+        },
+        "2_mort": {
+            "frame": {
+                "x": 48,
+                "y": 0,
+                "w": 24,
+                "h": 24
+            },
+            "sourceSize": {
+                "w": 24,
+                "h": 24
+            },
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "h": 24,
+                "w": 24
+            }
+        },
+        "3_mort": {
+            "frame": {
+                "x": 72,
+                "y": 0,
+                "w": 24,
+                "h": 24
+            },
+            "sourceSize": {
+                "w": 24,
+                "h": 24
+            },
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "h": 24,
+                "w": 24
+            }
+        },
+        "4_mort": {
+            "frame": {
+                "x": 96,
+                "y": 0,
+                "w": 24,
+                "h": 24
+            },
+            "sourceSize": {
+                "w": 24,
+                "h": 24
+            },
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "h": 24,
+                "w": 24
+            }
+        },
+        "5_mort": {
+            "frame": {
+                "x": 120,
+                "y": 0,
+                "w": 24,
+                "h": 24
+            },
+            "sourceSize": {
+                "w": 24,
+                "h": 24
+            },
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "h": 24,
+                "w": 24
+            }
+        },
+        "6_mort": {
+            "frame": {
+                "x": 144,
+                "y": 0,
+                "w": 24,
+                "h": 24
+            },
+            "sourceSize": {
+                "w": 24,
+                "h": 24
+            },
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "h": 24,
+                "w": 24
+            }
+        },
+        "7_mort": {
+            "frame": {
+                "x": 168,
+                "y": 0,
+                "w": 24,
+                "h": 24
+            },
+            "sourceSize": {
+                "w": 24,
+                "h": 24
+            },
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "h": 24,
+                "w": 24
+            }
+        },
+        "8_mort": {
+            "frame": {
+                "x": 192,
+                "y": 0,
+                "w": 24,
+                "h": 24
+            },
+            "sourceSize": {
+                "w": 24,
+                "h": 24
+            },
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "h": 24,
+                "w": 24
+            }
+        },
+        "9_mort": {
+            "frame": {
+                "x": 216,
+                "y": 0,
+                "w": 24,
+                "h": 24
+            },
+            "sourceSize": {
+                "w": 24,
+                "h": 24
+            },
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "h": 24,
+                "w": 24
+            }
+        },
+        "10_mort": {
+            "frame": {
+                "x": 240,
+                "y": 0,
+                "w": 24,
+                "h": 24
+            },
+            "sourceSize": {
+                "w": 24,
+                "h": 24
+            },
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "h": 24,
+                "w": 24
+            }
+        },
+        "11_mort": {
+            "frame": {
+                "x": 264,
+                "y": 0,
+                "w": 24,
+                "h": 24
+            },
+            "sourceSize": {
+                "w": 24,
+                "h": 24
+            },
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "h": 24,
+                "w": 24
+            }
+        },
+        "12_mort": {
+            "frame": {
+                "x": 288,
+                "y": 0,
+                "w": 24,
+                "h": 24
+            },
+            "sourceSize": {
+                "w": 24,
+                "h": 24
+            },
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "h": 24,
+                "w": 24
+            }
+        },
+        "13_mort": {
+            "frame": {
+                "x": 312,
+                "y": 0,
+                "w": 24,
+                "h": 24
+            },
+            "sourceSize": {
+                "w": 24,
+                "h": 24
+            },
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "h": 24,
+                "w": 24
+            }
+        },
+        "14_mort": {
+            "frame": {
+                "x": 336,
+                "y": 0,
+                "w": 24,
+                "h": 24
+            },
+            "sourceSize": {
+                "w": 24,
+                "h": 24
+            },
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "h": 24,
+                "w": 24
+            }
+        },
+        "15_mort": {
+            "frame": {
+                "x": 360,
+                "y": 0,
+                "w": 24,
+                "h": 24
+            },
+            "sourceSize": {
+                "w": 24,
+                "h": 24
+            },
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "h": 24,
+                "w": 24
+            }
+        },
+        "16_mort": {
+            "frame": {
+                "x": 384,
+                "y": 0,
+                "w": 24,
+                "h": 24
+            },
+            "sourceSize": {
+                "w": 24,
+                "h": 24
+            },
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "h": 24,
+                "w": 24
+            }
+        },
+        "17_mort": {
+            "frame": {
+                "x": 408,
+                "y": 0,
+                "w": 24,
+                "h": 24
+            },
+            "sourceSize": {
+                "w": 24,
+                "h": 24
+            },
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "h": 24,
+                "w": 24
+            }
+        },
+        "18_mort": {
+            "frame": {
+                "x": 432,
+                "y": 0,
+                "w": 24,
+                "h": 24
+            },
+            "sourceSize": {
+                "w": 24,
+                "h": 24
+            },
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "h": 24,
+                "w": 24
+            }
+        },
+        "19_mort": {
+            "frame": {
+                "x": 456,
+                "y": 0,
+                "w": 24,
+                "h": 24
+            },
+            "sourceSize": {
+                "w": 24,
+                "h": 24
+            },
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "h": 24,
+                "w": 24
+            }
+        },
+        "20_mort": {
+            "frame": {
+                "x": 480,
+                "y": 0,
+                "w": 24,
+                "h": 24
+            },
+            "sourceSize": {
+                "w": 24,
+                "h": 24
+            },
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "h": 24,
+                "w": 24
+            }
+        },
+        "21_mort": {
+            "frame": {
+                "x": 504,
+                "y": 0,
+                "w": 24,
+                "h": 24
+            },
+            "sourceSize": {
+                "w": 24,
+                "h": 24
+            },
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "h": 24,
+                "w": 24
+            }
+        },
+        "22_mort": {
+            "frame": {
+                "x": 528,
+                "y": 0,
+                "w": 24,
+                "h": 24
+            },
+            "sourceSize": {
+                "w": 24,
+                "h": 24
+            },
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "h": 24,
+                "w": 24
+            }
+        },
+        "23_mort": {
+            "frame": {
+                "x": 552,
+                "y": 0,
+                "w": 24,
+                "h": 24
+            },
+            "sourceSize": {
+                "w": 24,
+                "h": 24
+            },
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "h": 24,
+                "w": 24
+            }
+        }
+    },
+    "meta": {
+        "image": "mort.png",
+        "format": "RGBA8888",
+        "size": {
+            "w": 576,
+            "h": 24
+        },
+        "scale": "0.32"
+    },
+    "animations": {
+        "walk": [
+            "4_mort",
+            "5_mort",
+            "6_mort",
+            "7_mort",
+            "8_mort",
+            "9_mort"
+        ],
+        "idle": [
+            "0_mort",
+            "1_mort",
+            "2_mort",
+            "3_mort"
+        ]
+    }
+}

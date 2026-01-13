@@ -1,0 +1,16 @@
+# Build
+dist
+
+# Environment
+.env
+.env*.local
+
+# dependencies
+/node_modules
+
+# IDEs and editors
+.vscode/
+
+# System Files
+.DS_Store
+Thumbs.db

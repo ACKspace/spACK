@@ -1,0 +1,461 @@
+{
+    "frames": {
+        "0_vita": {
+            "frame": {
+                "x": 0,
+                "y": 0,
+                "w": 24,
+                "h": 24
+            },
+            "sourceSize": {
+                "w": 24,
+                "h": 24
+            },
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "h": 24,
+                "w": 24
+            }
+        },
+        "1_vita": {
+            "frame": {
+                "x": 24,
+                "y": 0,
+                "w": 24,
+                "h": 24
+            },
+            "sourceSize": {
+                "w": 24,
+                "h": 24
+            },
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "h": 24,
+                "w": 24
+            }
+        },
+        "2_vita": {
+            "frame": {
+                "x": 48,
+                "y": 0,
+                "w": 24,
+                "h": 24
+            },
+            "sourceSize": {
+                "w": 24,
+                "h": 24
+            },
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "h": 24,
+                "w": 24
+            }
+        },
+        "3_vita": {
+            "frame": {
+                "x": 72,
+                "y": 0,
+                "w": 24,
+                "h": 24
+            },
+            "sourceSize": {
+                "w": 24,
+                "h": 24
+            },
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "h": 24,
+                "w": 24
+            }
+        },
+        "4_vita": {
+            "frame": {
+                "x": 96,
+                "y": 0,
+                "w": 24,
+                "h": 24
+            },
+            "sourceSize": {
+                "w": 24,
+                "h": 24
+            },
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "h": 24,
+                "w": 24
+            }
+        },
+        "5_vita": {
+            "frame": {
+                "x": 120,
+                "y": 0,
+                "w": 24,
+                "h": 24
+            },
+            "sourceSize": {
+                "w": 24,
+                "h": 24
+            },
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "h": 24,
+                "w": 24
+            }
+        },
+        "6_vita": {
+            "frame": {
+                "x": 144,
+                "y": 0,
+                "w": 24,
+                "h": 24
+            },
+            "sourceSize": {
+                "w": 24,
+                "h": 24
+            },
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "h": 24,
+                "w": 24
+            }
+        },
+        "7_vita": {
+            "frame": {
+                "x": 168,
+                "y": 0,
+                "w": 24,
+                "h": 24
+            },
+            "sourceSize": {
+                "w": 24,
+                "h": 24
+            },
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "h": 24,
+                "w": 24
+            }
+        },
+        "8_vita": {
+            "frame": {
+                "x": 192,
+                "y": 0,
+                "w": 24,
+                "h": 24
+            },
+            "sourceSize": {
+                "w": 24,
+                "h": 24
+            },
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "h": 24,
+                "w": 24
+            }
+        },
+        "9_vita": {
+            "frame": {
+                "x": 216,
+                "y": 0,
+                "w": 24,
+                "h": 24
+            },
+            "sourceSize": {
+                "w": 24,
+                "h": 24
+            },
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "h": 24,
+                "w": 24
+            }
+        },
+        "10_vita": {
+            "frame": {
+                "x": 240,
+                "y": 0,
+                "w": 24,
+                "h": 24
+            },
+            "sourceSize": {
+                "w": 24,
+                "h": 24
+            },
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "h": 24,
+                "w": 24
+            }
+        },
+        "11_vita": {
+            "frame": {
+                "x": 264,
+                "y": 0,
+                "w": 24,
+                "h": 24
+            },
+            "sourceSize": {
+                "w": 24,
+                "h": 24
+            },
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "h": 24,
+                "w": 24
+            }
+        },
+        "12_vita": {
+            "frame": {
+                "x": 288,
+                "y": 0,
+                "w": 24,
+                "h": 24
+            },
+            "sourceSize": {
+                "w": 24,
+                "h": 24
+            },
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "h": 24,
+                "w": 24
+            }
+        },
+        "13_vita": {
+            "frame": {
+                "x": 312,
+                "y": 0,
+                "w": 24,
+                "h": 24
+            },
+            "sourceSize": {
+                "w": 24,
+                "h": 24
+            },
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "h": 24,
+                "w": 24
+            }
+        },
+        "14_vita": {
+            "frame": {
+                "x": 336,
+                "y": 0,
+                "w": 24,
+                "h": 24
+            },
+            "sourceSize": {
+                "w": 24,
+                "h": 24
+            },
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "h": 24,
+                "w": 24
+            }
+        },
+        "15_vita": {
+            "frame": {
+                "x": 360,
+                "y": 0,
+                "w": 24,
+                "h": 24
+            },
+            "sourceSize": {
+                "w": 24,
+                "h": 24
+            },
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "h": 24,
+                "w": 24
+            }
+        },
+        "16_vita": {
+            "frame": {
+                "x": 384,
+                "y": 0,
+                "w": 24,
+                "h": 24
+            },
+            "sourceSize": {
+                "w": 24,
+                "h": 24
+            },
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "h": 24,
+                "w": 24
+            }
+        },
+        "17_vita": {
+            "frame": {
+                "x": 408,
+                "y": 0,
+                "w": 24,
+                "h": 24
+            },
+            "sourceSize": {
+                "w": 24,
+                "h": 24
+            },
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "h": 24,
+                "w": 24
+            }
+        },
+        "18_vita": {
+            "frame": {
+                "x": 432,
+                "y": 0,
+                "w": 24,
+                "h": 24
+            },
+            "sourceSize": {
+                "w": 24,
+                "h": 24
+            },
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "h": 24,
+                "w": 24
+            }
+        },
+        "19_vita": {
+            "frame": {
+                "x": 456,
+                "y": 0,
+                "w": 24,
+                "h": 24
+            },
+            "sourceSize": {
+                "w": 24,
+                "h": 24
+            },
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "h": 24,
+                "w": 24
+            }
+        },
+        "20_vita": {
+            "frame": {
+                "x": 480,
+                "y": 0,
+                "w": 24,
+                "h": 24
+            },
+            "sourceSize": {
+                "w": 24,
+                "h": 24
+            },
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "h": 24,
+                "w": 24
+            }
+        },
+        "21_vita": {
+            "frame": {
+                "x": 504,
+                "y": 0,
+                "w": 24,
+                "h": 24
+            },
+            "sourceSize": {
+                "w": 24,
+                "h": 24
+            },
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "h": 24,
+                "w": 24
+            }
+        },
+        "22_vita": {
+            "frame": {
+                "x": 528,
+                "y": 0,
+                "w": 24,
+                "h": 24
+            },
+            "sourceSize": {
+                "w": 24,
+                "h": 24
+            },
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "h": 24,
+                "w": 24
+            }
+        },
+        "23_vita": {
+            "frame": {
+                "x": 552,
+                "y": 0,
+                "w": 24,
+                "h": 24
+            },
+            "sourceSize": {
+                "w": 24,
+                "h": 24
+            },
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "h": 24,
+                "w": 24
+            }
+        }
+    },
+    "meta": {
+        "image": "vita.png",
+        "format": "RGBA8888",
+        "size": {
+            "w": 576,
+            "h": 24
+        },
+        "scale": "0.32"
+    },
+    "animations": {
+        "walk": [
+            "4_vita",
+            "5_vita",
+            "6_vita",
+            "7_vita",
+            "8_vita",
+            "9_vita"
+        ],
+        "idle": [
+            "0_vita",
+            "1_vita",
+            "2_vita",
+            "3_vita"
+        ]
+    }
+}

@@ -63,7 +63,7 @@ const Room: Component<Props> = (props) => {
               );
               setConnectionDetails(connectionDetails);
             } catch (e: any) {
-              toast.error(e);
+              toast.error(String(e));
             }
           }}
         />

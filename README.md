@@ -1,3 +1,57 @@
+# Prerequisites
+* You have to have knowledge of command prompt/terminal use and directory navigation
+
+```bash
+commands look like this
+```
+You will need at least Node.js and Git to fetch and run the project.
+Visual Studio Code is recommended as an IDE to manage and develop for it.
+
+## Windows
+Windows needs the Chocolatey Package manager (for ease of installation).
+This is done by the first powershell command.
+
+```cmd
+powershell -c "irm https://community.chocolatey.org/install.ps1|iex"
+choco install nodejs --version="24.13.0"
+choco install git
+choco install vscode
+```
+
+
+## MacOS
+MacOS needs the Homebrew package manager (for ease of installation).
+This is done by the first bash command.
+```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
+\. "$HOME/.nvm/nvm.sh"
+nvm install 24
+brew install git
+brew install --cask visual-studio-code
+```
+
+## Linux
+Assuming Debian based distros, for other, try replacing `deb` with `pacman` for Arch, `zypper` for Suse and `dnf` for RedHat
+
+```bash
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
+\. "$HOME/.nvm/nvm.sh"
+nvm install 24
+sudo apt install git
+curl -ovscode.deb https://go.microsoft.com/fwlink/?LinkID=760868
+sudo apt install ./vscode.deb
+```
+
+
+
+
+
+
+
+
+
+---------------------------
 ## Usage
 
 Those templates dependencies are maintained via [pnpm](https://pnpm.io) via `pnpm up -Lri`.

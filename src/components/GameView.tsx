@@ -71,6 +71,7 @@ const GameView: Component = () => {
 
       </Canvas>
       <div ref={ref} style={{ position: "fixed", bottom: 0, left: 0, right: 0 }}>
+        {gameState.myPlayer?.direction}
         <button onClick={() => {
           console.log("L", room()?.remoteParticipants, gameState.remotePlayers.length);
         }}>console debug</button>

@@ -13,6 +13,7 @@ import { Player } from "../model/Player";
 import { useLocalParticipant } from "../utils/useLocalParticipant";
 import { useRemoteParticipants } from "../utils/useRemoteParticipants";
 import { Direction } from "../model/Direction";
+import { directionToLeftRight, leftRightToDirection } from "./legacyDirection";
 
 const textEncoder = new TextEncoder();
 const textDecoder = new TextDecoder();
@@ -36,23 +37,7 @@ type NetworkAnimation = {
 // Maintain compatibility with demo
 const FACTOR = 32;
 
-const directionToLeftRight = (direction: Direction): "left" | "right" => {
-  switch (direction) {
-    case "N":
-    case "NE":
-    case "E":
-    case "SE":
-      return "right";
-    // S, SW, W, NW
-    default:
-      return "left"
-  }
-}
-
-const leftRightToDirection = (legacyDirection: "left" | "right"): Direction => {
-  return legacyDirection === "left" ? "W" : "E";
-}
-
+let timer: number | undefined;
 export const useGameStateManager = () => {
   const room = useRoomContext();
   const { localParticipant } = useLocalParticipant({ room: room() });
@@ -60,18 +45,97 @@ export const useGameStateManager = () => {
 
   const [speed, setSpeed] = createSignal(0);
 
+  // Up, Down, Left, Right
+  const [arrowBits, setArrowBits] = createSignal<[boolean, boolean, boolean, boolean]>([false, false, false, false]);
+  const toggleBit = (bit: 0 | 1 | 2 | 3, flag: boolean) => {
+    setArrowBits((p) => {
+      const n = [...p] as typeof p;
+      n[bit] = flag;
+      return n;
+    });
+  }
+
+  createEffect(() => {
+    // Don't do anything before we have a player
+    if (!gameState.myPlayer) return;
+    // Either index 1 or 2 (N/S), and 3 or 4 (E/W) apply
+    const b = arrowBits();
+    const lat = (b[0] && !b[1]) ? "N" : (b[1] && !b[0]) ? "S" : "";
+    const lon = (b[3] && !b[2]) ? "E" : (b[2] && !b[3]) ? "W" : "";
+    const direction = (`${lat}${lon}` || undefined) as Direction | undefined;
+
+    if (direction) {
+      setGameState("myPlayer", "direction", direction);
+      setGameState("myPlayer", "animation", "walk");
+    } else {
+      setGameState("myPlayer", "animation", "idle");
+    }
+
+    const doWalk = () => {
+      if (!gameState.myPlayer?.position) return; // Sanity check
+
+      let {x, y } = gameState.myPlayer.position;
+      if (gameState.myPlayer?.direction.includes("E")) {
+        x++;
+      } else if (gameState.myPlayer?.direction.includes("W")) {
+        x--;
+      }
+      if (gameState.myPlayer?.direction.includes("S")) {
+        y++;
+      } else if (gameState.myPlayer?.direction.includes("N")) {
+        y--;
+      }
+      setGameState("myPlayer", "position", {x, y});
+    };
+
+    // TODO 32px per 100ms = 23px diagonal or per 141ms
+    if (direction && !timer) {
+      timer = setInterval(doWalk, 100);
+    } else if (!direction) {
+      clearInterval(timer);
+      timer = undefined;
+    }
+  })
+
   onMount(() => {
     const keyboardEvent = (event: KeyboardEvent) => {
-      // setGameState("remotePlayers", player, "character", character);
-      // turn/walk/run(?)
-      // gameState.myPlayer?.direction
-      // gameState.myPlayer?.animation
+      if (event.repeat) return;
+      const down = event.type === "keydown";
 
+      // Compatible with other layouts using `code`
+      switch (event.code) {
+        case "KeyW":
+        case "KeyI":
+        case "ArrowUp":
+          // Up
+          toggleBit(0, down);
+          break;
+        case "KeyS":
+        case "KeyK":
+        case "ArrowDown":
+          // Down
+          toggleBit(1, down);
+          break;
+        case "KeyA":
+        case "KeyJ":
+        case "ArrowLeft":
+          // Left
+          toggleBit(2, down);
+          break;
+        case "KeyD":
+        case "KeyL":
+        case "ArrowRight":
+          // Right
+          toggleBit(3, down);
+          break;
+
+        default:
+          // Pass
+      }
     };
 
     document.body.addEventListener("keydown", keyboardEvent);
     document.body.addEventListener("keyup", keyboardEvent);
-
 
     onCleanup(() => {
       document.body.removeEventListener("keydown", keyboardEvent);

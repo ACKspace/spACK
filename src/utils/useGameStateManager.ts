@@ -43,8 +43,6 @@ export const useGameStateManager = () => {
   const { localParticipant } = useLocalParticipant({ room: room() });
   const remoteParticipants = useRemoteParticipants();
 
-  const [speed, setSpeed] = createSignal(0);
-
   // Up, Down, Left, Right
   const [arrowBits, setArrowBits] = createSignal<[boolean, boolean, boolean, boolean]>([false, false, false, false]);
   const toggleBit = (bit: 0 | 1 | 2 | 3, flag: boolean) => {

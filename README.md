@@ -1,4 +1,5 @@
 # Prerequisites
+
 * You have to have knowledge of command prompt/terminal use and directory navigation
 
 ```bash
@@ -8,6 +9,7 @@ You will need at least Node.js and Git to fetch and run the project.
 Visual Studio Code is recommended as an IDE to manage and develop for it.
 
 ## Windows
+
 Windows needs the Chocolatey Package manager (for ease of installation).
 This is done by the first powershell command.
 
@@ -20,6 +22,7 @@ choco install vscode
 
 
 ## MacOS
+
 MacOS needs the Homebrew package manager (for ease of installation).
 This is done by the first bash command.
 ```bash
@@ -32,7 +35,8 @@ brew install --cask visual-studio-code
 ```
 
 ## Linux
-Assuming Debian based distros, for other, try replacing `deb` with `pacman` for Arch, `zypper` for Suse and `dnf` for RedHat
+
+Assuming Debian based distros, for other, try replacing `deb` with `pacman` for Arch, `zypper` for Suse and `dnf` for RedHat.  Your mileage may vary and packages might have a slightly different name.
 
 ```bash
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
@@ -44,47 +48,50 @@ sudo apt install ./vscode.deb
 ```
 
 
-
-
-
-
-
-
-
----------------------------
-## Usage
-
-Those templates dependencies are maintained via [pnpm](https://pnpm.io) via `pnpm up -Lri`.
-
-This is the reason you see a `pnpm-lock.yaml`. That being said, any package manager will work. This file can be safely be removed once you clone a template.
+# Developer mode
 
 ```bash
-$ npm install # or pnpm install or yarn install
+npm install # or npm i
 ```
 
-### Learn more on the [Solid Website](https://solidjs.com) and come chat with us on our [Discord](https://discord.com/invite/solidjs)
-
-## Available Scripts
-
-In the project directory, you can run:
-
-### `npm run dev` or `npm start`
-
-Runs the app in the development mode.<br>
+Start local development instance:
+```bash
+npm start
+```
 Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+The page will (hot) reload if you make edits.
 
-The page will reload if you make edits.<br>
+You will need a local LiveKit server running that handles the conference and WebRTC media.
 
-### `npm run build`
 
-Builds the app for production to the `dist` folder.<br>
-It correctly bundles Solid in production mode and optimizes the build for the best performance.
+# Release build
 
-The build is minified and the filenames include the hashes.<br>
-Your app is ready to be deployed!
+```bash
+npm run build
+```
+Test the production build locally:
+```bash
+npm run serve
+```
 
-## Deployment
+# Deployment
 
-You can deploy the `dist` folder to any static host provider (netlify, surge, now, etc.)
+```bash
+# TODO: npm run deploy
+```
 
-## This project was created with the [Solid CLI](https://github.com/solidjs-community/solid-cli)
+
+# Notes on deployment server
+In order to use WebRTC, a secure context is needed (TLS/SSL), which means your LiveKit server needs a proxy.
+
+For Apache, the following can be used:
+```conf
+<VirtualHost *:443>
+    #... current settings
+
+    # SSL
+    ProxyPass /wss ws://127.0.0.1:8088
+    ProxyPassReverse /wss ws://127.0.0.1:8088
+</VirtualHost>
+
+

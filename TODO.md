@@ -1,11 +1,20 @@
+* volume/panning on audio object https://github.com/livekit-examples/spatial-audio/blob/main/src/controller/useTrackPositions.tsx
+* text rendering (pixelated) name/notification, outlined
+* custom level/rooms metadata
+* better physics  (smooth walking, diagonal speed)
+* backend (JWT handler) -> php
+* backend authentication
+* SolidJS core: chat
+* interactive objects
+
+* test/prod deployment
 * canvas drawing
   canvas size, center -> block logic
   draw map
-  draw objects+players ordered by bottom left->top right
+  draw objects+players ordered by bottom left->top right (facing north last)
   draw map overlay
 
 * keyboard input (https://support.gather.town/hc/en-us/articles/15910311417620-Keyboard-Shortcuts)
-  wsad, arrows: direction
   x: interact
   h: raise hand
   ctrl+shift+A/V: toggle audio/video
@@ -18,13 +27,7 @@
   esc: close interaction
   ctrl: ghost/pass
   shift: run?
-* audio context/magic
-* physics (smooth walking)
-* animations
-
-
-* outlined pixelated font
-
+* separate room/presenter audio context tiles
 
 notes:
 walkspeed: 6/32 per tick (100ms, 17ms)?
@@ -35,7 +38,6 @@ metadata: 64kB
 Chat: localParticipant().sendText("ASDF"); ?
 
 
-separate room/audio context tiles
 
 providers (jukebox, webaudiocontext,animations)
 
@@ -47,7 +49,6 @@ tile properties
   private (identifier)
   spotlight (identifier)
 
-interactive objects
 
 room metadata
   level

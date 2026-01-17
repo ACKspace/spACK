@@ -6,6 +6,7 @@ import { useGameStateManager } from "../utils/useGameStateManager";
 import { Canvas, Image } from "../../solid-canvas/src";
 import { Character } from "../canvas/Character";
 import { Player } from "../model/Player";
+import { SpatialAudioController } from "./SpatialAudioController";
 
 const GameView: Component = () => {
   let ref!: HTMLDivElement;
@@ -71,6 +72,7 @@ const GameView: Component = () => {
 
       </Canvas>
       <div ref={ref} style={{ position: "fixed", bottom: 0, left: 0, right: 0 }}>
+        <SpatialAudioController/>
         {gameState.myPlayer?.direction}
         <button onClick={() => {
           console.log("L", room()?.remoteParticipants, gameState.remotePlayers.length);

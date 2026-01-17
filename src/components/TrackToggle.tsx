@@ -1,5 +1,6 @@
 import type { CaptureOptionsBySource, ToggleSource } from '@livekit/components-core';
-import { ParentComponent, Show } from 'solid-js';
+import { createEffect, createSignal, ParentComponent, Show } from 'solid-js';
+import { useRoomContext } from '../solid-livekit';
 
 /** @public */
 export interface TrackToggleProps<T extends ToggleSource = ToggleSource>
@@ -25,16 +26,24 @@ export interface TrackToggleProps<T extends ToggleSource = ToggleSource>
  * @public
  */
 export const TrackToggle: ParentComponent<TrackToggleProps> = (props) => {
-  // const { buttonProps, enabled } = useTrackToggle(props);
+  const room = useRoomContext();
+
+  const [enabled, setEnabled] = createSignal(room()?.localParticipant.isMicrophoneEnabled ?? false);
+
+  createEffect(() => {
+    room()?.localParticipant.setMicrophoneEnabled(enabled());
+  });
+
   return (
-    // <button {...buttonProps}>
-    <button>
-      {/* {(props.showIcon ?? true) && getSourceIcon(props.source, enabled)} */}
-      <Show when={props.showIcon ?? true}>
-        {/* getSourceIcon(props.source, enabled) */}
-        toggle (TODO)
-      </Show>
-      {props.children}
-    </button>
+    <>
+      <button onclick={() => {
+        setEnabled((old) => !old);
+      }}>
+        <Show when={props.showIcon ?? true}>
+          {enabled() ? "enabled" : "disabled"}        
+        </Show>
+        {props.children}
+      </button>
+    </>
   );
 }

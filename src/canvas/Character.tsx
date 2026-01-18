@@ -1,4 +1,4 @@
-import { Image, Rectangle } from "../../solid-canvas/src";
+import { Group, Image, Text } from "../../solid-canvas/src";
 import { CharacterName } from "../components/CharacterSelector";
 import { AnimationState } from "../model/AnimationState";
 import { Component, createMemo, createSignal, onCleanup, onMount } from "solid-js";
@@ -70,17 +70,33 @@ export const Character: Component<Props> = (props) => {
     })
   })
 
-  return <Image
+  return <Group
     transform={{
       position: {x: props.x * 32 - CHAR_SIZE / 2, y: props.y * 32 - CHAR_SIZE / 2}
-      
     }}
-    style={{
-      sourceOffset: { x: offset().x, y: offset().y },
-      sourceDimensions: { width: sprite.width, height: sprite.height },
-      dimensions: { width: CHAR_SIZE, height: CHAR_SIZE },
-    }}
-    image={`characters/${props.character}.png`}
-  />;
+  >
+    <Text
+      transform={{
+        position: {x: 0, y: -10}
+      }}
+      text={props.username}
+      outlineStyle="rgba(0,0,0,1)"
+      style={{
+        // TODO: align center
+        fill: "white",
+        fontSize: 24,
+        fontFamily: "FsPixel",
+        lineWidth: 6
+      }}
+    />
+    <Image
+      style={{
+        sourceOffset: { x: offset().x, y: offset().y },
+        sourceDimensions: { width: sprite.width, height: sprite.height },
+        dimensions: { width: CHAR_SIZE, height: CHAR_SIZE },
+      }}
+      image={`characters/${props.character}.png`}
+    />
+  </Group>;
 };
 

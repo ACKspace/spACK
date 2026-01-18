@@ -21,9 +21,9 @@ type ErrorResponse = {
   error: string;
 };
 
-const apiKey = "devkey"; // process.env.LIVEKIT_API_KEY;
-const apiSecret = "secret"; // process.env.LIVEKIT_API_SECRET;
-const wsUrl = "ws://127.0.0.1:7880"; // process.env.LIVEKIT_WS_URL;
+const apiKey = "devkey";
+const apiSecret = "secret";
+const wsUrl = import.meta.env.VITE_WS_URL ?? "ws://127.0.0.1:7880";
 
 type ReturnType = { token: string; ws_url: string } | { error: string }
 

@@ -5,9 +5,9 @@ export type RoomInfo = {
   num_participants: number;
 };
 
-const apiKey = "devkey"; // process.env.LIVEKIT_API_KEY;
-const apiSecret = "secret"; // process.env.LIVEKIT_API_SECRET;
-const wsUrl = "ws://127.0.0.1:7880"; // process.env.LIVEKIT_WS_URL;
+const apiKey = "devkey";
+const apiSecret = "secret";
+const wsUrl = import.meta.env.VITE_WS_URL ?? "ws://127.0.0.1:7880";
 
 export const useParticipants = async (room: string): Promise<{ num_participants: number }> => {
   if (!apiKey || !apiSecret || !wsUrl) {

@@ -39,20 +39,14 @@ export const SpatialAudioController: Component = () => {
       const [mediaStream, setMediaStream] = createSignal<MediaStream>();
 
       if (!playerPublication) return undefined;
-      console.log(playerPublication.username);
 
+      // TODO: once? Store object for all of this?
       playerPublication.publication.on("subscribed", (track) => {
         if (track.kind !== "audio") return;
         console.log("Subscribed to track publication event");
         setMediaStream(track.mediaStream);
       });
       
-      console.log(
-        "L", playerPublication?.publication.track?.mediaStream?.getAudioTracks().length,
-        "T", playerPublication?.publication.track,
-        "P", playerPublication?.publication,
-      );
-
       // Only audio tracks
       if (playerPublication?.publication.kind !== "audio") return;
 

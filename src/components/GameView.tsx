@@ -75,13 +75,9 @@ const GameView: Component = () => {
         <SpatialAudioController/>
         {gameState.myPlayer?.direction}
         <button onClick={() => {
-          console.log("L", room()?.remoteParticipants, gameState.remotePlayers.length);
+          // Placeholder for debug
         }}>console debug</button>
-        <button onClick={() => setGameState("myPlayer", "position", { x: -1, y: -6 })}>@boombox</button>
-        <button accesskey="j" onClick={() => setGameState("myPlayer", "position", ({x,y}) => ({x: x - 1, y}))}>Left</button>
-        <button accesskey="l" onClick={() => setGameState("myPlayer", "position", ({x,y}) => ({x: x + 1, y}))}>Right</button>
-        <button accesskey="i" onClick={() => setGameState("myPlayer", "position", ({x,y}) => ({x, y: y - 1}))}>Up</button>
-        <button accesskey="k" onClick={() => setGameState("myPlayer", "position", ({x,y}) => ({x, y: y + 1}))}>Down</button>
+        <button onClick={() => setGameState("myPlayer", "position", { x: -1, y: -6 })}>@home</button>
       </div>
     </Show>
   );

@@ -1,3 +1,5 @@
+* BUG: repeated subscription (>100) on `playerPublication.publication.on("subscribed", (track) => {`
+
 * volume/panning on audio object https://github.com/livekit-examples/spatial-audio/blob/main/src/controller/useTrackPositions.tsx
 * text rendering (pixelated) name/notification, outlined
 * custom level/rooms metadata

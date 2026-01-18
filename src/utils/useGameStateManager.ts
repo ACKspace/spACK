@@ -13,7 +13,6 @@ import { Player } from "../model/Player";
 import { useLocalParticipant } from "../utils/useLocalParticipant";
 import { useRemoteParticipants } from "../utils/useRemoteParticipants";
 import { Direction } from "../model/Direction";
-import { directionToLeftRight, leftRightToDirection } from "./legacyDirection";
 
 const textEncoder = new TextEncoder();
 const textDecoder = new TextDecoder();
@@ -23,19 +22,21 @@ const textDecoder = new TextDecoder();
 // for now, maintain compatibility with spatial-audio sample.
 type NetworkPacket = 
   NetworkPosition |
+  NetworkDirection |
   NetworkAnimation;
 
 type NetworkPosition = {
   channelId: "position";
   payload: Vector2;
 }
+type NetworkDirection = {
+  channelId: "direction";
+  payload: Direction;
+}
 type NetworkAnimation = {
   channelId: "animation";
   payload: AnimationState;
 }
-
-// Maintain compatibility with demo
-const FACTOR = 32;
 
 let timer: number | undefined;
 export const useGameStateManager = () => {
@@ -166,7 +167,7 @@ export const useGameStateManager = () => {
               position: { x: 10, y: 0 },
               animation: "idle",
               character,
-              direction: "W",
+              direction: "S",
             }
           ]);
         }
@@ -210,7 +211,7 @@ export const useGameStateManager = () => {
         position: { x: 10, y: 0 }, // TODO: spawn point
         animation: "idle",
         character,
-        direction: "E",
+        direction: "S",
     });
   }
 
@@ -230,18 +231,19 @@ export const useGameStateManager = () => {
     switch (data.channelId) {
       case "position":
         // TODO: maybe filter out players that are outside of the view; maintain animation when appearing.
-        // Divide by 32 (tile size) for compatibility with demo
-        const { x, y } = data.payload;
-        setGameState("remotePlayers", player, "position", { x: Math.round( x / FACTOR), y: Math.round( y / FACTOR) });
+        setGameState("remotePlayers", player, "position", data.payload);
         break;
+
       case "animation":
-        const [animation, direction] = data.payload.split("_") as [AnimationState, "left" | "right"];
-
         setGameState("remotePlayers", player, {
-          animation,
-          direction: leftRightToDirection(direction)
+          animation: data.payload
         });
+        break;
 
+      case "direction":
+        setGameState("remotePlayers", player, {
+          direction: data.payload
+        });
         break;
 
       // case "message"
@@ -258,8 +260,8 @@ export const useGameStateManager = () => {
     const payload: Uint8Array = textEncoder.encode(
       JSON.stringify({
         payload: {
-          x: gameState.myPlayer.position.x * FACTOR,
-          y: gameState.myPlayer.position.y * FACTOR
+          x: gameState.myPlayer.position.x,
+          y: gameState.myPlayer.position.y
         },
         channelId: "position"
       })
@@ -269,14 +271,26 @@ export const useGameStateManager = () => {
     localParticipant().publishData(payload); // packet kind unreliable by default
   });
 
+  // Publish direction
+  createEffect(() => {
+    if (!gameState.myPlayer?.direction) return;
+
+    const payload: Uint8Array = textEncoder.encode(
+      JSON.stringify({
+        payload: gameState.myPlayer.direction,
+        channelId: "direction",
+      }),
+    );
+    localParticipant().publishData(payload); // packet kind unreliable by default
+  });
+
   // Publish animation
   createEffect(() => {
     if (!gameState.myPlayer?.animation) return;
 
-    // Note: backward compatibility 
     const payload: Uint8Array = textEncoder.encode(
       JSON.stringify({
-        payload: `${gameState.myPlayer.animation}_${directionToLeftRight(gameState.myPlayer.direction)}`,
+        payload: gameState.myPlayer.animation,
         channelId: "animation",
       }),
     );

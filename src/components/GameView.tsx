@@ -18,6 +18,7 @@ const GameView: Component = () => {
   const objects = createMemo<Array<Player>>(() => {
     if (!gameState.myPlayer) return [];
 
+    // Sorted list of players/objects
     const objects = [
       gameState.myPlayer,
       ...gameState.remotePlayers,
@@ -29,8 +30,11 @@ const GameView: Component = () => {
       if (a.position.x > b.position.x) return 1;
       if (a.position.x < b.position.x) return -1;
 
-      // TODO: direction: facing back is on top
-      // Also: players above objects
+      // TODO: Players always on top of objects
+
+      // Facing north means "on top" (for smooching, etc.)
+      if (a.direction.includes("N") && b.direction.includes("S")) return -1;
+      if (b.direction.includes("N") && a.direction.includes("S")) return 1;
 
       return 0;
     })

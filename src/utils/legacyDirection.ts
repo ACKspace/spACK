@@ -13,6 +13,7 @@ export const directionToLeftRight = (direction: Direction): "left" | "right" => 
   }
 }
 
+/** @deprecated Used for compatibility with old protocol */
 export const leftRightToDirection = (legacyDirection: "left" | "right"): Direction => {
   return legacyDirection === "left" ? "W" : "E";
 }

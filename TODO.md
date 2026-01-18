@@ -1,4 +1,6 @@
 * BUG: repeated subscription (>100) on `playerPublication.publication.on("subscribed", (track) => {`
+* FEAT: Keep screen on
+* FEAT: audio when lost focus
 
 * volume/panning on audio object https://github.com/livekit-examples/spatial-audio/blob/main/src/controller/useTrackPositions.tsx
 * text rendering (pixelated) name/notification, outlined
@@ -70,56 +72,3 @@ https://gathertown.fandom.com/wiki/Mapmaking_Resources
 https://github.com/puifine/mapmaking
   https://github.com/iamthad/gathertown-mapmaking
 
-
-          {/* <Group
-          transform={{
-            // position: { x: 100, y: 100 }
-          }}
-          style={{
-            background: "orange"
-          }}
-          clip={() => <>
-              <Rectangle
-                transform={{
-                  position: { x: 5, y: 10 }
-                }}
-                style={{
-                  dimensions: {width: 50, height: 100},
-                  fill: "green"
-                }}
-              />          
-          </>}
-          // clip={() => (
-          //   <>
-          //     <Rectangle
-          //       transform={{
-          //         position: { x: 10, y: 10 }
-          //       }}
-          //       style={{
-          //         dimensions:{ width: 100, height: 50 }
-          //       }}
-          //       // 
-          //       // 
-          //     />
-          //     <Rectangle
-          //       transform={{
-          //         position: { x: 10, y: 10 }
-          //       }}
-          //       style={{
-          //         dimensions: {width: 50, height: 100},
-          //         fill: "red"
-          //       }}
-          //     />
-          //   </>
-          // )}
-        >
-          <Rectangle
-            transform={{
-              position: { x: 10, y: 10 }
-            }}
-            style={{
-              dimensions: {width: 50, height: 100},
-              fill: "red"
-            }}
-          />
-        </Group> */}

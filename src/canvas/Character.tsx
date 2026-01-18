@@ -80,7 +80,7 @@ export const Character: Component<Props> = (props) => {
       sourceDimensions: { width: sprite.width, height: sprite.height },
       dimensions: { width: CHAR_SIZE, height: CHAR_SIZE },
     }}
-    image={`/characters/${props.character}.png`}
+    image={`characters/${props.character}.png`}
   />;
 };
 

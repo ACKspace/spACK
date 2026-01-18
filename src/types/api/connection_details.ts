@@ -1,9 +1,3 @@
-// Next.js API route support: https://nextjs.org/docs/api-routes/introduction
-// import type { NextApiRequest, NextApiResponse } from "next";
-// import livekitServer, {
-//   AccessToken,
-//   RoomServiceClient,
-// } from "livekit-server-sdk";
 import { CharacterName } from "../../components/CharacterSelector";
 
 export type ConnectionDetailsBody = {

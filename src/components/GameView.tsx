@@ -67,7 +67,7 @@ const GameView: Component = () => {
           transform={{
             position: {x: 0, y: 0}
           }}
-          image={"/world/map.png"}
+          image={"world/map.png"}
         />
 
       </Canvas>

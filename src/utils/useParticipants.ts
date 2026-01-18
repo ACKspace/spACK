@@ -17,6 +17,9 @@ export const useParticipants = async (room: string): Promise<{ num_participants:
   const livekitHost = wsUrl?.replace("wss://", "https://"); // TODO: WUT?
   const roomService = new RoomServiceClient(livekitHost, apiKey, apiSecret);
 
+  // Hack to make the /twirp path relative..
+  roomService.rpc.prefix = roomService.rpc.prefix.replace(/^\//,"");
+
   try {
     const participants = await roomService.listParticipants(room);
     return { num_participants: participants.length };

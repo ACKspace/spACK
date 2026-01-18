@@ -41,7 +41,7 @@ export const CharacterSelector: Component<Props> = (props) => {
       >
         <PreviewCharacter
           name={character}
-          image={`/characters/${character}_preview.png`}
+          image={`characters/${character}_preview.png`}
           selected={props.selectedCharacter === character}
         />
       </div>}</For>

@@ -41,6 +41,9 @@ export const useToken = async (room: string, username: string, character: Charac
   const at = new AccessToken(apiKey, apiSecret, { identity: username });
   const roomService = new RoomServiceClient(livekitHost, apiKey, apiSecret);
 
+  // Hack to make the /twirp path relative..
+  roomService.rpc.prefix = roomService.rpc.prefix.replace(/^\//,"");
+
   try {
     await roomService.getParticipant(room, username);
     return { error: "Username already exists in room" };

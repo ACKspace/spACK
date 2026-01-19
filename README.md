@@ -1,4 +1,9 @@
-# Table of Contents
+# spACK: Spacial audio conferencing for ACKspace
+This project is an attempt to recreate the virtual hackerspace we had during COVID-19 on [Gather Town](https://gather.town), which was lost during their business plan updates.
+
+Currently it is in early alpha stage; check out the open issues at [GitHub](https://github.com/ACKspace/spACK/issues).
+
+## Table of Contents
 
 * [Prerequisites](#1)
   * [Windows](#1.1)
@@ -14,7 +19,7 @@
   * [Notes on deployment server](#3.5)
 
 
-# Prerequisites <a id="1"></a>
+## Prerequisites <a id="1"></a>
 
 * You have to have knowledge of command prompt/terminal use and directory navigation
 
@@ -26,7 +31,7 @@ The the `$` is your shell prompt similar `to C:\>`.
 You will need at least Node.js and Git to fetch and run the project.
 Visual Studio Code is recommended as an IDE to manage and develop for it.
 
-## Windows <a id="1.1"></a>
+### Windows <a id="1.1"></a>
 
 Windows needs the Chocolatey Package manager (for ease of installation).
 This is done by the first powershell command.
@@ -39,7 +44,7 @@ $ choco install vscode
 ```
 
 
-## MacOS <a id="1.2"></a>
+### MacOS <a id="1.2"></a>
 
 MacOS needs the Homebrew package manager (for ease of installation).
 This is done by the first bash command.
@@ -52,7 +57,7 @@ $ brew install git
 $ brew install --cask visual-studio-code
 ```
 
-## Linux <a id="1.3"></a>
+### Linux <a id="1.3"></a>
 
 Assuming Debian based distros, for other, try replacing `deb` with `pacman` for Arch, `zypper` for Suse and `dnf` for RedHat.  Your mileage may vary and packages might have a slightly different name.
 
@@ -66,7 +71,7 @@ $ sudo apt install ./vscode.deb
 ```
 
 
-# Developing <a id="2"></a>
+## Developing <a id="2"></a>
 
 Provide your local instance with the latest node modules:
 ```bash
@@ -79,7 +84,7 @@ $ cp .env.example .env
 ```
 
 
-## Client <a id="2.1"></a>
+### Client <a id="2.1"></a>
 
 Start local development instance:
 ```bash
@@ -91,10 +96,10 @@ The page will (hot) reload if you make edits.
 You will need a local LiveKit server running that handles the conference and WebRTC media.
 
 
-# Builds and deployments <a id="3"></a>
+## Builds and deployments <a id="3"></a>
 
 
-## Release build <a id="3.1"></a>
+### Release build <a id="3.1"></a>
 
 ```bash
 $ npm run build
@@ -104,7 +109,7 @@ Test the production build locally:
 $ npm run serve
 ```
 
-## Other variants <a id="3.2"></a>
+### Other variants <a id="3.2"></a>
 By default, production builds are made, but it's possible to build other types for your needs, i.e. debug features and/or local server connection.
 
 You can build a certain variant using mode, replacing `<variant>`:
@@ -117,10 +122,10 @@ $ npm run build -- --mode <variant>
 
 Other variants can be made to suit your needs: they should pair with a dedicated `.env.<variant>` file containing specific environment variables.
 
-## Deployment <a id="3.3"></a>
+### Deployment <a id="3.3"></a>
 TODO
 
-## LiveKit server <a id="3.4"></a>
+### LiveKit server <a id="3.4"></a>
 Run development server.
 
 Check the latest version on https://github.com/livekit/livekit/releases/latest
@@ -137,7 +142,7 @@ To run it publicly (not recommended), add `--bind 0.0.0.0`
 ```
 
 
-## Notes on deployment server <a id="3.5"></a>
+### Notes on deployment server <a id="3.5"></a>
 In order to use WebRTC, a secure context is needed (TLS/SSL), which means your LiveKit server needs a proxy.
 
 For Apache, a proxy can be used.

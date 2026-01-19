@@ -3,7 +3,7 @@ import { ConnectionState } from "livekit-client";
 import { Component, createMemo, For, Show } from "solid-js";
 import { useConnectionState, useRoomContext } from "../solid-livekit";
 import { useGameStateManager } from "../utils/useGameStateManager";
-import { Canvas, Image } from "../../solid-canvas/src";
+import { Arc, Canvas, Image } from "../../solid-canvas/src";
 import { Character } from "../canvas/Character";
 import { Player } from "../model/Player";
 import { SpatialAudioController } from "./SpatialAudioController";
@@ -57,6 +57,17 @@ const GameView: Component = () => {
             animation={player.animation}
             direction={player.direction}/>
         )}</For>
+        <Arc
+          transform={{
+            // TODO: relative to own player/map
+            position: {x: 320 - 32 * gameState.earshotRadius, y: 320 - 32 * gameState.earshotRadius}
+          }}
+          style={{
+            radius: 32 * gameState.earshotRadius,
+            fill: "rgba(255,255,255,0.1)",
+            stroke: "none",
+          }}
+        />
         <Image
           onLoad={(image) => {
             // Determine level boundaries

@@ -16,7 +16,7 @@ export type GameState = {
 
 export const [gameState, setGameState] = createStore<GameState>({
     myPlayer: null,
-    earshotRadius: 300,
+    earshotRadius: 9,
 
     remotePlayers: [],
 

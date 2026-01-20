@@ -208,7 +208,7 @@ export const useGameStateManager = () => {
     // Create
     setGameState("myPlayer", {
         username: localParticipant().identity,
-        position: { x: 10, y: 0 }, // TODO: spawn point
+        position: { x: 50, y: 50 }, // TODO: spawn point
         animation: "idle",
         character,
         direction: "S",

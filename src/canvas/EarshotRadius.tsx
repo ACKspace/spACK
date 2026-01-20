@@ -1,14 +1,29 @@
+import { Arc } from "../../solid-canvas/src";
+import { tileSize } from "../model/tileSize";
 import { Vector2 } from "../model/Vector2";
-import { Component } from "solid-js";
+import { Component, Show } from "solid-js";
 
 type Props = {
-  earshotRadius: number;
-  myPlayerPosition: Vector2;
-  backgroundZIndex: number;
-  render: boolean;
+  /** The radius in tile units */
+  radius: number;
+  /** The center of the earshot radius in tile units within the map */
+  position: Vector2;
+  /** Whether to render the radius */
+  render?: boolean;
 };
 
 export const EarshotRadius: Component<Props> = (props) => {
-  // TODO: RADIUS white 10% {props.earshotRadius}
-  return null;
+  return <Show when={props.render}>
+    <Arc
+      transform={{
+        // TODO: relative to own player/map
+        position: {x: tileSize * (props.position.x - props.radius), y: tileSize * (props.position.y - props.radius)}
+      }}
+      style={{
+        radius: tileSize * props.radius,
+        fill: "rgba(255,255,255,0.1)",
+        stroke: "transparent",
+      }}
+    />
+  </Show>
 };

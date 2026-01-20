@@ -1,10 +1,11 @@
-import { Group, Image, Text } from "../../solid-canvas/src";
+import { Arc, Group, Image, Text } from "../../solid-canvas/src";
 import { CharacterName } from "../components/CharacterSelector";
 import { AnimationState } from "../model/AnimationState";
 import { Component, createMemo, createSignal, onCleanup, onMount } from "solid-js";
 import { Direction } from "../model/Direction";
 import { ImageSource } from "../../solid-canvas/src/types";
 import { directionToLeftRight } from "../utils/legacyDirection";
+import { tileSize } from "../model/tileSize";
 
 type Props = {
   x: number;
@@ -70,9 +71,22 @@ export const Character: Component<Props> = (props) => {
     })
   })
 
+  // Debug dot
+  // return <Arc
+  //   transform={{
+  //     // Note: this is centered, but currently on the edge of a tile (using 100x100 map)      
+  //     position: {x: props.x * tileSize - (tileSize/2), y: props.y * tileSize - (tileSize/2)}
+  //   }}
+  //   style={{
+  //     radius: (tileSize/2),
+  //     fill: "rgba(255, 0, 255, 0.59)",
+  //     stroke: "transparent",
+  //   }}
+  // />;
+
   return <Group
     transform={{
-      position: {x: props.x * 32 - CHAR_SIZE / 2, y: props.y * 32 - CHAR_SIZE / 2}
+      position: {x: props.x * tileSize - CHAR_SIZE / 2, y: props.y * tileSize - CHAR_SIZE / 2}
     }}
   >
     <Text
@@ -94,6 +108,7 @@ export const Character: Component<Props> = (props) => {
         sourceOffset: { x: offset().x, y: offset().y },
         sourceDimensions: { width: sprite.width, height: sprite.height },
         dimensions: { width: CHAR_SIZE, height: CHAR_SIZE },
+        smoothingQuality: "none",
       }}
       image={`characters/${props.character}.png`}
     />

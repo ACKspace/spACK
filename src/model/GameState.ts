@@ -10,7 +10,10 @@ export type GameState = {
   
   // TODO: objects similar to Player
 
-  worldBoundaries: { minX: number, maxX: number, minY: number, maxY: number };
+  /** Map size in tile units, determined on image load */
+  mapSize: Vector2;
+
+  /** Camera offset in pixels to account for tile rounding by the viewport of the canvas */
   cameraOffset: Vector2;
 };
 
@@ -20,6 +23,6 @@ export const [gameState, setGameState] = createStore<GameState>({
 
     remotePlayers: [],
 
-    worldBoundaries: { minX: -775, maxX: 780, minY: -790, maxY: 770 },
+    mapSize: { x: 0, y: 0 },
     cameraOffset: { x: 0, y: 0 },
 });

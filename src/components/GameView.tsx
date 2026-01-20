@@ -1,15 +1,52 @@
 import { gameState, setGameState } from "../model/GameState";
 import { ConnectionState } from "livekit-client";
-import { Component, createMemo, For, Show } from "solid-js";
+import { batch, Component, createEffect, createMemo, createSignal, For, on, onMount, Show } from "solid-js";
 import { useConnectionState, useRoomContext } from "../solid-livekit";
 import { useGameStateManager } from "../utils/useGameStateManager";
-import { Arc, Canvas, Image } from "../../solid-canvas/src";
+import { Canvas, Group, Image } from "../../solid-canvas/src";
 import { Character } from "../canvas/Character";
+import { Map } from "../canvas/Map";
 import { Player } from "../model/Player";
 import { SpatialAudioController } from "./SpatialAudioController";
+import { EarshotRadius } from "../canvas/EarshotRadius";
+import { tileSize } from "../model/tileSize";
 
 const GameView: Component = () => {
-  let ref!: HTMLDivElement;
+  // Player on-screen center, dependent on window resize and possibly world boundaries
+  const [center, setCenter] = createSignal({x: 10, y: 10});
+  // Screen size in tile units, aligned per 2 tiles to center player, determined on window resize
+  const [screen, setScreen] = createSignal({x: 0, y: 0});
+
+  onMount(() => {
+    const updateDimensions = () => {
+      batch(() =>{
+        // Calculate amount of squares and its remainder
+
+        // Step 2 blocks to center our character
+        setScreen({
+          x: Math.floor(window.innerWidth / tileSize / 2) * 2,
+          y: Math.floor(window.innerHeight / tileSize / 2) * 2,
+        });
+
+        setGameState("cameraOffset", {
+          x: (window.innerWidth % (tileSize * 2)) / 2,
+          y: (window.innerHeight % (tileSize * 2) / 2),
+
+        })
+
+        // TODO: take world boundary into account (walking on the edge)
+        setCenter({
+          x: screen().x / 2,
+          y: screen().y / 2,
+        });
+      });
+    }
+
+    // For now, assume the canvas has the same size as the window.
+    updateDimensions()
+    window.addEventListener('resize', updateDimensions)
+  })
+
   const connectionState = useConnectionState();
 
   useGameStateManager();
@@ -44,51 +81,37 @@ const GameView: Component = () => {
 
   return (
     <Show when={connectionState() === ConnectionState.Connected} fallback={<>Not connected</>}>
-      <Canvas
-        imageSmoothingEnabled={false}
-      >
-        <For each={objects()}>{(player) => (
-          // TODO: relative to own player/map
-          <Character
-            username={player.username}
-            x={10 + player.position.x - (gameState.myPlayer?.position.x ?? 0)}
-            y={10 + player.position.y - (gameState.myPlayer?.position.y ?? 0)}
-            character={player.character}
-            animation={player.animation}
-            direction={player.direction}/>
-        )}</For>
-        <Arc
+      <Canvas>
+        <Group
           transform={{
+            position: {x: gameState.cameraOffset.x, y: gameState.cameraOffset.y}
+          }}
+        >
+          <For each={objects()}>{(player) => (
             // TODO: relative to own player/map
-            position: {x: 320 - 32 * gameState.earshotRadius, y: 320 - 32 * gameState.earshotRadius}
-          }}
-          style={{
-            radius: 32 * gameState.earshotRadius,
-            fill: "rgba(255,255,255,0.1)",
-            stroke: "none",
-          }}
-        />
-        <Image
-          onLoad={(image) => {
-            // Determine level boundaries
-            console.log(image.width || 0 / 32, image.height || 0 / 32)
-          }}
-          style={{
-            sourceOffset: { x: ((gameState.myPlayer?.position.x ?? 0) + 40) * 32, y: ((gameState.myPlayer?.position.y ?? 0) + 40) * 32 },
-            sourceDimensions: { width: 640, height: 640 },
-            dimensions: { width: 640, height: 640 },
-            pointerEvents: false,
-          }}
-          transform={{
-            position: {x: 0, y: 0}
-          }}
+            <Character
+              username={player.username}
+              x={center().x + player.position.x - (gameState.myPlayer?.position.x ?? 0)}
+              y={center().y + player.position.y - (gameState.myPlayer?.position.y ?? 0)}
+              character={player.character}
+              animation={player.animation}
+              direction={player.direction}/>
+          )}</For>
+          <EarshotRadius radius={gameState.earshotRadius} position={center()} render />
+        </Group>
+        <Map
           image={"world/map.png"}
+          center={center()}
+          screen={screen()}
         />
-
       </Canvas>
-      <div ref={ref} style={{ position: "fixed", bottom: 0, left: 0, right: 0 }}>
+      <div style={{ position: "fixed", bottom: 0, left: 0, right: 0 }}>
         <SpatialAudioController/>
-        {gameState.myPlayer?.direction}
+        player:{gameState.myPlayer?.position.x},{gameState.myPlayer?.position.y}<br/>
+        screen:{screen().x},{screen().y}<br/>
+        center:{center().x},{center().y}<br/>
+        offset:{gameState.cameraOffset.x},{gameState.cameraOffset.y}<br/>
+        map:{gameState.mapSize.x},{gameState.mapSize.x}<br/>
         <button onClick={() => {
           // Placeholder for debug
         }}>console debug</button>

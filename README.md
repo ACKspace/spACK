@@ -73,6 +73,20 @@ $ sudo apt install ./vscode.deb
 
 ## Developing <a id="2"></a>
 
+Checkout this repository from GitHub and make sure the submodules are also cloned:
+```bash
+git clone https://github.com/ACKspace/spACK.git
+# or git clone git@github.com:ACKspace/spACK.git
+cd spACK
+git submodule update --init --recursive
+```
+
+After the initial repository and submodules are cloned, you can pull in updates (from within the project's directory) with:
+```bash
+git pull
+git submodule update --recursive --remote
+```
+
 Provide your local instance with the latest node modules:
 ```bash
 $ npm install # or npm i

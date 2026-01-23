@@ -10,12 +10,16 @@ import { Player } from "../model/Player";
 import { SpatialAudioController } from "./SpatialAudioController";
 import { EarshotRadius } from "../canvas/EarshotRadius";
 import { tileSize } from "../model/tileSize";
+import { NavigationButtons } from "./NavigationButtons/NavigationButtons";
+import { useMobile } from "../utils/useMobile";
 
 const GameView: Component = () => {
   // Player on-screen center, dependent on window resize and possibly world boundaries
   const [center, setCenter] = createSignal({x: 10, y: 10});
   // Screen size in tile units, aligned per 2 tiles to center player, determined on window resize
   const [screen, setScreen] = createSignal({x: 0, y: 0});
+
+  const mobile = useMobile();
 
   onMount(() => {
     const updateDimensions = () => {
@@ -105,7 +109,10 @@ const GameView: Component = () => {
           screen={screen()}
         />
       </Canvas>
-      <div style={{ position: "fixed", bottom: 0, left: 0, right: 0 }}>
+      <Show when={mobile}>
+        <NavigationButtons/>
+      </Show>
+      <div style={{ position: "fixed", bottom: 0, left: 0 }}>
         <SpatialAudioController/>
         player:{gameState.myPlayer?.position.x},{gameState.myPlayer?.position.y}<br/>
         screen:{screen().x},{screen().y}<br/>

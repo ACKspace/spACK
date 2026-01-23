@@ -1,0 +1,46 @@
+.container {
+  position: fixed;
+  right: 0;
+  bottom: 50px;
+  width: 300px;
+  height: 300px;
+}
+
+.container > span {
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  border: 1px solid rgba(100,100,100,0.5);
+  border-radius: 50%;
+  text-align: center;
+  line-height: 100px;
+  user-select: none;
+  pointer-events: none;
+  touch-action: none;
+
+}
+
+.active {
+  background-color: rgba(255,255,255,0.4);
+}
+
+
+.up {
+  top: 0;
+  left: 100px;
+}
+
+.down {
+  bottom: 0;
+  left: 100px;
+}
+
+.left {
+  top: 100px;
+  left: 0;
+}
+
+.right {
+  top: 100px;
+  right: 0;
+}

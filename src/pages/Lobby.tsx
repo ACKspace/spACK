@@ -1,4 +1,5 @@
 import { Component, createSignal, onMount } from "solid-js";
+import { useMobile } from "../utils/useMobile";
 
 type LobbyProps = {
   onRoom?: (room?: string) => void;
@@ -6,6 +7,9 @@ type LobbyProps = {
 
 const Lobby: Component<LobbyProps> = (props) => {
   const [roomName, setRoomName] = createSignal("Dark");
+  // Listen for touch events to enable the mobile flag in the rest of the application.
+  useMobile();
+
   let ref!: HTMLInputElement;
   onMount(() => {
     ref.focus();

@@ -38,21 +38,32 @@ type NetworkAnimation = {
   payload: AnimationState;
 }
 
+// Up, Down, Left, Right
+const [arrowBits, setArrowBits] = createSignal<[boolean, boolean, boolean, boolean]>([false, false, false, false]);
+/**
+ * Toggle arrow/direction bit
+ *
+ * @param bit Bits up down left right
+ * @param flag Whether to enable or disable
+ */
+export const toggleBit = (bit: 0 | 1 | 2 | 3, flag: boolean) => {
+  setArrowBits((p) => {
+    if (p[bit] === flag) return p;
+
+    const n = [...p] as typeof p;
+    n[bit] = flag;
+    return n;
+  });
+}
+
+/** Direction bits in order of up, down, left, right */
+export const directionBits = arrowBits;
+
 let timer: number | undefined;
 export const useGameStateManager = () => {
   const room = useRoomContext();
   const { localParticipant } = useLocalParticipant({ room: room() });
   const remoteParticipants = useRemoteParticipants();
-
-  // Up, Down, Left, Right
-  const [arrowBits, setArrowBits] = createSignal<[boolean, boolean, boolean, boolean]>([false, false, false, false]);
-  const toggleBit = (bit: 0 | 1 | 2 | 3, flag: boolean) => {
-    setArrowBits((p) => {
-      const n = [...p] as typeof p;
-      n[bit] = flag;
-      return n;
-    });
-  }
 
   createEffect(() => {
     // Don't do anything before we have a player

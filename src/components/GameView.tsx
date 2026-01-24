@@ -86,6 +86,12 @@ const GameView: Component = () => {
   return (
     <Show when={connectionState() === ConnectionState.Connected} fallback={<>Not connected</>}>
       <Canvas>
+        <Map
+          image={"world/overlay.png"}
+          center={center()}
+          screen={screen()}
+          overlay
+        />
         <Group
           transform={{
             position: {x: gameState.cameraOffset.x, y: gameState.cameraOffset.y}

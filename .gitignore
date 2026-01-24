@@ -8,6 +8,10 @@ dist
 # dependencies
 /node_modules
 
+# All variants of build output directories
+/spack
+/spack_*
+
 # IDEs and editors
 .vscode/
 

@@ -7,10 +7,12 @@
     "start": "vite",
     "build": "vite build",
     "serve": "vite preview",
-    "deploy": "echo Not yet implemented"
+    "deploy": "bun tools/deploy.ts"
   },
   "license": "MIT",
   "devDependencies": {
+    "@types/node": "^25.0.10",
+    "dotenv": "^17.2.3",
     "solid-devtools": "^0.34.3",
     "typescript": "^5.7.2",
     "vite": "^7.1.4",

@@ -137,7 +137,27 @@ $ npm run build -- --mode <variant>
 Other variants can be made to suit your needs: they should pair with a dedicated `.env.<variant>` file containing specific environment variables.
 
 ### Deployment <a id="3.3"></a>
-TODO
+The current deployment script is using [Bun](http://bun.sh/).
+
+#### Create keyfiles (for reference; only needed once)
+Keyfiles:
+```bash
+LOGIN=$USER # Set your remote username
+REMOTE=pauper.tel
+ssh-keygen -t ed25519 -C "$LOGIN$@$HOSTNAME$" -f "$HOME/.ssh/$REMOTE" -P ""
+ssh-copy-id -p 22 -i "$HOME/.ssh/$REMOTE" $LOGIN@$REMOTE
+eval "$(ssh-agent -s)"
+```
+
+For the correct environment (`test`, `staging` or `prod`), open the corresponding `.env.*` file, choose the name of the `DEPLOYMENT_FOLDER` and update the command in `DEPLOYMENT_SERVER` to suit your needs.
+
+Make sure the server variable contains the same folder name as the folder variable.
+
+To run a fresh build and immediately deploy it:
+```bash
+npm run deploy [environment]
+```
+Environment defaults to `test`.
 
 ### LiveKit server <a id="3.4"></a>
 Run development server.

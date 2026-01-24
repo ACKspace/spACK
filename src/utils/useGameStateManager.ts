@@ -157,13 +157,38 @@ export const useGameStateManager = () => {
   createEffect(
     on(
       remoteParticipants,
-      () => {
+      (currentParticipants, prevParticipants) => {
       const foundParticipants = new Set();
       const idx: number[] = [];
-      remoteParticipants().forEach((participant, i) => {
-        // Found; remove from unused list
+      currentParticipants.forEach((participant, i) => {
+        // Found; add to used list
         foundParticipants.add(participant.identity);
         idx.unshift(i);
+
+        if (gameState.myPlayer && !prevParticipants?.includes(participant)) {
+          // Send it after room sync is completed
+          participant.once(ParticipantEvent.Active, () => {
+            console.log("send mypos to", participant.identity);
+            const position: Uint8Array = textEncoder.encode(
+              JSON.stringify({
+                payload: {
+                  x: gameState.myPlayer!.position.x,
+                  y: gameState.myPlayer!.position.y
+                },
+                channelId: "position"
+              })
+            );
+            const direction: Uint8Array = textEncoder.encode(
+              JSON.stringify({
+                payload: gameState.myPlayer!.direction,
+                channelId: "direction",
+              }),
+            );
+
+            localParticipant().publishData(position, { destinationIdentities:[participant.identity] }); // packet kind unreliable by default
+            localParticipant().publishData(direction, { destinationIdentities:[participant.identity] }); // packet kind unreliable by default
+          });
+        }
 
         const { character } = JSON.parse(participant.metadata!) as Player;
 

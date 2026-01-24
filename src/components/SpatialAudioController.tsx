@@ -1,12 +1,11 @@
 import { RemoteTrackPublication, RoomEvent, Track } from "livekit-client";
-import { Component, createEffect, createMemo, createSignal, For, on, onCleanup, onMount, Show } from "solid-js";
-import { TrackReference, useRoomContext, useTracks } from "../solid-livekit";
+import { batch, Component, createEffect, For, on } from "solid-js";
+import { useRoomContext, useTracks } from "../solid-livekit";
 import { gameState } from "../model/GameState";
 import { useMobile } from "../utils/useMobile";
 import { useWebAudioContext } from "../providers/webAudio";
-import { createStore, reconcile, unwrap } from "solid-js/store";
+import { createStore } from "solid-js/store";
 import { Vector2 } from "../model/Vector2";
-import { Player } from "../model/Player";
 import { clamp } from "../utils/clamp";
 
 /** Store that keeps track of players, track publications and relative position */
@@ -49,14 +48,26 @@ export const SpatialAudioController: Component = () => {
       // Don't do anything if we're not in position yet.
       if (!gameState.myPlayer?.position) return;
 
-      gameState.remotePlayers.forEach((player) => {
-        const relativePosition: Vector2 = {
-          x: player.position.x - gameState.myPlayer!.position.x,
-          y: player.position.y - gameState.myPlayer!.position.y,
-        };
+      const userNames = new Set(Object.keys(playerTracks));
 
-        // Set/update relative position (note that other properties will get kept)
-        setPlayerTracks(player.username, { relativePosition } );
+      batch(() => {
+        gameState.remotePlayers.forEach((player) => {
+          userNames.delete(player.username);
+          const relativePosition: Vector2 = {
+            x: player.position.x - gameState.myPlayer!.position.x,
+            y: player.position.y - gameState.myPlayer!.position.y,
+          };
+  
+          // Set/update relative position (note that other properties will get kept)
+          setPlayerTracks(player.username, { relativePosition } );
+        });
+  
+        // Delete users that do not exist
+        userNames.forEach((userName) => {
+          // TODO: make sure the play() request does not trigger an error
+          // @ts-ignore -- undefined removes it from the store.
+          setPlayerTracks(userName, undefined );
+        });
       });
     }
   );
@@ -91,14 +102,9 @@ export const SpatialAudioController: Component = () => {
 
         trackRef.publication.setSubscribed(hearable);
 
-
         // Only audio tracks (NOTE: sometimes non-existent)
-        if (!trackRef.publication.track?.mediaStream?.getAudioTracks().length) return undefined;
-
-        setPlayerTracks(identity, { mediaStream: trackRef.publication.track.mediaStream } );
-
-        // if (!hearable) return undefined;
-
+        const mediaStream = trackRef.publication.track?.mediaStream?.getAudioTracks().length ? trackRef.publication.track.mediaStream : undefined;
+        setPlayerTracks(identity, "mediaStream", mediaStream );
       });
     }
   );
@@ -182,63 +188,6 @@ export const SpatialAudioController: Component = () => {
       {identity}:{playerTracks[identity].relativePosition.x},{playerTracks[identity].relativePosition.y}
     </div>
   }}</For>
-
-  return <For each={hearablePlayerPublications()} >{(playerPublication,i) => {
-    let ref: HTMLAudioElement | undefined;
-    createEffect(() => {
-      if (!ref) return;
-
-      // DEBUG spatial audio
-      if (false) {
-        const [spatialController, setSpatialController] = createSignal<PannerNode | GainNode>();
-
-        if (playerPublication?.mediaStream && audioContext) {
-          const sourceNode = createMemo(() => 
-            audioContext.createMediaStreamSource(playerPublication.mediaStream!)
-          );
-
-          if (mobile) {
-            const gain = audioContext.createGain();
-            gain.gain.setValueAtTime(0, 0);
-            sourceNode()
-              .connect(gain)
-              .connect(audioContext.destination);
-            setSpatialController(gain);
-          } else {
-            const panner = audioContext.createPanner();
-            panner.coneOuterAngle = 360;
-            panner.coneInnerAngle = 360;
-            panner.positionX.setValueAtTime(playerPublication.relativePosition.x, 0); // set far away initially so we don't hear it at full volume
-            panner.positionY.setValueAtTime(playerPublication.relativePosition.y, 0);
-            panner.positionZ.setValueAtTime(0, 0);
-            panner.distanceModel = "exponential";
-            panner.coneOuterGain = 1;
-            panner.refDistance = 3;
-            panner.maxDistance = 15;
-            panner.rolloffFactor = 2;
-            sourceNode()
-              .connect(panner)
-              .connect(audioContext.destination);
-            ref.srcObject = playerPublication.mediaStream;
-            ref.play();
-            setSpatialController(panner);
-          }
-        }
-      } else {
-        ref.srcObject = playerPublication?.mediaStream ?? null;
-        if (playerPublication?.mediaStream) ref.play();
-      }
-    });
-
-    return <>
-      pub{i()}
-      {playerPublication?.username}
-      <Show when={playerPublication}>
-        <audio ref={ref}/>
-        {playerPublication?.username}
-      </Show>
-      </>
-    }}</For>
 };
 
 export default SpatialAudioController;

@@ -1,4 +1,4 @@
-import { CharacterName } from "../../components/CharacterSelector";
+import { CharacterName } from "../../components/CharacterSelector/CharacterSelector";
 
 export type ConnectionDetailsBody = {
   room_name: string;

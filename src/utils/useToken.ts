@@ -1,6 +1,6 @@
 // NOTE: we need to move this to an endpoint
 import { AccessToken, CreateOptions, Room, RoomServiceClient } from "livekit-server-sdk";
-import { type CharacterName } from "../components/CharacterSelector";
+import { type CharacterName } from "../components/CharacterSelector/CharacterSelector";
 
 
 export type ConnectionDetailsBody = {

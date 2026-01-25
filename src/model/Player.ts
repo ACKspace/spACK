@@ -1,6 +1,6 @@
 import { Vector2 } from "./Vector2";
 import { type AnimationState } from "./AnimationState";
-import { type CharacterName } from "../components/CharacterSelector";
+import { type CharacterName } from "../components/CharacterSelector/CharacterSelector";
 import { Direction } from "./Direction";
 
 export type Player = {

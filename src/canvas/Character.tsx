@@ -1,5 +1,5 @@
 import { Arc, Group, Image, Text } from "../../solid-canvas/src";
-import { CharacterName } from "../components/CharacterSelector";
+import { CharacterName } from "../components/CharacterSelector/CharacterSelector";
 import { AnimationState } from "../model/AnimationState";
 import { Component, createMemo, createSignal, onCleanup, onMount } from "solid-js";
 import { Direction } from "../model/Direction";

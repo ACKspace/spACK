@@ -98,10 +98,14 @@ const GameView: Component = () => {
             <For each={Object.keys(gameState.tileAttributes)}>{(key) => {
               const [x,y] = key.split(",").map(axis => parseInt(axis));
               const tile = gameState.tileAttributes[key];
-              return <AttributeTile color={tileColors[tile.type]} position={{
-                x: center().x + x,
-                y: center().y + y,
-              }}/>
+              return <AttributeTile
+                color={tileColors[tile.type]}
+                position={{
+                  x: center().x + x,
+                  y: center().y + y,
+                }}
+                direction={tile.direction}
+                />
             }}</For>
           </Group>
         </Show>

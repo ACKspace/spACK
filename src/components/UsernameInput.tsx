@@ -1,4 +1,5 @@
 import { Component, createSignal, onMount } from "solid-js";
+import Button from "./Button/Button";
 
 type Props = {
   submitText: string;
@@ -27,7 +28,7 @@ export const UsernameInput: Component<Props> = (props) => {
             type="text"
             placeholder="Username"
           />
-          <button>Join</button>
+          <Button>Join</Button>
         </div>
       </div>
     </form>

@@ -1,5 +1,6 @@
 import { Component, createSignal, onMount } from "solid-js";
 import { useMobile } from "../utils/useMobile";
+import Button from "../components/Button/Button";
 
 type LobbyProps = {
   onRoom?: (room?: string) => void;
@@ -32,7 +33,7 @@ const Lobby: Component<LobbyProps> = (props) => {
               type="text"
               placeholder="Room Name"
             />
-            <button>Enter Room</button>
+            <Button>Enter Room</Button>
           </div>
         </div>
       </form>

@@ -1,0 +1,24 @@
+.button {
+  font-family: Pixeloid;
+  color: black;
+  background: #eee;
+  margin: 4px;
+  outline: 4px outset #fff; 
+  border: none;
+  border-radius: 8px;
+  padding: 8px;
+}
+
+.button:focus-visible {
+  border: 2px dashed #ccc;
+  padding: 6px;
+}
+
+.button:active {
+  outline: 4px inset #fff;
+  padding: 10px 6px 6px 10px;
+}
+
+.button:active:focus-visible {
+  padding: 8px 4px 4px 8px;
+}

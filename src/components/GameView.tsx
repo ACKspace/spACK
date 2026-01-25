@@ -14,6 +14,7 @@ import { NavigationButtons } from "./NavigationButtons/NavigationButtons";
 import { useMobile } from "../utils/useMobile";
 import { AttributeTile } from "../canvas/AttributeTile";
 import { loadRoomMetadata, saveRoomMetadata } from "../utils/useLiveKitRoom";
+import Button from "./Button/Button";
 
 const GameView: Component = () => {
   // Player on-screen center, dependent on window resize and possibly world boundaries
@@ -145,18 +146,18 @@ const GameView: Component = () => {
           offset:{gameState.cameraOffset.x},{gameState.cameraOffset.y}<br/>
           map:{gameState.mapSize.x},{gameState.mapSize.x}<br/>
           <div>
-            <button onClick={() => {
+            <Button onClick={() => {
               setGameState("editMode", !gameState.editMode);
-            }}>{gameState.editMode ? "regular mode" : "edit mode"}</button>
+            }}>{gameState.editMode ? "regular mode" : "edit mode"}</Button>
           </div>
-          <button onClick={() => setGameState("myPlayer", "position", { x: -1, y: -6 })}>@home</button>
+          <Button onClick={() => setGameState("myPlayer", "position", { x: -1, y: -6 })}>@home</Button>
         </div>
         <Show when={gameState.editMode}>
           <div style={{ position: "fixed", bottom: 0, left: 0 }}>
             Tile selector/options..
             {gameState.activeTool?.type}
-            <button onClick={() => loadRoomMetadata(room())}>Load metadata</button>
-            <button onClick={() => saveRoomMetadata(room())}>Save metadata</button>
+            <Button onClick={() => loadRoomMetadata(room())}>Load metadata</Button>
+            <Button onClick={() => saveRoomMetadata(room())}>Save metadata</Button>
           </div>
         </Show>
       </Show>

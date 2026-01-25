@@ -5,7 +5,7 @@ import { Component, createMemo, createSignal, onCleanup, onMount } from "solid-j
 import { Direction } from "../model/Direction";
 import { ImageSource } from "../../solid-canvas/src/types";
 import { directionToLeftRight } from "../utils/legacyDirection";
-import { tileSize } from "../model/tileSize";
+import { tileSize } from "../model/Tile";
 
 type Props = {
   x: number;
@@ -18,6 +18,7 @@ type Props = {
 };
 
 const CHAR_SIZE = 72;
+const CHAR_OFFSET = (CHAR_SIZE - tileSize) / 2;
 
 // tile w/h, rows, cols, scale: 3
 
@@ -75,7 +76,7 @@ export const Character: Component<Props> = (props) => {
   // return <Arc
   //   transform={{
   //     // Note: this is centered, but currently on the edge of a tile (using 100x100 map)      
-  //     position: {x: props.x * tileSize - (tileSize/2), y: props.y * tileSize - (tileSize/2)}
+  //     position: {x: props.x * tileSize, y: props.y * tileSize}
   //   }}
   //   style={{
   //     radius: (tileSize/2),
@@ -86,7 +87,10 @@ export const Character: Component<Props> = (props) => {
 
   return <Group
     transform={{
-      position: {x: props.x * tileSize - CHAR_SIZE / 2, y: props.y * tileSize - CHAR_SIZE / 2}
+      position: {
+        x: props.x * tileSize - CHAR_OFFSET,
+        y: (props.y - 1) * tileSize - CHAR_OFFSET / 2,
+      }
     }}
   >
     <Text

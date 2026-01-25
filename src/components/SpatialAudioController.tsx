@@ -26,7 +26,6 @@ type PlayerTracks = Record<string, {
 
 export const SpatialAudioController: Component = () => {
   const room = useRoomContext();
-  const mobile = useMobile();
   const audioContext = useWebAudioContext();
 
   const [playerTracks, setPlayerTracks] = createStore<PlayerTracks>({});

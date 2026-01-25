@@ -1,17 +1,19 @@
 import { gameState, setGameState } from "../model/GameState";
 import { ConnectionState } from "livekit-client";
-import { batch, Component, createEffect, createMemo, createSignal, For, on, onMount, Show } from "solid-js";
+import { batch, Component, createMemo, createSignal, For, onMount, Show } from "solid-js";
 import { useConnectionState, useRoomContext } from "../solid-livekit";
 import { useGameStateManager } from "../utils/useGameStateManager";
-import { Canvas, Group, Image } from "../../solid-canvas/src";
+import { Canvas, Group } from "../../solid-canvas/src";
 import { Character } from "../canvas/Character";
 import { Map } from "../canvas/Map";
 import { Player } from "../model/Player";
 import { SpatialAudioController } from "./SpatialAudioController";
 import { EarshotRadius } from "../canvas/EarshotRadius";
-import { tileSize } from "../model/tileSize";
+import { tileColors, tileSize } from "../model/Tile";
 import { NavigationButtons } from "./NavigationButtons/NavigationButtons";
 import { useMobile } from "../utils/useMobile";
+import { AttributeTile } from "../canvas/AttributeTile";
+import { loadRoomMetadata, saveRoomMetadata } from "../utils/useLiveKitRoom";
 
 const GameView: Component = () => {
   // Player on-screen center, dependent on window resize and possibly world boundaries
@@ -86,6 +88,22 @@ const GameView: Component = () => {
   return (
     <Show when={connectionState() === ConnectionState.Connected} fallback={<>Not connected</>}>
       <Canvas>
+        <Show when={gameState.editMode}>
+          <Group
+            transform={{
+              position: {x: gameState.cameraOffset.x, y: gameState.cameraOffset.y}
+            }}
+          >
+            <For each={Object.keys(gameState.tileAttributes)}>{(key) => {
+              const [x,y] = key.split(",").map(axis => parseInt(axis));
+              const tile = gameState.tileAttributes[key];
+              return <AttributeTile color={tileColors[tile.type]} position={{
+                x: center().x + x,
+                y: center().y + y,
+              }}/>
+            }}</For>
+          </Group>
+        </Show>
         <Map
           image={"world/overlay.png"}
           center={center()}
@@ -118,18 +136,30 @@ const GameView: Component = () => {
       <Show when={mobile}>
         <NavigationButtons/>
       </Show>
-      <div style={{ position: "fixed", bottom: 0, left: 0 }}>
-        <SpatialAudioController/>
-        player:{gameState.myPlayer?.position.x},{gameState.myPlayer?.position.y}<br/>
-        screen:{screen().x},{screen().y}<br/>
-        center:{center().x},{center().y}<br/>
-        offset:{gameState.cameraOffset.x},{gameState.cameraOffset.y}<br/>
-        map:{gameState.mapSize.x},{gameState.mapSize.x}<br/>
-        <button onClick={() => {
-          // Placeholder for debug
-        }}>console debug</button>
-        <button onClick={() => setGameState("myPlayer", "position", { x: -1, y: -6 })}>@home</button>
-      </div>
+      <SpatialAudioController/>
+      <Show when={gameState.debugMode}>
+        <div style={{ position: "fixed", top: 0, left: 0 }}>
+          player:{gameState.myPlayer?.position.x},{gameState.myPlayer?.position.y}<br/>
+          screen:{screen().x},{screen().y}<br/>
+          center:{center().x},{center().y}<br/>
+          offset:{gameState.cameraOffset.x},{gameState.cameraOffset.y}<br/>
+          map:{gameState.mapSize.x},{gameState.mapSize.x}<br/>
+          <div>
+            <button onClick={() => {
+              setGameState("editMode", !gameState.editMode);
+            }}>{gameState.editMode ? "regular mode" : "edit mode"}</button>
+          </div>
+          <button onClick={() => setGameState("myPlayer", "position", { x: -1, y: -6 })}>@home</button>
+        </div>
+        <Show when={gameState.editMode}>
+          <div style={{ position: "fixed", bottom: 0, left: 0 }}>
+            Tile selector/options..
+            {gameState.activeTool?.type}
+            <button onClick={() => loadRoomMetadata(room())}>Load metadata</button>
+            <button onClick={() => saveRoomMetadata(room())}>Save metadata</button>
+          </div>
+        </Show>
+      </Show>
     </Show>
   );
 };

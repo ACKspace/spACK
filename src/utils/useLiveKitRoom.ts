@@ -2,11 +2,22 @@ import { log, setupLiveKitRoom } from '@livekit/components-core';
 import { Room, MediaDeviceFailure, RoomEvent, ConnectionState } from 'livekit-client';
 import { type LiveKitRoomProps } from '../components/LiveKitRoom';
 import { Accessor, createEffect, createMemo, createSignal, mergeProps, onCleanup } from 'solid-js';
+import { MetaData, TileAttribute } from '../model/Tile';
+import { gameState, setGameState } from '../model/GameState';
+import { setRoomMetaData } from './useToken';
 
 const defaultRoomProps: Partial<LiveKitRoomProps> = {
   connect: true,
   audio: false,
   video: false,
+};
+
+const keyLookup: Record<keyof MetaData, TileAttribute> = {
+  A: "spotlight",
+  D: "portal",
+  I: "impassable",
+  P: "private",
+  S: "spawn",
 };
 
 /**
@@ -155,3 +166,71 @@ export function useLiveKitRoom<T extends HTMLElement>(
 
   return { room, htmlProps };
 }
+
+export const loadRoomMetadata = (room?: Room) => {
+  if (!room?.metadata) return;
+
+  try {
+    const metadata = JSON.parse(room.metadata!) as MetaData;
+    const subTypes = Object.keys(metadata) as Array<keyof MetaData>;
+    subTypes.forEach((subType) => {
+      const type = keyLookup[subType];
+      if (!type) return; // Sanity check
+
+      metadata[subType].forEach((meta) => {
+        const key = `${meta[0]},${meta[1]}`;
+        setGameState("tileAttributes", key, {
+          type,
+          // TODO: generic meta.slice(2),
+          identifier: meta[2],
+        });
+      });
+    });
+  } catch (e) {
+    console.warn("Failed to parse room meta data:", e);
+  }
+};
+
+export const saveRoomMetadata = (room?: Room) => {
+  if (!room) return;
+
+  const metadata: MetaData = {
+    A: [],
+    D: [],
+    I: [],
+    P: [],
+    S: [],    
+  };
+  const keys = Object.keys(gameState.tileAttributes);
+
+  keys.forEach((key) => {
+    const [x,y] = key.split(",").map(axis => parseInt(axis));
+    const attribute = gameState.tileAttributes[key];
+    switch (attribute.type) {
+      case "impassable":
+        // Direction is optional
+        // TODO: make sure not to push undefined values to save space.
+        metadata.I.push([x,y, attribute.direction]);
+        break;
+      case "portal":
+        // Most are optional, but either room or coordinate is required
+        metadata.D.push([x,y, attribute.direction, attribute.room, attribute.coordinate?.x, attribute.coordinate?.y]);
+        break;
+      case "private":
+        // Identifier is mandatory
+        metadata.P.push([x,y, attribute.identifier])
+        break;
+      case "spawn":
+        // Direction is optional
+        metadata.S.push([x,y, attribute.direction])
+        break;
+      case "spotlight":
+        // Identifier is mandatory
+        metadata.A.push([x,y, attribute.identifier])
+        break;
+    }
+
+  });
+
+  setRoomMetaData(room.name, JSON.stringify(metadata));
+};

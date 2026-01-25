@@ -1,7 +1,7 @@
 import { Component, createMemo, createSignal } from "solid-js";
 import { ImageSource } from "../../solid-canvas/src/types";
 import { gameState, setGameState } from "../model/GameState";
-import { tileSize } from "../model/tileSize";
+import { tileSize } from "../model/Tile";
 import { Image } from "../../solid-canvas/src";
 import { Vector2 } from "../model/Vector2";
 

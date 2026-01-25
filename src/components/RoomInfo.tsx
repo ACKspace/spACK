@@ -21,7 +21,7 @@ export const RoomInfo: Component<Props> = (props) => {
       setRoomInfo(roomInfo);
     };
 
-    interval = setInterval(fetchRoomInfo, 1000);
+    interval = window.setInterval(fetchRoomInfo, 1000);
     fetchRoomInfo();
   });
 

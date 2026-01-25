@@ -13,6 +13,7 @@ import { Player } from "../model/Player";
 import { useLocalParticipant } from "../utils/useLocalParticipant";
 import { useRemoteParticipants } from "../utils/useRemoteParticipants";
 import { Direction } from "../model/Direction";
+import { loadRoomMetadata } from "./useLiveKitRoom";
 
 const textEncoder = new TextEncoder();
 const textDecoder = new TextDecoder();
@@ -39,15 +40,15 @@ type NetworkAnimation = {
 }
 
 // Up, Down, Left, Right
-const [arrowBits, setArrowBits] = createSignal<[boolean, boolean, boolean, boolean]>([false, false, false, false]);
+const [keyboardBits, setKeyboardBits] = createSignal<[boolean, boolean, boolean, boolean, boolean]>([false, false, false, false, false]);
 /**
  * Toggle arrow/direction bit
  *
  * @param bit Bits up down left right
  * @param flag Whether to enable or disable
  */
-export const toggleBit = (bit: 0 | 1 | 2 | 3, flag: boolean) => {
-  setArrowBits((p) => {
+export const toggleBit = (bit: 0 | 1 | 2 | 3 | 4, flag: boolean) => {
+  setKeyboardBits((p) => {
     if (p[bit] === flag) return p;
 
     const n = [...p] as typeof p;
@@ -57,7 +58,7 @@ export const toggleBit = (bit: 0 | 1 | 2 | 3, flag: boolean) => {
 }
 
 /** Direction bits in order of up, down, left, right */
-export const directionBits = arrowBits;
+export const inputBits = keyboardBits;
 
 let timer: number | undefined;
 export const useGameStateManager = () => {
@@ -69,7 +70,7 @@ export const useGameStateManager = () => {
     // Don't do anything before we have a player
     if (!gameState.myPlayer) return;
     // Either index 1 or 2 (N/S), and 3 or 4 (E/W) apply
-    const b = arrowBits();
+    const b = keyboardBits();
     const lat = (b[0] && !b[1]) ? "N" : (b[1] && !b[0]) ? "S" : "";
     const lon = (b[3] && !b[2]) ? "E" : (b[2] && !b[3]) ? "W" : "";
     const direction = (`${lat}${lon}` || undefined) as Direction | undefined;
@@ -84,28 +85,61 @@ export const useGameStateManager = () => {
     const doWalk = () => {
       if (!gameState.myPlayer?.position) return; // Sanity check
 
-      let {x, y } = gameState.myPlayer.position;
+      const { x, y } = gameState.myPlayer.position;
+      let newX = x
+      let newY = y;
       if (gameState.myPlayer?.direction.includes("E")) {
-        x++;
+        newX++;
       } else if (gameState.myPlayer?.direction.includes("W")) {
-        x--;
+        newX--;
       }
       if (gameState.myPlayer?.direction.includes("S")) {
-        y++;
+        newY++;
       } else if (gameState.myPlayer?.direction.includes("N")) {
-        y--;
+        newY--;
       }
+
+      // Try all combinations of x/y
+      tryGo(newX,newY) || tryGo(newX,y) || tryGo(x,newY);
+    };
+
+    const tryGo = (x: number, y: number): boolean => {
+      const tileAttribute = gameState.tileAttributes[`${x},${y}`];
+
+      // Handle impassible state before actually updating.
+      if (!gameState.editMode
+        && tileAttribute?.type === "impassable"
+        && tileAttribute.direction !== gameState.myPlayer?.direction) {
+          return false
+      }
+      
       setGameState("myPlayer", "position", {x, y});
+      return true;
     };
 
     // TODO 32px per 100ms = 23px diagonal or per 141ms
     if (direction && !timer) {
-      timer = setInterval(doWalk, 100);
+      timer = window.setInterval(doWalk, 100);
     } else if (!direction) {
       clearInterval(timer);
       timer = undefined;
     }
   })
+
+  // Drawing tile attributes on the map
+  createEffect(
+    on<[number | undefined,number | undefined, boolean], void>(
+      () => [gameState.myPlayer?.position.x, gameState.myPlayer?.position.y, keyboardBits()[4]],
+      ([x, y, a]) => {
+        if (!gameState.editMode || !a || !x || !y) return;
+
+        // Used for level developing
+        const key = `${x},${y}`
+        // @ts-ignore -- Undefined means remove from store object. Otherwise, make a copy since unwrap and untrack don't work as I expect it to be.
+        setGameState("tileAttributes", key, gameState.activeTool ? JSON.parse(JSON.stringify(gameState.activeTool)) : undefined);
+      }
+    )
+  );
 
   onMount(() => {
     const keyboardEvent = (event: KeyboardEvent) => {
@@ -137,6 +171,34 @@ export const useGameStateManager = () => {
         case "ArrowRight":
           // Right
           toggleBit(3, down);
+          break;
+        case "KeyX":
+          // Action
+          toggleBit(4, down);
+          break;
+      }
+
+      // Hacky keyboard shortcuts
+      if (!gameState.editMode) return;
+      switch (event.code) {
+        case "Digit1":
+             // TileParam
+          setGameState("activeTool", { type: "impassable" });
+          break;
+        case "Digit2":
+          setGameState("activeTool", { type: "spawn" });
+          break;
+        case "Digit3":
+          setGameState("activeTool", { type: "portal" });
+          break;
+        case "Digit4":
+          setGameState("activeTool", { type: "private" });
+          break;
+        case "Digit5":
+          setGameState("activeTool", { type: "spotlight" });
+          break;
+        case "Delete":
+          setGameState("activeTool", undefined);
           break;
 
         default:
@@ -249,6 +311,9 @@ export const useGameStateManager = () => {
         character,
         direction: "S",
     });
+
+    // Load the room details from the metadata
+    loadRoomMetadata(room());
   }
 
   // Incoming messages

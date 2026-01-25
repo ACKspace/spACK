@@ -1,6 +1,6 @@
 import { batch, Component, For } from "solid-js"
 import styles from "./NavigationButtons.module.css";
-import { directionBits, toggleBit } from "../../utils/useGameStateManager";
+import { inputBits, toggleBit } from "../../utils/useGameStateManager";
 
 const directions = ["up", "down", "left", "right"];
 const pointers = new Set<number>();
@@ -52,7 +52,7 @@ export const NavigationButtons: Component = () => {
   >
     <For each={directions}>{(direction, idx) =>
       <>
-        <span class={`${styles[direction]} ${directionBits()[idx()] ? styles.active : ""}`}
+        <span class={`${styles[direction]} ${inputBits()[idx()] ? styles.active : ""}`}
         >{direction}</span>
       </>
     }</For>

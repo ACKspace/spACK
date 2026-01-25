@@ -1,5 +1,5 @@
 import { Arc } from "../../solid-canvas/src";
-import { tileSize } from "../model/tileSize";
+import { tileSize } from "../model/Tile";
 import { Vector2 } from "../model/Vector2";
 import { Component, Show } from "solid-js";
 
@@ -17,10 +17,13 @@ export const EarshotRadius: Component<Props> = (props) => {
     <Arc
       transform={{
         // TODO: relative to own player/map
-        position: {x: tileSize * (props.position.x - props.radius), y: tileSize * (props.position.y - props.radius)}
+        position: {
+          x: tileSize * (props.position.x - props.radius),
+          y: tileSize * (props.position.y - props.radius),
+        }
       }}
       style={{
-        radius: tileSize * props.radius,
+        radius: tileSize * (props.radius + 0.5),
         fill: "rgba(255,255,255,0.1)",
         stroke: "transparent",
       }}

@@ -10,8 +10,12 @@ type Props = {
   position: Vector2;
   /** The color of the tile; will fall back to grey. */
   color?: string;
+  /** The outline color of the tile; defaults to transparent. */
+  outline?: string;
   /** Optional arrow to draw */
   direction?: Direction;
+  /** Whether to draw a circle instead of a rounded rect */
+  round?: boolean
 };
 
 /**
@@ -47,8 +51,9 @@ export const AttributeTile: Component<Props> = (props) => {
       style={{
         dimensions: { width: tileSize, height: tileSize},
         fill: props.color ?? "rgba(128,128,128,0.6)",
-        stroke: "transparent",
-        rounded: 8,
+        stroke: props.outline ?? "transparent",
+        rounded: props.round ? tileSize / 2 : 8,
+        lineWidth: 3,
       }}
     />
   </Group>

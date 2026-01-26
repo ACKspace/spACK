@@ -13,8 +13,9 @@ import { tileColors, tileSize } from "../model/Tile";
 import { NavigationButtons } from "./NavigationButtons/NavigationButtons";
 import { useMobile } from "../utils/useMobile";
 import { AttributeTile } from "../canvas/AttributeTile";
-import { loadRoomMetadata, saveRoomMetadata } from "../utils/useLiveKitRoom";
 import Button from "./Button/Button";
+import TileSelector from "./Tiles/TileSelector";
+import { TileInformation } from "./Tiles/TileInformation";
 
 const GameView: Component = () => {
   // Player on-screen center, dependent on window resize and possibly world boundaries
@@ -59,6 +60,17 @@ const GameView: Component = () => {
   useGameStateManager();
   const room = useRoomContext();
 
+  // When editing tiles, determine the tile attribute to display.
+  const currentTarget = createMemo(() => {
+    if (!gameState.editMode || !gameState.myPlayer) return undefined;
+    const x = gameState.myPlayer.position.x;
+    const y = gameState.myPlayer.position.y;
+    const key = `${x},${y}`;
+    const tileAttribute = gameState.tileAttributes[key];
+    // if (tileAttribute?.type !== "portal") return undefined;
+    return tileAttribute;
+  });
+
   const objects = createMemo<Array<Player>>(() => {
     if (!gameState.myPlayer) return [];
 
@@ -95,6 +107,30 @@ const GameView: Component = () => {
               position: {x: gameState.cameraOffset.x, y: gameState.cameraOffset.y}
             }}
           >
+            <Show when={currentTarget()?.type === "portal" && currentTarget()}>{(t) =>
+              <AttributeTile
+                color={"rgba(0,0,128,0.6)"}
+                outline={"rgba(255,255,255,0.6)"}
+                round
+                position={{
+                  x: center().x + (t().coordinate?.x ?? -1000),
+                  y: center().y + (t().coordinate?.y ?? -1000),
+                }}
+                direction={t().direction}
+                />
+            }</Show>
+            <Show when={gameState.activeTool?.type === "portal" && gameState.activeTool}>{(t) =>
+              <AttributeTile
+                color={"rgba(128,0,0,0.6)"}
+                outline={"rgba(255,255,255,0.6)"}
+                round
+                position={{
+                  x: center().x + (t().coordinate?.x ?? -1000),
+                  y: center().y + (t().coordinate?.y ?? -1000),
+                }}
+                direction={t().direction}
+                />
+            }</Show>
             <For each={Object.keys(gameState.tileAttributes)}>{(key) => {
               const [x,y] = key.split(",").map(axis => parseInt(axis));
               const tile = gameState.tileAttributes[key];
@@ -157,12 +193,8 @@ const GameView: Component = () => {
           <Button onClick={() => setGameState("myPlayer", "position", { x: -1, y: -6 })}>@home</Button>
         </div>
         <Show when={gameState.editMode}>
-          <div style={{ position: "fixed", bottom: 0, left: 0 }}>
-            Tile selector/options..
-            {gameState.activeTool?.type}
-            <Button onClick={() => loadRoomMetadata(room())}>Load metadata</Button>
-            <Button onClick={() => saveRoomMetadata(room())}>Save metadata</Button>
-          </div>
+          <TileInformation param={currentTarget()}/>
+          <TileSelector/>
         </Show>
       </Show>
     </Show>

@@ -1,6 +1,6 @@
 import { gameState, setGameState } from "../model/GameState";
 import { ConnectionState } from "livekit-client";
-import { batch, Component, createMemo, createSignal, For, onMount, Show } from "solid-js";
+import { batch, Component, createEffect, createMemo, createSignal, For, onMount, Show } from "solid-js";
 import { useConnectionState, useRoomContext } from "../solid-livekit";
 import { useGameStateManager } from "../utils/useGameStateManager";
 import { Canvas, Group } from "../../solid-canvas/src";
@@ -24,6 +24,9 @@ const GameView: Component = () => {
   const [screen, setScreen] = createSignal({x: 0, y: 0});
 
   const mobile = useMobile();
+  const connectionState = useConnectionState();
+
+  useGameStateManager();
 
   onMount(() => {
     const updateDimensions = () => {
@@ -55,20 +58,12 @@ const GameView: Component = () => {
     window.addEventListener('resize', updateDimensions)
   })
 
-  const connectionState = useConnectionState();
-
-  useGameStateManager();
-  const room = useRoomContext();
-
-  // When editing tiles, determine the tile attribute to display.
-  const currentTarget = createMemo(() => {
-    if (!gameState.editMode || !gameState.myPlayer) return undefined;
+  // Optional tile attribute where the user is standing on; used for triggering tile action and debug/edit info.
+  const currentTileAttribute = createMemo(() => {
+    if (!gameState.myPlayer) return undefined;
     const x = gameState.myPlayer.position.x;
     const y = gameState.myPlayer.position.y;
-    const key = `${x},${y}`;
-    const tileAttribute = gameState.tileAttributes[key];
-    // if (tileAttribute?.type !== "portal") return undefined;
-    return tileAttribute;
+    return gameState.tileAttributes[`${x},${y}`];
   });
 
   const objects = createMemo<Array<Player>>(() => {
@@ -96,6 +91,38 @@ const GameView: Component = () => {
     })
 
     return objects;
+  });
+
+  // TODO: maybe move to gamestateManager
+  // Game navigation tile action
+  createEffect(() => {
+    // Don't trigger actions in edit mode
+    const param = currentTileAttribute();
+    if (gameState.editMode || !param) return;
+
+    switch (param.type) {
+      case "portal":
+        // Send/teleport player to (optional) room, (optional) coordinate
+        if (param.room) console.log("Target room not yet implemented");
+        if(param.coordinate) setGameState("myPlayer", "position", param.coordinate);
+        if(param.direction) setGameState("myPlayer", "direction", param.direction);
+        break;
+      case "impassable":
+        // TODO: impassable: maybe bump user. Ignore for now
+      case "spawn":
+        // spawn: possible join spawn point: ignore
+        // Ignore
+        break;
+      case "private":
+        // TODO: private: isolated media streams from participants within the private room
+      case "spotlight":
+        // TODO: spotlight: large scale presentation to private room
+        console.warn("Not yet implemented");
+        break;
+      default:
+        console.warn("Unknown type:", param.type);
+        break;
+    }
   })
 
   return (
@@ -107,7 +134,7 @@ const GameView: Component = () => {
               position: {x: gameState.cameraOffset.x, y: gameState.cameraOffset.y}
             }}
           >
-            <Show when={currentTarget()?.type === "portal" && currentTarget()}>{(t) =>
+            <Show when={currentTileAttribute()?.type === "portal" && currentTileAttribute()}>{(t) =>
               <AttributeTile
                 color={"rgba(0,0,128,0.6)"}
                 outline={"rgba(255,255,255,0.6)"}
@@ -193,7 +220,7 @@ const GameView: Component = () => {
           <Button onClick={() => setGameState("myPlayer", "position", { x: -1, y: -6 })}>@home</Button>
         </div>
         <Show when={gameState.editMode}>
-          <TileInformation param={currentTarget()}/>
+          <TileInformation param={currentTileAttribute()}/>
           <TileSelector/>
         </Show>
       </Show>

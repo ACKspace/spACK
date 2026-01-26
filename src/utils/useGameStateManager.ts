@@ -131,7 +131,7 @@ export const useGameStateManager = () => {
     on<[number | undefined,number | undefined, boolean], void>(
       () => [gameState.myPlayer?.position.x, gameState.myPlayer?.position.y, keyboardBits()[4]],
       ([x, y, a]) => {
-        if (!gameState.editMode || !a || !x || !y) return;
+        if (!gameState.editMode || !a || x === undefined || y === undefined) return;
 
         // Used for level developing
         const key = `${x},${y}`

@@ -80,7 +80,7 @@ const getOrCreateRoom = async (roomName: string): Promise<Room> => {
   return room;
 }
 
-export const setRoomMetaData = async (room: string, metadata: string) => {
+export const setRoomMetaData = async (room: string, metadata: string): Promise<number> => {
   const livekitHost = wsUrl?.replace("wss://", "https://");
   const roomService = new RoomServiceClient(livekitHost, apiKey, apiSecret);
 
@@ -88,5 +88,5 @@ export const setRoomMetaData = async (room: string, metadata: string) => {
   roomService.rpc.prefix = roomService.rpc.prefix.replace(/^\//,"");
 
   await roomService.updateRoomMetadata(room, metadata);
-  console.log(`Saved ${new Blob([metadata]).size} bytes` );
+  return new Blob([metadata]).size;
 };

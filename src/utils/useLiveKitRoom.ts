@@ -6,6 +6,7 @@ import { MetaData, MetaType, TileAttribute, TileParam } from '../model/Tile';
 import { gameState, setGameState } from '../model/GameState';
 import { setRoomMetaData } from './useToken';
 import { Direction } from '../model/Direction';
+import toast from "solid-toast";
 
 const defaultRoomProps: Partial<LiveKitRoomProps> = {
   connect: true,
@@ -212,7 +213,7 @@ export const loadRoomMetadata = (room?: Room) => {
   }
 };
 
-export const saveRoomMetadata = (room?: Room) => {
+export const saveRoomMetadata = async (room?: Room) => {
   if (!room) return;
 
   const metadata: MetaData = {
@@ -263,5 +264,6 @@ export const saveRoomMetadata = (room?: Room) => {
 
   });
 
-  setRoomMetaData(room.name, JSON.stringify(metadata));
+  const bytes = await setRoomMetaData(room.name, JSON.stringify(metadata));
+  toast.success(`Saved metadata (${bytes} bytes)`);
 };

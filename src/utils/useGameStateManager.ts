@@ -145,6 +145,8 @@ export const useGameStateManager = () => {
     const keyboardEvent = (event: KeyboardEvent) => {
       if (event.repeat) return;
       const down = event.type === "keydown";
+      // TODO: We might want to include all items with focus and tabindex
+      if (down && ["INPUT", "BUTTON", "SELECT", "TEXTAREA"].includes(document.activeElement?.tagName ?? "")) return;
 
       // Compatible with other layouts using `code`
       switch (event.code) {
@@ -179,7 +181,7 @@ export const useGameStateManager = () => {
       }
 
       // Hacky keyboard shortcuts
-      if (!gameState.editMode) return;
+      if (!gameState.editMode || !down) return;
       switch (event.code) {
         case "Digit1":
              // TileParam

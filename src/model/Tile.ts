@@ -58,6 +58,7 @@ export type SpawnMeta = [x: number, y: number, direction?: Direction];
 export type PortalMeta = [x: number, y: number, direction?: Direction, room?: string, x?: number, y?: number];
 export type PrivateMeta = [x: number, y: number, identifier?: string];
 export type SpotlightMeta = [x: number, y: number, identifier?: string];
+export type MetaType = ImpassableMeta | SpawnMeta | PortalMeta | PrivateMeta | SpotlightMeta;
 
 export type MetaData = {
   A: SpotlightMeta[], // alias Attention

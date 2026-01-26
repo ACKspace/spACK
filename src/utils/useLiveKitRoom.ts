@@ -2,9 +2,10 @@ import { log, setupLiveKitRoom } from '@livekit/components-core';
 import { Room, MediaDeviceFailure, RoomEvent, ConnectionState } from 'livekit-client';
 import { type LiveKitRoomProps } from '../components/LiveKitRoom';
 import { Accessor, createEffect, createMemo, createSignal, mergeProps, onCleanup } from 'solid-js';
-import { MetaData, TileAttribute } from '../model/Tile';
+import { MetaData, MetaType, TileAttribute, TileParam } from '../model/Tile';
 import { gameState, setGameState } from '../model/GameState';
 import { setRoomMetaData } from './useToken';
+import { Direction } from '../model/Direction';
 
 const defaultRoomProps: Partial<LiveKitRoomProps> = {
   connect: true,
@@ -179,11 +180,31 @@ export const loadRoomMetadata = (room?: Room) => {
 
       metadata[subType].forEach((meta) => {
         const key = `${meta[0]},${meta[1]}`;
-        setGameState("tileAttributes", key, {
-          type,
-          // TODO: generic meta.slice(2),
-          identifier: meta[2],
-        });
+        // @ts-ignore -- Partial object; filled in with switch statement.
+        const attribute: TileParam = { type }
+        switch (attribute.type) {
+          case "spawn":
+          case "impassable":
+            attribute.direction = meta[2] as Direction;
+            break;
+          case "portal":
+            attribute.direction = meta[2] as Direction;
+            attribute.room = meta[3];
+            if (meta.length > 5) {
+              attribute.coordinate = { x: meta[4]!, y: meta[5]!}
+            }
+
+            break;
+          case "private":
+          case "spotlight":
+            attribute.identifier = meta[2] as string;
+            break;
+          default:
+            console.warn("Unknown type", type);
+            break;
+        }
+        // Set the actual attribute
+        setGameState("tileAttributes", key, attribute);
       });
     });
   } catch (e) {
@@ -204,29 +225,39 @@ export const saveRoomMetadata = (room?: Room) => {
   const keys = Object.keys(gameState.tileAttributes);
 
   keys.forEach((key) => {
-    const [x,y] = key.split(",").map(axis => parseInt(axis));
+    const metaChunk = key.split(",").map(axis => parseInt(axis)) as MetaType;
     const attribute = gameState.tileAttributes[key];
     switch (attribute.type) {
       case "impassable":
-        // Direction is optional
-        // TODO: make sure not to push undefined values to save space.
-        metadata.I.push([x,y, attribute.direction]);
+        // Direction is optional; make sure not to push undefined values to save space.
+        if (attribute.direction) metaChunk.push(attribute.direction);
+        // @ts-ignore -- TODO: fix typing.
+        metadata.I.push(metaChunk);
         break;
       case "portal":
         // Most are optional, but either room or coordinate is required
-        metadata.D.push([x,y, attribute.direction, attribute.room, attribute.coordinate?.x, attribute.coordinate?.y]);
+        // TODO: make sure not to skip elements when coordinate is provided
+        metaChunk.push(attribute.direction);
+        metaChunk.push(attribute.room)
+        metaChunk.push(attribute.coordinate.x)
+        metaChunk.push(attribute.coordinate.y)
+        metadata.D.push(metaChunk);
         break;
       case "private":
         // Identifier is mandatory
-        metadata.P.push([x,y, attribute.identifier])
+        metaChunk.push(attribute.identifier);
+        metadata.P.push(metaChunk)
         break;
       case "spawn":
         // Direction is optional
-        metadata.S.push([x,y, attribute.direction])
+        if (attribute.direction) metaChunk.push(attribute.direction);
+        // @ts-ignore -- TODO: fix typing.
+        metadata.S.push(metaChunk);
         break;
       case "spotlight":
         // Identifier is mandatory
-        metadata.A.push([x,y, attribute.identifier])
+        metaChunk.push(attribute.identifier);
+        metadata.A.push(metaChunk)
         break;
     }
 

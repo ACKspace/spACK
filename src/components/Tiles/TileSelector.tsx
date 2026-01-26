@@ -87,6 +87,14 @@ const TileSelector: Component = () => {
         <Button onClick={() => loadRoomMetadata(room())}>Load metadata</Button>
         <Button onClick={() => saveRoomMetadata(room())}>Save metadata</Button>
       </div>
+      <div style={{"padding-top": "16px"}}>
+        <Button onClick={() => {
+          console.log(JSON.parse(room()?.metadata ?? ""));
+        }}>Debugprint metadata</Button>
+        <Button onClick={() => {
+          console.log(JSON.parse(JSON.stringify(gameState.tileAttributes)));
+        }}>Debugprint gamestate</Button>
+      </div>
     </div>
   );
 }

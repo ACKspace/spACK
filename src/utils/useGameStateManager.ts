@@ -296,6 +296,20 @@ export const useGameStateManager = () => {
     })
   });
 
+  const getRandomSpawnPosition = (): [Vector2, Direction | undefined] => {
+    const spawnKeys = Object.keys(gameState.tileAttributes).filter((key) => gameState.tileAttributes[key].type === "spawn");
+
+    if (spawnKeys.length) {
+      const key = spawnKeys[Math.floor(Math.random() * spawnKeys.length)];
+      const [x, y] = key.split(",").map((c) => parseInt(c));
+      // @ts-ignore -- We filtered on portal: direction is part of it.
+      return [{ x, y }, gameState.tileAttributes[key].direction];
+    }
+
+    // Last resort:
+    return [{ x: 50, y: 50 }, "S"];
+  }
+
   // (Re)Connected
   const onConnected = () => {
     console.log("Connected");
@@ -303,17 +317,19 @@ export const useGameStateManager = () => {
     if (!character) console.warn("missing player character");
     if (!localParticipant().identity) console.warn("missing player identity");
 
+    // Load the room details from the metadata
+    loadRoomMetadata(room());
+
+    const [position, direction] = getRandomSpawnPosition();
+
     // Create
     setGameState("myPlayer", {
         username: localParticipant().identity,
-        position: { x: 50, y: 50 }, // TODO: spawn point
+        position,
         animation: "idle",
         character,
-        direction: "S",
+        direction,
     });
-
-    // Load the room details from the metadata
-    loadRoomMetadata(room());
   }
 
   // Incoming messages

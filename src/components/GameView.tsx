@@ -139,8 +139,8 @@ const GameView: Component = () => {
   const keyDown = (event: KeyboardEvent) => {
     switch (event.code) {
       case "Enter":
-        console.log("send", input!.value);
-        localParticipant().sendText(input!.value);
+        if (input!.value)
+          localParticipant().sendText(input!.value);
         // Fall through
       case "Escape":
         setGameState("chatMode", false);
@@ -247,7 +247,8 @@ const GameView: Component = () => {
             style={{
               "font-size": "16px",
               "font-family": "Pixeloid",
-              "flex": "1 0 auto",
+              "flex": "1 1 auto",
+              "width": "100%",
             }}
             onKeyDown={keyDown}
           />

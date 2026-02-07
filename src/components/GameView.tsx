@@ -16,8 +16,10 @@ import { AttributeTile } from "../canvas/AttributeTile";
 import Button from "./Button/Button";
 import TileSelector from "./Tiles/TileSelector";
 import { TileInformation } from "./Tiles/TileInformation";
+import { useLocalParticipant } from "../utils/useLocalParticipant";
 
 const GameView: Component = () => {
+  let input: HTMLInputElement;
   // Player on-screen center, dependent on window resize and possibly world boundaries
   const [center, setCenter] = createSignal({x: 10, y: 10});
   // Screen size in tile units, aligned per 2 tiles to center player, determined on window resize
@@ -25,6 +27,7 @@ const GameView: Component = () => {
 
   const mobile = useMobile();
   const connectionState = useConnectionState();
+  const { localParticipant } = useLocalParticipant();
 
   useGameStateManager();
 
@@ -127,6 +130,24 @@ const GameView: Component = () => {
     }
   })
 
+  createEffect(() => {
+    if (gameState.chatMode) {
+      input!.focus();
+    }
+  });
+
+  const keyDown = (event: KeyboardEvent) => {
+    switch (event.code) {
+      case "Enter":
+        console.log("send", input!.value);
+        localParticipant().sendText(input!.value);
+        // Fall through
+      case "Escape":
+        setGameState("chatMode", false);
+        break;
+    }
+  }
+
   return (
     <Show when={connectionState() === ConnectionState.Connected} fallback={<>Not connected</>}>
       <Canvas>
@@ -207,6 +228,31 @@ const GameView: Component = () => {
         <NavigationButtons/>
       </Show>
       <SpatialAudioController/>
+      <Show when={gameState.chatMode}>
+        <div style={{
+          position: "fixed",
+          top: "15vh",
+          left: "25vw",
+          right: "25vw",
+          "background-color": "rgba(255,255,255,0.6)",
+          border: "2px solid black",
+          "border-radius": "8px",
+          padding: "8px",
+          display: "flex",
+        }}>
+          <span>Chat:</span>
+          <input
+            ref={input!}
+            name="chat"
+            style={{
+              "font-size": "16px",
+              "font-family": "Pixeloid",
+              "flex": "1 0 auto",
+            }}
+            onKeyDown={keyDown}
+          />
+        </div>
+      </Show>
       <Show when={gameState.debugMode}>
         <div style={{ position: "fixed", top: 0, left: 0 }}>
           player:{gameState.myPlayer?.position.x},{gameState.myPlayer?.position.y}<br/>

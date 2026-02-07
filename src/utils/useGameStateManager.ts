@@ -6,6 +6,7 @@ import {
   ParticipantEvent,
   RemoteParticipant,
   RoomEvent,
+  TextStreamHandler,
 } from "livekit-client";
 import { Vector2 } from "../model/Vector2";
 import { AnimationState } from "../model/AnimationState";
@@ -14,6 +15,7 @@ import { useLocalParticipant } from "../utils/useLocalParticipant";
 import { useRemoteParticipants } from "../utils/useRemoteParticipants";
 import { Direction } from "../model/Direction";
 import { loadRoomMetadata } from "./useLiveKitRoom";
+import toast from "solid-toast";
 
 const textEncoder = new TextEncoder();
 const textDecoder = new TextDecoder();
@@ -178,6 +180,9 @@ export const useGameStateManager = () => {
           // Action
           toggleBit(4, down);
           break;
+        case "KeyT":
+          if (!down)
+            setGameState("chatMode", true);
       }
 
       // Hacky keyboard shortcuts
@@ -283,9 +288,12 @@ export const useGameStateManager = () => {
     if (!localParticipant() || !room()) return;
 
     room()!.on(RoomEvent.DataReceived, onDataChannel);
+    room()!.registerTextStreamHandler("", onChat)
+
 
     onCleanup(() => {
       room()!.off(RoomEvent.DataReceived, onDataChannel);
+      room()!.unregisterTextStreamHandler("");
     })
   });
 
@@ -371,6 +379,12 @@ export const useGameStateManager = () => {
         // Pass
         console.info("Incoming message: ", textDecoder.decode(payload))
     }
+  };
+
+  // Incoming chat
+  const onChat: TextStreamHandler = async (reader, participant) => {
+    const text = await reader.readAll();
+    toast(`${participant.identity}: ${text}`, { duration: 10000 })
   };
 
   // Publish position

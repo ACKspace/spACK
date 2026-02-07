@@ -20,6 +20,9 @@ export type GameState = {
   /** Tile attributes addressed by "x,y" for faster lookup */
   tileAttributes: Record<string, TileParam>;
 
+  /** Whether the user is in chat input mode */
+  chatMode?: boolean;
+
   /** Whether the "game" is in debug mode (OSD stats) */
   debugMode?: boolean;
 

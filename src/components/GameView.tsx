@@ -34,9 +34,11 @@ const GameView: Component = () => {
         // Calculate amount of squares and its remainder
 
         // Step 2 blocks to center our character
+        const w = Math.floor(window.innerWidth / tileSize / 2) * 2;
+        const h = Math.floor(window.innerHeight / tileSize / 2) * 2;
         setScreen({
-          x: Math.floor(window.innerWidth / tileSize / 2) * 2,
-          y: Math.floor(window.innerHeight / tileSize / 2) * 2,
+          x: w,
+          y: h,
         });
 
         setGameState("cameraOffset", {
@@ -47,8 +49,8 @@ const GameView: Component = () => {
 
         // TODO: take world boundary into account (walking on the edge)
         setCenter({
-          x: screen().x / 2,
-          y: screen().y / 2,
+          x: w / 2,
+          y: h / 2,
         });
       });
     }

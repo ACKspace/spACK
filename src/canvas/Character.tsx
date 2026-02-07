@@ -20,9 +20,6 @@ type Props = {
 const CHAR_SIZE = 72;
 const CHAR_OFFSET = (CHAR_SIZE - tileSize) / 2;
 
-// tile w/h, rows, cols, scale: 3
-
-// TODO: mirrored image?
 type SpriteInfo = {
   image: ImageSource;
   rows: number;

@@ -265,5 +265,8 @@ export const saveRoomMetadata = async (room?: Room) => {
   });
 
   const bytes = await setRoomMetaData(room.name, JSON.stringify(metadata));
-  toast.success(`Saved metadata (${bytes} bytes)`);
+  if (bytes)
+    toast.success(`Saved metadata (${bytes} bytes)`);
+  else
+    toast.error("Unable to save metadata");
 };

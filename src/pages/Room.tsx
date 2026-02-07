@@ -1,5 +1,4 @@
 import { Component, createMemo, createSignal, Match, onCleanup, onMount, Switch } from "solid-js";
-import { type ConnectionDetails } from "../types/api/connection_details";
 import { CharacterSelector, type CharacterName } from "../components/CharacterSelector/CharacterSelector";
 import { UsernameInput } from "../components/UsernameInput";
 import toast from "solid-toast";
@@ -7,7 +6,7 @@ import RoomInfo from "../components/RoomInfo";
 import BottomBar from "../components/BottomBar";
 import GameView from "../components/GameView";
 import { LiveKitRoom } from "../components/LiveKitRoom";
-import { useToken } from "../utils/useToken";
+import { type ConnectionDetails, useToken } from "../utils/useToken";
 import { WebAudioContext } from "../providers/webAudio";
 
 type Props = {

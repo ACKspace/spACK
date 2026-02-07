@@ -96,9 +96,9 @@ export const SpatialAudioController: Component = () => {
         // Only audio tracks
         if (trackRef.publication.kind !== "audio") return;
 
-        const hearable = true;
-        // TODO: determine volume and panning
-
+        // Initial subscription, if within hearing distance
+        const relativePosition = playerTracks[identity].relativePosition;
+        const hearable = Math.hypot(relativePosition.x, relativePosition.y) <= gameState.earshotRadius;
         trackRef.publication.setSubscribed(hearable);
 
         // Only audio tracks (NOTE: sometimes non-existent)
@@ -114,6 +114,9 @@ export const SpatialAudioController: Component = () => {
     // Do the gain
     createEffect(() => {
       const relativePosition = playerTracks[identity].relativePosition;
+      // Update subscription
+      const hearable = Math.hypot(relativePosition.x, relativePosition.y) <= gameState.earshotRadius;
+      playerTracks[identity].publication?.setSubscribed(hearable);
 
       if (playerTracks[identity].spatialController instanceof GainNode) {
         const gain = 1 - clamp(0, Math.hypot(relativePosition.x, relativePosition.y) / gameState.earshotRadius, 1);
@@ -137,10 +140,6 @@ export const SpatialAudioController: Component = () => {
           // Create corresponding source node
           if (nextMedia) {
             const sourceNode = audioContext.createMediaStreamSource(nextMedia);
-
-            console.log("audio tracks", nextMedia.getAudioTracks().length);
-            console.log("enabled", nextMedia.getAudioTracks()[0].enabled);
-            console.log("ready", nextMedia.getAudioTracks()[0].readyState);
 
             if (false) {
 

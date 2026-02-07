@@ -1,7 +1,7 @@
 import { log, setupLiveKitRoom } from '@livekit/components-core';
 import { Room, MediaDeviceFailure, RoomEvent, ConnectionState } from 'livekit-client';
 import { type LiveKitRoomProps } from '../components/LiveKitRoom';
-import { Accessor, createEffect, createMemo, createSignal, mergeProps, onCleanup } from 'solid-js';
+import { Accessor, batch, createEffect, createMemo, createSignal, mergeProps, onCleanup } from 'solid-js';
 import { MetaData, MetaType, TileAttribute, TileParam } from '../model/Tile';
 import { gameState, setGameState } from '../model/GameState';
 import { setRoomMetaData } from './useToken';
@@ -174,6 +174,15 @@ export const loadRoomMetadata = (room?: Room) => {
 
   try {
     const metadata = JSON.parse(room.metadata!) as MetaData;
+
+    const keys = Object.keys(gameState.tileAttributes);
+    batch(() => {
+      keys.forEach((key) => {
+        // @ts-ignore -- Erase all old tiles
+        setGameState("tileAttributes", key, undefined);
+      });
+    });
+
     const subTypes = Object.keys(metadata) as Array<keyof MetaData>;
     subTypes.forEach((subType) => {
       const type = keyLookup[subType];

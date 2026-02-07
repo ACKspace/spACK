@@ -288,11 +288,13 @@ export const useGameStateManager = () => {
     if (!localParticipant() || !room()) return;
 
     room()!.on(RoomEvent.DataReceived, onDataChannel);
+    room()!.on(RoomEvent.RoomMetadataChanged, onMetadata);
     room()!.registerTextStreamHandler("", onChat)
 
 
     onCleanup(() => {
       room()!.off(RoomEvent.DataReceived, onDataChannel);
+      room()!.off(RoomEvent.RoomMetadataChanged, onMetadata);
       room()!.unregisterTextStreamHandler("");
     })
   });
@@ -380,6 +382,11 @@ export const useGameStateManager = () => {
         console.info("Incoming message: ", textDecoder.decode(payload))
     }
   };
+
+  const onMetadata = (metadata: string) => {
+    console.log("New metadata");
+    loadRoomMetadata(room())
+  }
 
   // Incoming chat
   const onChat: TextStreamHandler = async (reader, participant) => {

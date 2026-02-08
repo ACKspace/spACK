@@ -37,7 +37,7 @@ export const TrackToggle: ParentComponent<TrackToggleProps> = (props) => {
 
   return (
     <>
-      <Button onclick={() => {
+      <Button onClick={() => {
         setEnabled((old) => !old);
       }}>
         <Show when={props.showIcon ?? true}>

@@ -1,8 +1,7 @@
-import { RemoteTrackPublication, RoomEvent, Track } from "livekit-client";
+import { type RemoteTrackPublication, RoomEvent, Track } from "livekit-client";
 import { batch, Component, createEffect, For, on } from "solid-js";
 import { useRoomContext, useTracks } from "../solid-livekit";
 import { gameState } from "../model/GameState";
-import { useMobile } from "../utils/useMobile";
 import { useWebAudioContext } from "../providers/webAudio";
 import { createStore } from "solid-js/store";
 import { Vector2 } from "../model/Vector2";

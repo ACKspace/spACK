@@ -4,21 +4,18 @@ import type {
   RoomOptions,
   ScreenShareCaptureOptions,
   VideoCaptureOptions,
+  MediaDeviceFailure,
+  Room,
 } from 'livekit-client';
-
-import type { MediaDeviceFailure, Room } from 'livekit-client';
 import { RoomContext } from '../solid-livekit';
 import { createMemo, ParentComponent, Show } from 'solid-js';
 import { useLiveKitRoom } from '../utils/useLiveKitRoom';
-// import { type FeatureFlags, LKFeatureContext, RoomContext } from '../context';
-// import { useLiveKitRoom } from '../hooks';
 
 export interface FeatureFlags {
   autoSubscription?: boolean;
 }
 
 /** @public */
-// export interface LiveKitRoomProps extends Omit<HTMLDivElement, "onError"> {
 export interface LiveKitRoomProps {
   /**
    * URL to the LiveKit server.
@@ -91,18 +88,16 @@ export interface LiveKitRoomProps {
 }
 
 export const LiveKitRoom: ParentComponent<LiveKitRoomProps> = (props) => {
-  const { room, htmlProps } = useLiveKitRoom(props);
+  const { room } = useLiveKitRoom(props);
   const someRoom = createMemo(() => {
     return props.room ?? room();
   })
   return (
-    <div {...htmlProps}>
-      <Show when={someRoom()}>
-        <RoomContext.Provider value={someRoom}>
-            {props.children}
-        </RoomContext.Provider>
-      </Show>
-    </div>
+    <Show when={someRoom()}>
+      <RoomContext.Provider value={someRoom}>
+          {props.children}
+      </RoomContext.Provider>
+    </Show>
   );
 };
 

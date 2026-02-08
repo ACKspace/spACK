@@ -1,7 +1,7 @@
 import { gameState, setGameState } from "../model/GameState";
 import { ConnectionState } from "livekit-client";
 import { batch, Component, createEffect, createMemo, createSignal, For, onMount, Show } from "solid-js";
-import { useConnectionState, useRoomContext } from "../solid-livekit";
+import { useConnectionState } from "../solid-livekit";
 import { getRandomSpawnPosition, useGameStateManager } from "../utils/useGameStateManager";
 import { Canvas, Group } from "../../solid-canvas/src";
 import { Character } from "../canvas/Character";

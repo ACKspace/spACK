@@ -1,5 +1,4 @@
-import type { ParticipantMedia } from '@livekit/components-core';
-import { observeParticipantMedia } from '@livekit/components-core';
+import { observeParticipantMedia, type ParticipantMedia } from '@livekit/components-core';
 import type { TrackPublication, LocalParticipant, Room } from 'livekit-client';
 import { useEnsureRoom } from '../solid-livekit';
 import { createSignal, createEffect, onCleanup } from 'solid-js';

@@ -1,8 +1,8 @@
 import { participantInfoObserver } from '@livekit/components-core';
 import type { Participant } from 'livekit-client';
 import { useEnsureParticipant } from '../solid-livekit';
-import { createMemo } from 'solid-js';
 import { useObservableState } from '../solid-livekit/signals/internal';
+import { createMemo } from 'solid-js';
 // import { useEnsureParticipant } from '../context';
 // import { useObservableState } from './internal';
 

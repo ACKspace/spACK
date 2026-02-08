@@ -4,9 +4,9 @@ import { useRoomContext } from "../solid-livekit";
 
 import {
   ParticipantEvent,
-  RemoteParticipant,
   RoomEvent,
-  TextStreamHandler,
+  type RemoteParticipant,
+  type TextStreamHandler,
 } from "livekit-client";
 import { Vector2 } from "../model/Vector2";
 import { AnimationState } from "../model/AnimationState";

@@ -5,11 +5,17 @@ export type ConnectionDetails = {
   ws_url: string;
 };
 
+type Rights = {
+  list: boolean;
+  join: boolean;
+  admin: boolean;
+}
+
 type ErrorResponse = {
   error: string;
 };
 
-type ReturnType = ConnectionDetails | ErrorResponse;
+type ReturnType = ConnectionDetails & Rights | ErrorResponse;
 
 /**
  * Inspect token validity
@@ -30,10 +36,12 @@ function inspectToken(token?: string, ws_url?: string, room?: string, user?: str
 
   if (user && jwtData.sub !== user) return { error: "No user"};
   if (room && jwtData.video.room !== room) return  { error: "No room"};
-  if (jwtData.exp < (Date.now() / 1000) - 300) return { error: "Expiring"};;
+  if (jwtData.exp < (Date.now() / 1000) - 300) return { error: "Expiring"};
 
-  // Valid, return full token
-  return {token, ws_url: ws_url };
+  const { roomList: list, roomJoin: join, roomAdmin: admin } = jwtData.video;
+
+  // Valid, return full token and details
+  return { token, ws_url, list, join, admin };
 }
 
 /**
@@ -48,12 +56,12 @@ function base64urlDecode(data: string): string
 }
 
 /** Generate a token or retrieve from cache if valid */
-export async function useToken(room: string, user?: string, character?: CharacterName): Promise<ReturnType>
+export async function useToken(room: string, user?: string, character?: CharacterName, password?: string): Promise<ReturnType>
 {
   // Retrieve from session storage, if username is still correct
-  const storedToken = inspectToken(sessionStorage["token"], sessionStorage["url"], room, user);
-  if ("token" in storedToken) {
-    return storedToken;
+  const token = inspectToken(sessionStorage["token"], sessionStorage["url"], room, user);
+  if (!("error" in token)) {
+    return token;
   }
 
   // Retrieve from server
@@ -61,22 +69,21 @@ export async function useToken(room: string, user?: string, character?: Characte
   if (!room) throw new TypeError( "Missing room_name" );
 
   // NOTE: if the participant already is in the room, they will be kicked out
-  const token = await (await fetch(import.meta.env.VITE_TOKEN_URL, {
+  const liveKitToken = await (await fetch(import.meta.env.VITE_TOKEN_URL, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ room, user, character }),    
+    body: JSON.stringify({ room, user, character, password }),    
   })).json() as ReturnType;
 
-  if ("error" in token) return token;
+  if ("error" in liveKitToken) return liveKitToken;
 
   // Update token
   // TODO: per-room?
-  sessionStorage["token"] = token.token;
-  sessionStorage["url"] = token.ws_url;
-
-  return token;
+  sessionStorage["token"] = liveKitToken.token;
+  sessionStorage["url"] = liveKitToken.ws_url;
+  return inspectToken(liveKitToken.token, liveKitToken.ws_url, room, user);
 };
 
 /**
@@ -93,6 +100,8 @@ export async function setRoomMetaData(room: string, metadata: string): Promise<n
     console.log("No valid cached token to use");
     return 0;
   }
+
+  // TODO: we can check for token.admin or just let it error out
 
   try {
     const data = await (await fetch(`${token.ws_url.replace("wss://", "https://")}twirp/livekit.RoomService/UpdateRoomMetadata`, {

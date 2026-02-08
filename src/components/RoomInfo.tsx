@@ -1,18 +1,13 @@
-import { Component, createSignal, onCleanup, onMount } from "solid-js";
-import { useParticipants } from "../utils/useParticipants";
+import { Component, createSignal, Match, onCleanup, onMount, Show, Switch } from "solid-js";
+import { type RoomParticipantsInfo, useParticipants } from "../utils/useParticipants";
 
-export type RoomInfo = {
-  num_participants: number;
-};
 
 type Props = {
   roomName: string;
 };
 
-const DEFAULT_ROOM_INFO: RoomInfo = { num_participants: 0 };
-
 export const RoomInfo: Component<Props> = (props) => {
-  const [roomInfo, setRoomInfo] = createSignal<RoomInfo>(DEFAULT_ROOM_INFO);
+  const [roomInfo, setRoomInfo] = createSignal<RoomParticipantsInfo>();
 
   let interval: number;
   onMount(() => {
@@ -30,7 +25,21 @@ export const RoomInfo: Component<Props> = (props) => {
   });
 
   return (
-    <div> {roomInfo().num_participants} Participant(s) currently in room</div>
+    <div>
+      <Show when={roomInfo()}>{(r) =>
+        <>
+          <div>{r().list ? r().num_participants : "unknown amount of"} participant(s) currently in room.</div>
+          <Switch>
+            <Match when={!r().join}>
+              This room is password protected.
+            </Match>
+            <Match when={!r().admin}>
+              Administrators require a password.
+            </Match>
+          </Switch>
+        </>
+      }</Show>
+    </div>
   );
 }
 

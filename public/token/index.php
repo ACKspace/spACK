@@ -54,6 +54,8 @@ function Base64url_decode($data)
  *
  *  - https://developer.mozilla.org/en/HTTP_access_control
  *  - https://fetch.spec.whatwg.org/#http-cors-protocol
+ *
+ * @return void
  */
 function cors()
 {
@@ -92,6 +94,7 @@ $data = json_decode(file_get_contents('php://input'), true);
 $room = isset($data["room"]) ? $data["room"] : "Dark";
 $user = isset($data["user"]) ? $data["user"] : "unnamed";
 $character = isset($data["character"]) ? $data["character"] : "vita";
+$password = isset($data["password"]) ? $data["password"] : "";
 
 $metadata = new stdClass();
 $metadata->character = $character;
@@ -111,12 +114,13 @@ $payload->exp = $expires; // expires at
 $payload->iat = $now; // issued at
 $payload->iss = API_KEY; // issuer
 $payload->video = new stdClass();
-$payload->video->roomJoin = true;
-$payload->video->roomList = true;
-// TODO: make password dependent
-$payload->video->roomAdmin = true; // Permission to save room metadata
+// Permissions
+$payload->video->roomList = true; // List
+$payload->video->roomJoin = true; // Join
+$payload->video->roomAdmin = $password === "admin"; // Save room metadata
+
 $payload->video->room = $room;
-// Optional initial metadata
+// Optional initial user metadata
 $payload->metadata = json_encode($metadata);
 
 /*
@@ -128,7 +132,14 @@ $payload->metadata = json_encode($metadata);
 
 $header_encoded = Base64url_encode(json_encode($header));
 $payload_encoded = Base64url_encode(json_encode($payload));
-$hmac = Base64url_encode(hash_hmac('sha256', $header_encoded.".".$payload_encoded, PASSWORD, true));
+$hmac = Base64url_encode(
+    hash_hmac(
+        'sha256',
+        $header_encoded.".".$payload_encoded,
+        PASSWORD,
+        true,
+    )
+);
 
 $output = new stdClass();
 $output->token = $header_encoded.".".$payload_encoded.".".$hmac;

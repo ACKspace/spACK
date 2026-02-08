@@ -2,7 +2,7 @@
 
 This project is an attempt to recreate the virtual hackerspace we had during COVID-19 on [Gather Town](https://gather.town), which was lost during their business plan updates.
 
-Currently it is in early alpha stage; check out the open issues at [GitHub](https://github.com/ACKspace/spACK/issues).
+Currently it is in development and not yet stable; check out the open issues at [GitHub](https://github.com/ACKspace/spACK/issues).
 
 
 ## Table of Contents
@@ -132,6 +132,8 @@ define("URL", "ws://127.0.0.1:7880");
 ```
 * Run local php instance of token service:
 ```bash
+npm run token
+# or:
 php -S 0.0.0.0:8081 -t ./public public/token/index.php
 ```
 

@@ -2,7 +2,7 @@ import { gameState, setGameState } from "../model/GameState";
 import { ConnectionState } from "livekit-client";
 import { batch, Component, createEffect, createMemo, createSignal, For, onMount, Show } from "solid-js";
 import { useConnectionState, useRoomContext } from "../solid-livekit";
-import { useGameStateManager } from "../utils/useGameStateManager";
+import { getRandomSpawnPosition, useGameStateManager } from "../utils/useGameStateManager";
 import { Canvas, Group } from "../../solid-canvas/src";
 import { Character } from "../canvas/Character";
 import { Map } from "../canvas/Map";
@@ -266,7 +266,12 @@ const GameView: Component = () => {
               setGameState("editMode", !gameState.editMode);
             }}>{gameState.editMode ? "regular mode" : "edit mode"}</Button>
           </div>
-          <Button onClick={() => setGameState("myPlayer", "position", { x: -1, y: -6 })}>@home</Button>
+          <Button onClick={() => {
+            const [spawn, direction] = getRandomSpawnPosition()            
+            setGameState("myPlayer", "position", spawn);
+            if (direction)
+              setGameState("myPlayer", "direction", direction);            
+          }}>spawn point</Button>
         </div>
         <Show when={gameState.editMode}>
           <TileInformation param={currentTileAttribute()}/>

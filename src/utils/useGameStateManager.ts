@@ -62,6 +62,21 @@ export const toggleBit = (bit: 0 | 1 | 2 | 3 | 4, flag: boolean) => {
 /** Direction bits in order of up, down, left, right */
 export const inputBits = keyboardBits;
 
+export const getRandomSpawnPosition = (): [Vector2, Direction | undefined] => {
+  const spawnKeys = Object.keys(gameState.tileAttributes).filter((key) => gameState.tileAttributes[key].type === "spawn");
+
+  if (spawnKeys.length) {
+    const key = spawnKeys[Math.floor(Math.random() * spawnKeys.length)];
+    const [x, y] = key.split(",").map((c) => parseInt(c));
+    // @ts-ignore -- We filtered on portal: direction is part of it.
+    return [{ x, y }, gameState.tileAttributes[key].direction];
+  }
+
+  // Last resort:
+  return [{ x: 50, y: 50 }, "S"];
+}
+
+
 let timer: number | undefined;
 export const useGameStateManager = () => {
   const room = useRoomContext();
@@ -153,25 +168,21 @@ export const useGameStateManager = () => {
       // Compatible with other layouts using `code`
       switch (event.code) {
         case "KeyW":
-        case "KeyI":
         case "ArrowUp":
           // Up
           toggleBit(0, down);
           break;
         case "KeyS":
-        case "KeyK":
         case "ArrowDown":
           // Down
           toggleBit(1, down);
           break;
         case "KeyA":
-        case "KeyJ":
         case "ArrowLeft":
           // Left
           toggleBit(2, down);
           break;
         case "KeyD":
-        case "KeyL":
         case "ArrowRight":
           // Right
           toggleBit(3, down);
@@ -307,20 +318,6 @@ export const useGameStateManager = () => {
     localParticipant().off(ParticipantEvent.Active, onConnected);
     })
   });
-
-  const getRandomSpawnPosition = (): [Vector2, Direction | undefined] => {
-    const spawnKeys = Object.keys(gameState.tileAttributes).filter((key) => gameState.tileAttributes[key].type === "spawn");
-
-    if (spawnKeys.length) {
-      const key = spawnKeys[Math.floor(Math.random() * spawnKeys.length)];
-      const [x, y] = key.split(",").map((c) => parseInt(c));
-      // @ts-ignore -- We filtered on portal: direction is part of it.
-      return [{ x, y }, gameState.tileAttributes[key].direction];
-    }
-
-    // Last resort:
-    return [{ x: 50, y: 50 }, "S"];
-  }
 
   // (Re)Connected
   const onConnected = () => {

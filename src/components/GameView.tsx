@@ -19,6 +19,7 @@ import { useLocalParticipant } from "../utils/useLocalParticipant";
 import { AttributeTileGroup } from "../canvas/AttributeTileGroup";
 import { Vector2 } from "../model/Vector2";
 
+let time: number | undefined;
 const GameView: Component = () => {
   let input: HTMLInputElement;
   const [screenSize, setScreenSize] = createSignal<Vector2>({ x:0, y: 0 });
@@ -40,12 +41,25 @@ const GameView: Component = () => {
 
   createEffect(() => {
     if (!gameState.myPlayer) return;
+    if (time) return;
 
     const x = gameState.myPlayer.position.x;
     const y = gameState.myPlayer.position.y;
 
-    setGameState("cameraOffset", "x", -x * tileSize + screenSize().x / 2);
-    setGameState("cameraOffset", "y", -y * tileSize + screenSize().y / 2);
+    setGameState("cameraOffset", "x", -x + screenSize().x / 2);
+    setGameState("cameraOffset", "y", -y + screenSize().y / 2);
+
+    if (gameState.myPlayer.targetPos) {
+      setGameState("myPlayer", "position", "x", gameState.myPlayer.targetPos.x * tileSize);
+      setGameState("myPlayer", "position", "y", gameState.myPlayer.targetPos.y * tileSize);
+    }
+
+    gameState.remotePlayers.forEach((player, idx) => {
+      if (!player.targetPos) return;
+      console.log("tp", idx, player.targetPos.x, player.targetPos.y);
+      setGameState("remotePlayers", idx, "position", "x", player.targetPos.x * tileSize)
+      setGameState("remotePlayers", idx, "position", "y", player.targetPos.y * tileSize)
+    });
   });
 
   // Optional tile attribute where the user is standing on; used for triggering tile action and debug/edit info.
@@ -94,7 +108,10 @@ const GameView: Component = () => {
       case "portal":
         // Send/teleport player to (optional) room, (optional) coordinate
         if (param.room) console.log("Target room not yet implemented");
-        if(param.coordinate) setGameState("myPlayer", "position", param.coordinate);
+        if(param.coordinate) {
+          setGameState("myPlayer", "targetPos", param.coordinate);
+          setGameState("myPlayer", "position", { x: param.coordinate.x * tileSize, y: param.coordinate.y * tileSize });
+        }
         if(param.direction) setGameState("myPlayer", "direction", param.direction);
         break;
       case "impassable":
@@ -146,7 +163,7 @@ const GameView: Component = () => {
           <For each={objects()}>{(player) => (
             <Character
               username={player.username}
-              position={{x: player.position.x * tileSize, y: player.position.y * tileSize}}
+              position={{ x: player.position.x, y: player.position.y }}
               character={player.character}
               animation={player.animation}
               direction={player.direction}/>
@@ -188,6 +205,7 @@ const GameView: Component = () => {
       <Show when={gameState.debugMode}>
         <div style={{ position: "fixed", top: 0, left: 0 }}>
           player:{gameState.myPlayer?.position.x},{gameState.myPlayer?.position.y}<br/>
+          player:{gameState.myPlayer?.targetPos?.x},{gameState.myPlayer?.targetPos?.y}<br/>
           offset:{gameState.cameraOffset.x},{gameState.cameraOffset.y}<br/>
           map:{gameState.mapSize.x},{gameState.mapSize.x}<br/>
           <div>
@@ -196,8 +214,9 @@ const GameView: Component = () => {
             }}>{gameState.editMode ? "regular mode" : "edit mode"}</Button>
           </div>
           <Button onClick={() => {
-            const [spawn, direction] = getRandomSpawnPosition()            
-            setGameState("myPlayer", "position", spawn);
+            const [spawn, direction] = getRandomSpawnPosition()
+            setGameState("myPlayer", "targetPos", spawn);
+            setGameState("myPlayer", "position", {x: spawn.x * tileSize, y: spawn.y * tileSize});
             if (direction)
               setGameState("myPlayer", "direction", direction);            
           }}>spawn point</Button>

@@ -16,6 +16,7 @@ import { useRemoteParticipants } from "../utils/useRemoteParticipants";
 import { Direction } from "../model/Direction";
 import { loadRoomMetadata } from "./useLiveKitRoom";
 import toast from "solid-toast";
+import { tileSize } from "../model/Tile";
 
 const textEncoder = new TextEncoder();
 const textDecoder = new TextDecoder();
@@ -100,9 +101,9 @@ export const useGameStateManager = () => {
     }
 
     const doWalk = () => {
-      if (!gameState.myPlayer?.position) return; // Sanity check
+      if (!gameState.myPlayer?.targetPos) return; // Sanity check
 
-      const { x, y } = gameState.myPlayer.position;
+      const { x, y } = gameState.myPlayer.targetPos;
       let newX = x
       let newY = y;
       if (gameState.myPlayer?.direction.includes("E")) {
@@ -130,7 +131,7 @@ export const useGameStateManager = () => {
           return false
       }
       
-      setGameState("myPlayer", "position", {x, y});
+      setGameState("myPlayer", "targetPos", {x, y});
       return true;
     };
 
@@ -266,7 +267,7 @@ export const useGameStateManager = () => {
                   x: gameState.myPlayer!.position.x,
                   y: gameState.myPlayer!.position.y
                 },
-                channelId: "position"
+                channelId: "position" // TODO: differentiate between teleport and walk
               })
             );
             const direction: Uint8Array = textEncoder.encode(
@@ -340,12 +341,13 @@ export const useGameStateManager = () => {
     // Load the room details from the metadata
     loadRoomMetadata(room());
 
-    const [position, direction] = getRandomSpawnPosition();
+    const [targetPos, direction] = getRandomSpawnPosition();
 
     // Create
     setGameState("myPlayer", {
         username: localParticipant().identity,
-        position,
+        position: {x: targetPos.x * tileSize, y: targetPos.y * tileSize},
+        targetPos,
         animation: "idle",
         character,
         direction,
@@ -368,7 +370,9 @@ export const useGameStateManager = () => {
     switch (data.channelId) {
       case "position":
         // TODO: maybe filter out players that are outside of the view; maintain animation when appearing.
-        setGameState("remotePlayers", player, "position", data.payload);
+        setGameState("remotePlayers", player, "targetPos", data.payload);
+        // TODO: differentiate between teleport and walk
+        // setGameState("remotePlayers", player, "position", { x: data.payload.x * tileSize, y: data.payload.y * tileSize });
         break;
 
       case "animation":
@@ -408,8 +412,8 @@ export const useGameStateManager = () => {
     const payload: Uint8Array = textEncoder.encode(
       JSON.stringify({
         payload: {
-          x: gameState.myPlayer.position.x,
-          y: gameState.myPlayer.position.y
+          x: gameState.myPlayer.targetPos?.x,
+          y: gameState.myPlayer.targetPos?.y
         },
         channelId: "position"
       })

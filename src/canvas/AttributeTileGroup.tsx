@@ -7,8 +7,8 @@ export const AttributeTileGroup: Component = (props) => {
   // Optional tile attribute where the user is standing on; used for triggering tile action and debug/edit info.
   const currentTileAttribute = createMemo(() => {
     if (!gameState.myPlayer) return undefined;
-    const x = gameState.myPlayer.position.x;
-    const y = gameState.myPlayer.position.y;
+    const x = gameState.myPlayer.targetPos?.x;
+    const y = gameState.myPlayer.targetPos?.y;
     return gameState.tileAttributes[`${x},${y}`];
   });
 

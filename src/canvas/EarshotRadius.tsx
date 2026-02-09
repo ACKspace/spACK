@@ -16,7 +16,6 @@ export const EarshotRadius: Component<Props> = (props) => {
   return <Show when={props.render}>
     <Arc
       transform={{
-        // TODO: relative to own player/map
         position: {
           x: tileSize * (props.position.x - props.radius),
           y: tileSize * (props.position.y - props.radius),

@@ -9,11 +9,6 @@ type Props = {
   /** The image we want to load as map */
   image: ImageSource;
 
-  /** The center of the player relative to the viewport in tile units */
-  center: Vector2;
-  /** The screen size in tile units (not taking pixel offset into account) */
-  screen: Vector2;
-
   /** Whether the image is an overlay or primary base background */
   overlay?: boolean;
 };
@@ -21,21 +16,6 @@ type Props = {
 export const Map: Component<Props> = (props) => {
   const [imageSize, setImageSize] = createSignal<Vector2>({x:0, y: 0});
 
-  const dimensions = createMemo(() => {
-    const width = props.screen.x * tileSize + gameState.cameraOffset.x * 2;
-    const height = props.screen.y * tileSize + gameState.cameraOffset.y * 2;
-
-    return { width, height };
-  });
-
-  const offset = createMemo(() => {
-    // Player position minus screen center and adjusted for camera pixel offset
-    const x = gameState.myPlayer ? (gameState.myPlayer.position.x - props.center.x) * tileSize - gameState.cameraOffset.x : 0;
-    const y = gameState.myPlayer ? (gameState.myPlayer.position.y - props.center.y) * tileSize - gameState.cameraOffset.y: 0;
-
-    return { x, y };
-  });
-  
   return<Image
     onLoad={(image) => {
       // Determine level boundaries
@@ -52,9 +32,9 @@ export const Map: Component<Props> = (props) => {
       });
     }}
     style={{
-      sourceOffset: offset(),
-      sourceDimensions: dimensions(),
-      dimensions: dimensions(),
+      // sourceOffset: {x:0, y: 0},
+      sourceDimensions: { width: imageSize().x, height: imageSize().y },
+      dimensions: { width: imageSize().x, height: imageSize().y },
       pointerEvents: false,
     }}
     transform={{

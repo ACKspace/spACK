@@ -1,15 +1,17 @@
 import { Arc, Group, Image, Text } from "../../solid-canvas/src";
 import { CharacterName } from "../components/CharacterSelector/CharacterSelector";
 import { AnimationState } from "../model/AnimationState";
-import { Component, createMemo, createSignal, onCleanup, onMount } from "solid-js";
+import { Component, createMemo, createSignal, onCleanup, onMount, Show } from "solid-js";
 import { Direction } from "../model/Direction";
 import { ImageSource } from "../../solid-canvas/src/types";
 import { directionToLeftRight } from "../utils/legacyDirection";
 import { tileSize } from "../model/Tile";
+import { Vector2 } from "../model/Vector2";
+import { gameState } from "../model/GameState";
 
 type Props = {
-  x: number;
-  y: number;
+  /** Offset within the map in pixels */
+  position: Vector2;
   speaking?: boolean;
   username: string;
   animation: AnimationState;
@@ -84,12 +86,25 @@ export const Character: Component<Props> = (props) => {
 
   return <Group
     transform={{
-      position: {
-        x: props.x * tileSize - CHAR_OFFSET,
-        y: (props.y - 1) * tileSize - CHAR_OFFSET / 2,
-      }
+      position: {x: props.position.x - CHAR_OFFSET, y: props.position.y - CHAR_OFFSET - CHAR_OFFSET}
     }}
   >
+    <Show when={gameState.debugMode}>
+      <Text
+        transform={{
+          position: {x: 0, y: -30}
+        }}
+        text={`${props.position.x},${props.position.y}`}
+        outlineStyle="rgba(0,0,0,1)"
+        style={{
+          // TODO: align center
+          fill: "white",
+          fontSize: 24,
+          fontFamily: "FsPixel",
+          lineWidth: 6
+        }}
+      />
+    </Show>
     <Text
       transform={{
         position: {x: 0, y: -10}
@@ -106,7 +121,7 @@ export const Character: Component<Props> = (props) => {
     />
     <Image
       style={{
-        sourceOffset: { x: offset().x, y: offset().y },
+        sourceOffset: offset(),
         sourceDimensions: { width: sprite.width, height: sprite.height },
         dimensions: { width: CHAR_SIZE, height: CHAR_SIZE },
         smoothingQuality: "none",

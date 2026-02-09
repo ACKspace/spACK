@@ -24,10 +24,9 @@ type Props = {
 export const AttributeTile: Component<Props> = (props) => {
   return <Group
     transform={{
-      // TODO: relative to own player/map
       position: {
-        x: tileSize * (props.position.x - (gameState.myPlayer?.position.x ?? 0)),
-        y: tileSize * (props.position.y - (gameState.myPlayer?.position.y ?? 0)),
+        x: tileSize * props.position.x,
+        y: tileSize * props.position.y,
       }
     }}
   >

@@ -14,7 +14,7 @@ export type GameState = {
   /** Map size in tile units, determined on image load */
   mapSize: Vector2;
 
-  /** Camera offset in pixels to account for tile rounding by the viewport of the canvas */
+  /** Camera offset in (negative) pixels to pan the map */
   cameraOffset: Vector2;
 
   /** Tile attributes addressed by "x,y" for faster lookup */

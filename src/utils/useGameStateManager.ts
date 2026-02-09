@@ -160,6 +160,17 @@ export const useGameStateManager = () => {
 
   onMount(() => {
     const keyboardEvent = (event: KeyboardEvent) => {
+      if (gameState.debugMode) {
+        // DEBUG MODE PAN
+        const STEP = 8;
+        switch (event.code) {
+          case "KeyI": setGameState("cameraOffset", "y", (old) => old + STEP); break;
+          case "KeyK": setGameState("cameraOffset", "y", (old) => old - STEP); break;
+          case "KeyJ": setGameState("cameraOffset", "x", (old) => old + STEP); break;
+          case "KeyL": setGameState("cameraOffset", "x", (old) => old - STEP); break;
+        }
+      }
+
       if (event.repeat) return;
       const down = event.type === "keydown";
       // TODO: We might want to include all items with focus and tabindex

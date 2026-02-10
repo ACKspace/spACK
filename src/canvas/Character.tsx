@@ -128,6 +128,18 @@ export const Character: Component<Props> = (props) => {
       }}
       image={`characters/${props.character}.png`}
     />
+    {/* Shadow */}
+    <Arc
+      transform={{
+        position: {x: CHAR_OFFSET - 10, y: 2 * CHAR_OFFSET + 12}
+      }}
+      style={{
+        radius: (24),
+        radius2: (12),
+        fill: "rgba(0, 0, 0, 0.1)",
+        stroke: "transparent",
+      }}
+    />
   </Group>;
 };
 

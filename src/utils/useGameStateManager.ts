@@ -264,8 +264,8 @@ export const useGameStateManager = () => {
             const position: Uint8Array = textEncoder.encode(
               JSON.stringify({
                 payload: {
-                  x: gameState.myPlayer!.position.x,
-                  y: gameState.myPlayer!.position.y
+                  x: gameState.myPlayer!.targetPos!.x,
+                  y: gameState.myPlayer!.targetPos!.y
                 },
                 channelId: "position" // TODO: differentiate between teleport and walk
               })

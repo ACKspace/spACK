@@ -1,6 +1,6 @@
 import { gameState, setGameState } from "../model/GameState";
 import { ConnectionState } from "livekit-client";
-import { Component, createEffect, createMemo, createSignal, For, onMount, Show } from "solid-js";
+import { batch, Component, createEffect, createMemo, createSignal, For, onMount, Show } from "solid-js";
 import { useConnectionState } from "../solid-livekit";
 import { getRandomSpawnPosition, useGameStateManager } from "../utils/useGameStateManager";
 import { Canvas, Group } from "../../solid-canvas/src";
@@ -19,7 +19,6 @@ import { useLocalParticipant } from "../utils/useLocalParticipant";
 import { AttributeTileGroup } from "../canvas/AttributeTileGroup";
 import { Vector2 } from "../model/Vector2";
 
-let time: number | undefined;
 const GameView: Component = () => {
   let input: HTMLInputElement;
   const [screenSize, setScreenSize] = createSignal<Vector2>({ x:0, y: 0 });
@@ -34,32 +33,45 @@ const GameView: Component = () => {
       setScreenSize({x: window.innerWidth, y: window.innerHeight});
     }
 
+    const stepDelta = (value: number, newValue: number, step: number): number => {
+      const delta = newValue - value;
+
+      if (delta > 0)
+        return value + Math.ceil(delta / step);
+      if (delta < 0)
+        return value + Math.floor(delta / step);
+      return value;
+    }
+
+    let time = performance.now();
+    const frame = () => {
+      const deltaTime = performance.now() - time!;
+      time = performance.now();
+      requestAnimationFrame(frame);
+      if (!gameState.myPlayer) return;
+      // Typically in steps of 32, but gets smaller every frame
+      const step = 40 / 100 * deltaTime;
+
+      batch(() => {
+        // Camera
+        setGameState("cameraOffset", "x", (old) => stepDelta(old, -gameState.myPlayer!.position.x + screenSize().x / 2, step));
+        setGameState("cameraOffset", "y", (old) => stepDelta(old, -gameState.myPlayer!.position.y + screenSize().y / 2, step));
+        // Player
+        setGameState("myPlayer", "position", "x", (old) => stepDelta(old, gameState.myPlayer!.targetPos!.x * tileSize, step));
+        setGameState("myPlayer", "position", "y", (old) => stepDelta(old, gameState.myPlayer!.targetPos!.y * tileSize, step));
+        // Remote players
+        gameState.remotePlayers.forEach((player, idx) => {
+          if (!player.targetPos) return;
+          setGameState("remotePlayers", idx, "position", "x", (old) => stepDelta(old, player.targetPos!.x * tileSize, step));
+          setGameState("remotePlayers", idx, "position", "y", (old) => stepDelta(old, player.targetPos!.y * tileSize, step));
+        });
+      });
+    };
+
     // For now, assume the canvas has the same size as the window.
     updateDimensions()
     window.addEventListener('resize', updateDimensions);
-  })
-
-  createEffect(() => {
-    if (!gameState.myPlayer) return;
-    if (time) return;
-
-    const x = gameState.myPlayer.position.x;
-    const y = gameState.myPlayer.position.y;
-
-    setGameState("cameraOffset", "x", -x + screenSize().x / 2);
-    setGameState("cameraOffset", "y", -y + screenSize().y / 2);
-
-    if (gameState.myPlayer.targetPos) {
-      setGameState("myPlayer", "position", "x", gameState.myPlayer.targetPos.x * tileSize);
-      setGameState("myPlayer", "position", "y", gameState.myPlayer.targetPos.y * tileSize);
-    }
-
-    gameState.remotePlayers.forEach((player, idx) => {
-      if (!player.targetPos) return;
-      console.log("tp", idx, player.targetPos.x, player.targetPos.y);
-      setGameState("remotePlayers", idx, "position", "x", player.targetPos.x * tileSize)
-      setGameState("remotePlayers", idx, "position", "y", player.targetPos.y * tileSize)
-    });
+    requestAnimationFrame(frame);
   });
 
   // Optional tile attribute where the user is standing on; used for triggering tile action and debug/edit info.
@@ -109,8 +121,10 @@ const GameView: Component = () => {
         // Send/teleport player to (optional) room, (optional) coordinate
         if (param.room) console.log("Target room not yet implemented");
         if(param.coordinate) {
-          setGameState("myPlayer", "targetPos", param.coordinate);
-          setGameState("myPlayer", "position", { x: param.coordinate.x * tileSize, y: param.coordinate.y * tileSize });
+          batch(() => {
+            setGameState("myPlayer", "targetPos", param.coordinate);
+            setGameState("myPlayer", "position", { x: param.coordinate!.x * tileSize, y: param.coordinate!.y * tileSize });
+          })
         }
         if(param.direction) setGameState("myPlayer", "direction", param.direction);
         break;
@@ -215,8 +229,10 @@ const GameView: Component = () => {
           </div>
           <Button onClick={() => {
             const [spawn, direction] = getRandomSpawnPosition()
-            setGameState("myPlayer", "targetPos", spawn);
-            setGameState("myPlayer", "position", {x: spawn.x * tileSize, y: spawn.y * tileSize});
+            batch(() => {
+              setGameState("myPlayer", "targetPos", spawn);
+              setGameState("myPlayer", "position", {x: spawn.x * tileSize, y: spawn.y * tileSize});
+            })
             if (direction)
               setGameState("myPlayer", "direction", direction);            
           }}>spawn point</Button>

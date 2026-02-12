@@ -18,6 +18,7 @@ import { TileInformation } from "./Tiles/TileInformation";
 import { useLocalParticipant } from "../utils/useLocalParticipant";
 import { AttributeTileGroup } from "../canvas/AttributeTileGroup";
 import { Vector2 } from "../model/Vector2";
+import { useCurrentTileAttribute } from "../utils/useCurrentTileAttribute";
 
 const GameView: Component = () => {
   let input: HTMLInputElement;
@@ -74,14 +75,6 @@ const GameView: Component = () => {
     requestAnimationFrame(frame);
   });
 
-  // Optional tile attribute where the user is standing on; used for triggering tile action and debug/edit info.
-  const currentTileAttribute = createMemo(() => {
-    if (!gameState.myPlayer) return undefined;
-    const x = gameState.myPlayer.position.x;
-    const y = gameState.myPlayer.position.y;
-    return gameState.tileAttributes[`${x},${y}`];
-  });
-
   const objects = createMemo<Array<Player>>(() => {
     if (!gameState.myPlayer) return [];
 
@@ -89,7 +82,7 @@ const GameView: Component = () => {
     const objects = [
       gameState.myPlayer,
       ...gameState.remotePlayers,
-      // gameState.objects,
+      //...gameState.objects,
     ].sort((a, b) => {
       if (a.position.y > b.position.y) return -1;
       if (a.position.y < b.position.y) return 1;
@@ -97,11 +90,11 @@ const GameView: Component = () => {
       if (a.position.x > b.position.x) return 1;
       if (a.position.x < b.position.x) return -1;
 
-      // TODO: Players always on top of objects
+      // Players always on top of objects
 
       // Facing north means "on top" (for smooching, etc.)
-      if (a.direction.includes("N") && b.direction.includes("S")) return -1;
-      if (b.direction.includes("N") && a.direction.includes("S")) return 1;
+      if (a.direction?.includes("N") && b.direction?.includes("S")) return -1;
+      if (b.direction?.includes("N") && a.direction?.includes("S")) return 1;
 
       return 0;
     })
@@ -109,11 +102,11 @@ const GameView: Component = () => {
     return objects;
   });
 
-  // TODO: maybe move to gamestateManager
+  // TODO: maybe move to gameStateManager
   // Game navigation tile action
   createEffect(() => {
     // Don't trigger actions in edit mode
-    const param = currentTileAttribute();
+    const param = useCurrentTileAttribute();
     if (gameState.editMode || !param) return;
 
     switch (param.type) {
@@ -238,7 +231,7 @@ const GameView: Component = () => {
           }}>spawn point</Button>
         </div>
         <Show when={gameState.editMode}>
-          <TileInformation param={currentTileAttribute()}/>
+          <TileInformation param={useCurrentTileAttribute()}/>
           <TileSelector/>
         </Show>
       </Show>

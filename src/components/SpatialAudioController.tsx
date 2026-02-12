@@ -1,4 +1,4 @@
-import { type RemoteTrackPublication, RoomEvent, Track } from "livekit-client";
+import { RemoteTrackPublication, RoomEvent, Track } from "livekit-client";
 import { batch, Component, createEffect, For, on } from "solid-js";
 import { useRoomContext, useTracks } from "../solid-livekit";
 import { gameState } from "../model/GameState";
@@ -51,9 +51,11 @@ export const SpatialAudioController: Component = () => {
       batch(() => {
         gameState.remotePlayers.forEach((player) => {
           userNames.delete(player.username);
+          if (!player.targetPos || !gameState.myPlayer?.targetPos) return;
+
           const relativePosition: Vector2 = {
-            x: player.position.x - gameState.myPlayer!.position.x,
-            y: player.position.y - gameState.myPlayer!.position.y,
+            x: player.targetPos.x - gameState.myPlayer.targetPos.x,
+            y: player.targetPos.y - gameState.myPlayer.targetPos.y,
           };
   
           // Set/update relative position (note that other properties will get kept)

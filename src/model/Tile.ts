@@ -60,7 +60,7 @@ export type PrivateMeta = [x: number, y: number, identifier?: string];
 export type SpotlightMeta = [x: number, y: number, identifier?: string];
 export type MetaType = ImpassableMeta | SpawnMeta | PortalMeta | PrivateMeta | SpotlightMeta;
 
-export type MetaData = {
+export type TileMetaData = {
   A: SpotlightMeta[], // alias Attention
   D: PortalMeta[],    // alias Door
   I: ImpassableMeta[],

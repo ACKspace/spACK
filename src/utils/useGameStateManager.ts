@@ -147,7 +147,7 @@ export const useGameStateManager = () => {
   // Drawing tile attributes on the map
   createEffect(
     on<[number | undefined,number | undefined, boolean], void>(
-      () => [gameState.myPlayer?.position.x, gameState.myPlayer?.position.y, keyboardBits()[4]],
+      () => [gameState.myPlayer?.targetPos?.x, gameState.myPlayer?.targetPos?.y, keyboardBits()[4]],
       ([x, y, a]) => {
         if (!gameState.editMode || !a || x === undefined || y === undefined) return;
 
@@ -212,7 +212,6 @@ export const useGameStateManager = () => {
       if (!gameState.editMode || !down) return;
       switch (event.code) {
         case "Digit1":
-             // TileParam
           setGameState("activeTool", { type: "impassable" });
           break;
         case "Digit2":
@@ -226,6 +225,9 @@ export const useGameStateManager = () => {
           break;
         case "Digit5":
           setGameState("activeTool", { type: "spotlight" });
+          break;
+        case "Digit6":
+          // setGameState("activeTool", { type: "object" });
           break;
         case "Delete":
           setGameState("activeTool", undefined);

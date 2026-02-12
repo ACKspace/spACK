@@ -92,7 +92,7 @@ const TileSelector: Component = () => {
           console.log(JSON.parse(room()?.metadata ?? ""));
         }}>Debugprint metadata</Button>
         <Button onClick={() => {
-          console.log(JSON.parse(JSON.stringify(gameState.tileAttributes)));
+          console.log(JSON.parse(JSON.stringify(gameState)));
         }}>Debugprint gamestate</Button>
       </div>
     </div>

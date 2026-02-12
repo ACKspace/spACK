@@ -7,6 +7,7 @@ export type GameState = {
   myPlayer: Player | null;
   earshotRadius: number;
 
+  /** Remote players */
   remotePlayers: Player[];
   
   // TODO: objects similar to Player

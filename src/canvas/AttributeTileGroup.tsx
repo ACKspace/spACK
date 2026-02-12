@@ -2,20 +2,14 @@ import { Component, createMemo, For, Show } from "solid-js";
 import { gameState } from "../model/GameState";
 import { AttributeTile } from "./AttributeTile";
 import { tileColors } from "../model/Tile";
+import { useCurrentTileAttribute } from "../utils/useCurrentTileAttribute";
 
 export const AttributeTileGroup: Component = (props) => {
-  // Optional tile attribute where the user is standing on; used for triggering tile action and debug/edit info.
-  const currentTileAttribute = createMemo(() => {
-    if (!gameState.myPlayer) return undefined;
-    const x = gameState.myPlayer.targetPos?.x;
-    const y = gameState.myPlayer.targetPos?.y;
-    return gameState.tileAttributes[`${x},${y}`];
-  });
 
   return <Show when={gameState.editMode}>
     <>
       {/* Portal target, if on top of portal */}
-      <Show when={currentTileAttribute()?.type === "portal" && currentTileAttribute()}>{(t) =>
+      <Show when={useCurrentTileAttribute()?.type === "portal" && useCurrentTileAttribute()}>{(t) =>
         <AttributeTile
           color={"rgba(0,0,128,0.6)"}
           outline={"rgba(255,255,255,0.6)"}

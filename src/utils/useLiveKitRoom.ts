@@ -1,7 +1,7 @@
 import { Room, MediaDeviceFailure, RoomEvent, ConnectionState } from 'livekit-client';
 import { type LiveKitRoomProps } from '../components/LiveKitRoom';
 import { Accessor, batch, createEffect, createSignal, mergeProps, onCleanup } from 'solid-js';
-import { MetaData, MetaType, TileAttribute, TileParam } from '../model/Tile';
+import { TileMetaData, MetaType, TileAttribute, TileParam } from '../model/Tile';
 import { gameState, setGameState } from '../model/GameState';
 import { setRoomMetaData } from './useToken';
 import { Direction } from '../model/Direction';
@@ -13,7 +13,9 @@ const defaultRoomProps: Partial<LiveKitRoomProps> = {
   video: false,
 };
 
-const keyLookup: Record<keyof MetaData, TileAttribute> = {
+type RoomMetaData = TileMetaData;
+
+const keyLookup: Record<keyof RoomMetaData, TileAttribute> = {
   A: "spotlight",
   D: "portal",
   I: "impassable",
@@ -155,7 +157,7 @@ export const loadRoomMetadata = (room?: Room) => {
   if (!room?.metadata) return;
 
   try {
-    const metadata = JSON.parse(room.metadata!) as MetaData;
+    const metadata = JSON.parse(room.metadata!) as RoomMetaData;
 
     const keys = Object.keys(gameState.tileAttributes);
     batch(() => {
@@ -165,7 +167,7 @@ export const loadRoomMetadata = (room?: Room) => {
       });
     });
 
-    const subTypes = Object.keys(metadata) as Array<keyof MetaData>;
+    const subTypes = Object.keys(metadata) as Array<keyof RoomMetaData>;
     subTypes.forEach((subType) => {
       const type = keyLookup[subType];
       if (!type) return; // Sanity check
@@ -207,7 +209,7 @@ export const loadRoomMetadata = (room?: Room) => {
 export const saveRoomMetadata = async (room?: Room) => {
   if (!room) return;
 
-  const metadata: MetaData = {
+  const metadata: RoomMetaData = {
     A: [],
     D: [],
     I: [],

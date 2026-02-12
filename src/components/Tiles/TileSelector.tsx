@@ -6,6 +6,7 @@ import { useRoomContext } from "../../solid-livekit";
 import { Direction, directionToArrow as a } from "../../model/Direction";
 import { Vector2 } from "../../model/Vector2";
 import { CoordinateInput } from "../CoordinateInput";
+import { Object } from "../../model/Object";
 
 const DirectionSelect: Component<{value?: Direction; onChange: (value: Direction) => void}> = (props) => {
   return <select
@@ -62,6 +63,16 @@ const SpotlightTile: Component<{identifier: string}> = (props) => {
   </>
 };
 
+const ObjectEditor: Component<Object> = (props) => {
+  return <>
+    <div>Object (DUMMY: NOT READY FOR PRODUCTION):</div>
+    <div>Image: <input value={props.image ?? ""} onChange={(d) => {}}/></div>
+    <div>Active image: <input value={props.activeImage ?? ""} onChange={(d) => {}}/></div>
+    <div>Type: <input value={props.type ?? ""} onChange={(d) => {}}/></div>
+    <div>Uri: <input value={props.uri ?? ""} onChange={(d) => {}}/></div>
+  </>
+};
+
 const TileSelector: Component = () => {
   const room = useRoomContext();
   return (
@@ -82,6 +93,9 @@ const TileSelector: Component = () => {
         <Match when={gameState.activeTool?.type === "spotlight" && gameState.activeTool}>
           {(t) => <SpotlightTile identifier={t().identifier}/>}
         </Match>
+        <Match when={gameState.activeTool?.type === "object" && gameState.activeTool}>
+          {(t) => <ObjectEditor image={""} activeImage="" type="i" uri="" />}
+        </Match>
       </Switch>
       <div style={{"padding-top": "16px"}}>
         <Button onClick={() => loadRoomMetadata(room())}>Load metadata</Button>
@@ -94,6 +108,15 @@ const TileSelector: Component = () => {
         <Button onClick={() => {
           console.log(JSON.parse(JSON.stringify(gameState)));
         }}>Debugprint gamestate</Button>
+        <Button onClick={() => {
+          setGameState("objects", 0, {
+            position: {x: 1024, y: 1024},
+            image: "world/boombox.png",
+            activeImage: "",
+            type: "i",
+            uri: "",
+          });
+        }}>Fake object 1</Button>
       </div>
     </div>
   );

@@ -152,9 +152,19 @@ export const useGameStateManager = () => {
         if (!gameState.editMode || !a || x === undefined || y === undefined) return;
 
         // Used for level developing
-        const key = `${x},${y}`
-        // @ts-ignore -- Undefined means remove from store object. Otherwise, make a copy since unwrap and untrack don't work as I expect it to be.
-        setGameState("tileAttributes", key, gameState.activeTool ? JSON.parse(JSON.stringify(gameState.activeTool)) : undefined);
+
+        // Handle object
+        if (gameState.activeTool?.type === "object") {
+          console.log(gameState.activeTool);
+        } else {
+          const key = `${x},${y}`
+          // @ts-ignore -- Undefined means remove from store object. Otherwise, make a copy since unwrap and untrack don't work as I expect it to be.
+          setGameState("tileAttributes", key, gameState.activeTool ? JSON.parse(JSON.stringify(gameState.activeTool)) : undefined);
+
+          // TODO: also handle object delete
+          // ...
+        }
+
       }
     )
   );
@@ -227,7 +237,7 @@ export const useGameStateManager = () => {
           setGameState("activeTool", { type: "spotlight" });
           break;
         case "Digit6":
-          // setGameState("activeTool", { type: "object" });
+          setGameState("activeTool", { type: "object" });
           break;
         case "Delete":
           setGameState("activeTool", undefined);

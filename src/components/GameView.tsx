@@ -18,7 +18,9 @@ import { TileInformation } from "./Tiles/TileInformation";
 import { useLocalParticipant } from "../utils/useLocalParticipant";
 import { AttributeTileGroup } from "../canvas/AttributeTileGroup";
 import { Vector2 } from "../model/Vector2";
+import { type Object } from "../model/Object";
 import { useCurrentTileAttribute } from "../utils/useCurrentTileAttribute";
+import { WorldObject } from "../canvas/WorldObject";
 
 const GameView: Component = () => {
   let input: HTMLInputElement;
@@ -75,22 +77,25 @@ const GameView: Component = () => {
     requestAnimationFrame(frame);
   });
 
-  const objects = createMemo<Array<Player>>(() => {
+  const objects = createMemo<Array<Player | Object>>(() => {
     if (!gameState.myPlayer) return [];
 
     // Sorted list of players/objects
     const objects = [
       gameState.myPlayer,
       ...gameState.remotePlayers,
-      //...gameState.objects,
+      ...gameState.objects,
     ].sort((a, b) => {
       if (a.position.y > b.position.y) return -1;
       if (a.position.y < b.position.y) return 1;
 
+      // Players always on top of objects (horizontally)
+      if ("character" in a && !("character" in b)) return -1
+      if (!("character" in a) && "character" in b) return 1
+      if (!("character" in a) && !("character" in b)) return 0
+
       if (a.position.x > b.position.x) return 1;
       if (a.position.x < b.position.x) return -1;
-
-      // Players always on top of objects
 
       // Facing north means "on top" (for smooching, etc.)
       if (a.direction?.includes("N") && b.direction?.includes("S")) return -1;
@@ -167,13 +172,8 @@ const GameView: Component = () => {
         >
           <AttributeTileGroup/>
           <Map image={"world/overlay.png"} overlay />
-          <For each={objects()}>{(player) => (
-            <Character
-              username={player.username}
-              position={{ x: player.position.x, y: player.position.y }}
-              character={player.character}
-              animation={player.animation}
-              direction={player.direction}/>
+          <For each={objects()}>{(worldObject) => (
+            <WorldObject entity={worldObject}/>
           )}</For>
           <EarshotRadius radius={gameState.earshotRadius} position={gameState.myPlayer?.position ?? {x:0, y: 0}} render />
           <Map image={"world/map.png"} />

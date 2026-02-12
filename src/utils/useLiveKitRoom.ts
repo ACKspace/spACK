@@ -1,11 +1,12 @@
 import { Room, MediaDeviceFailure, RoomEvent, ConnectionState } from 'livekit-client';
 import { type LiveKitRoomProps } from '../components/LiveKitRoom';
 import { Accessor, batch, createEffect, createSignal, mergeProps, onCleanup } from 'solid-js';
-import { TileMetaData, MetaType, TileAttribute, TileParam } from '../model/Tile';
+import { TileMetaData, MetaType, TileAttribute, TileParam, tileSize } from '../model/Tile';
 import { gameState, setGameState } from '../model/GameState';
 import { setRoomMetaData } from './useToken';
 import { Direction } from '../model/Direction';
 import toast from "solid-toast";
+import { ObjectMeta, ObjectMetaData } from '../model/Object';
 
 const defaultRoomProps: Partial<LiveKitRoomProps> = {
   connect: true,
@@ -13,14 +14,15 @@ const defaultRoomProps: Partial<LiveKitRoomProps> = {
   video: false,
 };
 
-type RoomMetaData = TileMetaData;
+type RoomMetaData = TileMetaData & ObjectMetaData;
 
-const keyLookup: Record<keyof RoomMetaData, TileAttribute> = {
+const keyLookup: Record<keyof RoomMetaData, TileAttribute | "object"> = {
   A: "spotlight",
   D: "portal",
   I: "impassable",
   P: "private",
   S: "spawn",
+  O: "object",
 };
 
 /**
@@ -167,12 +169,15 @@ export const loadRoomMetadata = (room?: Room) => {
       });
     });
 
+    // Erase all objects
+    setGameState("objects", []);
+
     const subTypes = Object.keys(metadata) as Array<keyof RoomMetaData>;
     subTypes.forEach((subType) => {
       const type = keyLookup[subType];
       if (!type) return; // Sanity check
 
-      metadata[subType].forEach((meta) => {
+      metadata[subType].forEach((meta, index) => {
         const key = `${meta[0]},${meta[1]}`;
         // @ts-ignore -- Partial object; filled in with switch statement.
         const attribute: TileParam = { type }
@@ -193,6 +198,19 @@ export const loadRoomMetadata = (room?: Room) => {
           case "spotlight":
             attribute.identifier = meta[2] as string;
             break;
+
+          case "object":
+            // Not a tile attribute
+            setGameState("objects", index, {
+              position: {x: meta[0] * tileSize, y: meta[1] * tileSize},
+              image: meta[2],
+              activeImage: meta[3] || undefined,
+              type: meta[4] || undefined,
+              uri: meta[5] || undefined,
+            });
+            // Don't continue
+            return;
+
           default:
             console.warn("Unknown type", type);
             break;
@@ -214,7 +232,8 @@ export const saveRoomMetadata = async (room?: Room) => {
     D: [],
     I: [],
     P: [],
-    S: [],    
+    S: [],
+    O: [],
   };
   const keys = Object.keys(gameState.tileAttributes);
 
@@ -254,8 +273,16 @@ export const saveRoomMetadata = async (room?: Room) => {
         metadata.A.push(metaChunk)
         break;
     }
-
   });
+
+  gameState.objects.forEach((obj) => {
+    const metaChunk: ObjectMeta = [obj.position.x / tileSize, obj.position.y / tileSize, obj.image];
+    // TODO: make sure not to skip elements
+    metaChunk.push(obj.activeImage ?? 0);
+    metaChunk.push(obj.type ?? 0);
+    metaChunk.push(obj.uri ?? 0);
+    metadata.O.push(metaChunk);
+  })
 
   const bytes = await setRoomMetaData(room.name, JSON.stringify(metadata));
   if (bytes)

@@ -2,6 +2,12 @@ import { Player } from "./Player";
 import { TileParam } from "./Tile";
 import { Vector2 } from "./Vector2";
 import { createStore } from "solid-js/store";
+import { Object } from "./Object";
+
+export type WorldEntity = {
+  /** Actual position in pixels */
+  position: Vector2;
+};
 
 export type GameState = {
   myPlayer: Player | null;
@@ -11,6 +17,8 @@ export type GameState = {
   remotePlayers: Player[];
   
   // TODO: objects similar to Player
+  /** (Interactive) objects */
+  objects: Object[];
 
   /** Map size in tile units, determined on image load */
   mapSize: Vector2;
@@ -30,7 +38,7 @@ export type GameState = {
   /** Whether the "game" is in edit mode */
   editMode?: boolean;
   /** Current active painter's tool */
-  activeTool?: TileParam;
+  activeTool?: TileParam; // and object
 };
 
 export const [gameState, setGameState] = createStore<GameState>({
@@ -38,6 +46,7 @@ export const [gameState, setGameState] = createStore<GameState>({
     earshotRadius: 8,
 
     remotePlayers: [],
+    objects: [],
 
     mapSize: { x: 0, y: 0 },
     cameraOffset: { x: 0, y: 0 },

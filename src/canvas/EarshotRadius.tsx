@@ -17,8 +17,8 @@ export const EarshotRadius: Component<Props> = (props) => {
     <Arc
       transform={{
         position: {
-          x: tileSize * (props.position.x - props.radius),
-          y: tileSize * (props.position.y - props.radius),
+          x: props.position.x - (tileSize * props.radius),
+          y: props.position.y - (tileSize * props.radius),
         }
       }}
       style={{

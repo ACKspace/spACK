@@ -9,11 +9,12 @@ type Type =
 export type Object = WorldEntity & {
   image: string;
   activeImage?: string;
-  type?: Type;
+  mediaType?: Type;
   uri?: string;
+  active: boolean;
 };
 
-export type ObjectMeta = [x: number, y: number, image: string, activeImage?: string, type?: Type, uri?: string];
+export type ObjectMeta = [x: number, y: number, image: string, activeImage?: string, mediaType?: Type, uri?: string];
 export type ObjectMetaData = {
   O: ObjectMeta[],
 }

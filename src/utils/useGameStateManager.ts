@@ -1,7 +1,7 @@
 import { createEffect, createSignal, on, onCleanup, onMount } from "solid-js";
 import { gameState, setGameState } from "../model/GameState";
 import { useRoomContext } from "../solid-livekit";
-
+import { type Object } from "../model/Object";
 import {
   ParticipantEvent,
   RoomEvent,
@@ -77,6 +77,24 @@ export const getRandomSpawnPosition = (): [Vector2, Direction | undefined] => {
   return [{ x: 50, y: 50 }, "S"];
 }
 
+const findNearestObjectIndex = (x: number, y: number, radius: number): number | undefined => {
+  let nearestObjectIndex: number | undefined = undefined;
+  let nearestDistance = Infinity;
+
+  // We have to iterate them all to find the nearest
+  gameState.objects.forEach((object, idx) => {
+    // Only interactive items..
+    if (!object.uri && !object.activeImage) return;
+
+    const distance = Math.hypot(object.position.x / tileSize - x, object.position.y / tileSize - y);
+    if (distance > radius) return;
+    if (distance > nearestDistance) return;
+    nearestDistance = distance;
+    nearestObjectIndex = idx;
+  });
+
+  return nearestObjectIndex;
+}
 
 let timer: number | undefined;
 export const useGameStateManager = () => {
@@ -144,7 +162,7 @@ export const useGameStateManager = () => {
     }
   })
 
-  // Drawing tile attributes on the map
+  // Drawing tile attributes or objects on the map
   createEffect(
     on<[number | undefined,number | undefined, boolean], void>(
       () => [gameState.myPlayer?.targetPos?.x, gameState.myPlayer?.targetPos?.y, keyboardBits()[4]],
@@ -152,40 +170,57 @@ export const useGameStateManager = () => {
         if (!gameState.editMode || !a || x === undefined || y === undefined) return;
 
         // Used for level developing
+        const idx = findNearestObjectIndex(x, y, 2);
 
         // Handle object
         if (gameState.activeTool?.type === "object") {
-          console.log(gameState.activeTool);
+          // TODO: make sure we don't write multiple objects on the same location
+          // Make a copy since unwrap and untrack don't work as I expect it to be.
+          if (idx !== undefined &&
+            gameState.objects[idx].position.x === x &&
+            gameState.objects[idx].position.y === y)
+            return;
+
+          const object = JSON.parse(JSON.stringify(gameState.activeTool)) as Object;
+          object.position = { x: x * tileSize, y: y * tileSize };
+          setGameState("objects", (objects) => [...objects, object]);
         } else {
           const key = `${x},${y}`
           // @ts-ignore -- Undefined means remove from store object. Otherwise, make a copy since unwrap and untrack don't work as I expect it to be.
           setGameState("tileAttributes", key, gameState.activeTool ? JSON.parse(JSON.stringify(gameState.activeTool)) : undefined);
 
-          // TODO: also handle object delete
-          // ...
+          // Handle object delete
+          if (idx) setGameState("objects", (objects) => objects.filter((o,i) => i !== idx));
         }
-
       }
-    )
+    ),
+  );
+
+  // Action 'x' command
+  createEffect(
+    on<[number | undefined,number | undefined, boolean], void>(
+      () => [gameState.myPlayer?.targetPos?.x, gameState.myPlayer?.targetPos?.y, keyboardBits()[4]],
+      ([x, y, a]) => {
+        if (gameState.editMode || x === undefined || y === undefined) return;
+
+        // Determine if we need to display or hide a popup
+        setGameState("currentObject", undefined);
+        const idx = findNearestObjectIndex(x, y, 2);
+        setGameState("currentObject", idx && gameState.objects[idx]);
+
+        // Toggle active
+        if (a && idx) setGameState("currentObject", "active", (prev) => !prev);
+      }
+    ),
   );
 
   onMount(() => {
     const keyboardEvent = (event: KeyboardEvent) => {
-      if (gameState.debugMode) {
-        // DEBUG MODE PAN
-        const STEP = 8;
-        switch (event.code) {
-          case "KeyI": setGameState("cameraOffset", "y", (old) => old + STEP); break;
-          case "KeyK": setGameState("cameraOffset", "y", (old) => old - STEP); break;
-          case "KeyJ": setGameState("cameraOffset", "x", (old) => old + STEP); break;
-          case "KeyL": setGameState("cameraOffset", "x", (old) => old - STEP); break;
-        }
-      }
-
       if (event.repeat) return;
       const down = event.type === "keydown";
       // TODO: We might want to include all items with focus and tabindex
-      if (down && ["INPUT", "BUTTON", "SELECT", "TEXTAREA"].includes(document.activeElement?.tagName ?? "")) return;
+      const isInput = ["INPUT", "BUTTON", "SELECT", "TEXTAREA"].includes(document.activeElement?.tagName ?? "");
+      if (down && isInput) return;
 
       // Compatible with other layouts using `code`
       switch (event.code) {
@@ -214,7 +249,7 @@ export const useGameStateManager = () => {
           toggleBit(4, down);
           break;
         case "KeyT":
-          if (!down)
+          if (!down && !isInput)
             setGameState("chatMode", true);
       }
 

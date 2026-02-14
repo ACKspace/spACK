@@ -7,7 +7,9 @@ import { Direction, directionToArrow as a } from "../../model/Direction";
 import { Vector2 } from "../../model/Vector2";
 import { CoordinateInput } from "../CoordinateInput";
 import { Object } from "../../model/Object";
+import { TileParam } from "../../model/Tile";
 
+type WorldParam = Object | TileParam
 const DirectionSelect: Component<{value?: Direction; onChange: (value: Direction) => void}> = (props) => {
   return <select
     value={props.value ?? ""}
@@ -63,13 +65,17 @@ const SpotlightTile: Component<{identifier: string}> = (props) => {
   </>
 };
 
+const ToolInput: Component<{toolProps: WorldParam, name: string, label: string}> = (props) => {
+  return <div>{props.label}:<input value={props.toolProps[props.name as keyof WorldParam] ?? ""} onChange={(d) => setGameState("activeTool", props.name as keyof WorldParam, d.target.value ?? undefined)}/></div>;
+}
+
 const ObjectEditor: Component<Object> = (props) => {
   return <>
-    <div>Object (DUMMY: NOT READY FOR PRODUCTION):</div>
-    <div>Image: <input value={props.image ?? ""} onChange={(d) => {}}/></div>
-    <div>Active image: <input value={props.activeImage ?? ""} onChange={(d) => {}}/></div>
-    <div>Type: <input value={props.type ?? ""} onChange={(d) => {}}/></div>
-    <div>Uri: <input value={props.uri ?? ""} onChange={(d) => {}}/></div>
+    <div>Object:</div>
+    <ToolInput name="image" label="Image" toolProps={props} />
+    <ToolInput name="activeImage" label="Active image" toolProps={props} />
+    <ToolInput name="mediaType" label="Type" toolProps={props} />
+    <ToolInput name="uri" label="Uri" toolProps={props} />
   </>
 };
 
@@ -94,7 +100,7 @@ const TileSelector: Component = () => {
           {(t) => <SpotlightTile identifier={t().identifier}/>}
         </Match>
         <Match when={gameState.activeTool?.type === "object" && gameState.activeTool}>
-          {(t) => <ObjectEditor image={""} activeImage="" type="i" uri="" />}
+          {(t) => <ObjectEditor image={t().image} activeImage={t().activeImage} type={t().mediaType} uri={t().uri} />}
         </Match>
       </Switch>
       <div style={{"padding-top": "16px"}}>
@@ -113,7 +119,7 @@ const TileSelector: Component = () => {
             position: {x: 1024, y: 1024},
             image: "world/boombox.png",
             activeImage: "",
-            type: "i",
+            mediaType: "i",
             uri: "",
           });
         }}>Fake object 1</Button>

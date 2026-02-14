@@ -205,7 +205,7 @@ export const loadRoomMetadata = (room?: Room) => {
               position: {x: meta[0] * tileSize, y: meta[1] * tileSize},
               image: meta[2],
               activeImage: meta[3] || undefined,
-              type: meta[4] || undefined,
+              mediaType: meta[4] || undefined,
               uri: meta[5] || undefined,
             });
             // Don't continue
@@ -279,7 +279,7 @@ export const saveRoomMetadata = async (room?: Room) => {
     const metaChunk: ObjectMeta = [obj.position.x / tileSize, obj.position.y / tileSize, obj.image];
     // TODO: make sure not to skip elements
     metaChunk.push(obj.activeImage ?? 0);
-    metaChunk.push(obj.type ?? 0);
+    metaChunk.push(obj.mediaType ?? 0);
     metaChunk.push(obj.uri ?? 0);
     metadata.O.push(metaChunk);
   })

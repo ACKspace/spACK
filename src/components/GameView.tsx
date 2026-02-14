@@ -21,6 +21,7 @@ import { Vector2 } from "../model/Vector2";
 import { type Object } from "../model/Object";
 import { useCurrentTileAttribute } from "../utils/useCurrentTileAttribute";
 import { WorldObject } from "../canvas/WorldObject";
+import { TextBubble } from "../canvas/TextBubble";
 
 const GameView: Component = () => {
   let input: HTMLInputElement;
@@ -170,6 +171,9 @@ const GameView: Component = () => {
             position: gameState.cameraOffset
           }}
         >
+          <Show when={gameState.currentObject}>{(co) =>
+            <TextBubble position={co().position} text="Press 'x' to activate" />
+          }</Show>
           <AttributeTileGroup/>
           <Map image={"world/overlay.png"} overlay />
           <For each={objects()}>{(worldObject) => (
@@ -179,10 +183,8 @@ const GameView: Component = () => {
           <Map image={"world/map.png"} />
         </Group>
       </Canvas>
-      <Show when={mobile}>
-        <NavigationButtons/>
-      </Show>
       <SpatialAudioController/>
+      {/* Chat popup */}
       <Show when={gameState.chatMode}>
         <div style={{
           position: "fixed",
@@ -209,12 +211,18 @@ const GameView: Component = () => {
           />
         </div>
       </Show>
+      {/* Bottom right */}
+      <Show when={mobile}>
+        <NavigationButtons/>
+      </Show>
+      {/* Bottom left */}
       <Show when={gameState.debugMode}>
         <div style={{ position: "fixed", top: 0, left: 0 }}>
           player:{gameState.myPlayer?.position.x},{gameState.myPlayer?.position.y}<br/>
           player:{gameState.myPlayer?.targetPos?.x},{gameState.myPlayer?.targetPos?.y}<br/>
           offset:{gameState.cameraOffset.x},{gameState.cameraOffset.y}<br/>
           map:{gameState.mapSize.x},{gameState.mapSize.x}<br/>
+          current object: {gameState.currentObject?.image} {gameState.currentObject?.active ? "ACTIVE" : "none"}
           <div>
             <Button onClick={() => {
               setGameState("editMode", !gameState.editMode);
@@ -230,10 +238,12 @@ const GameView: Component = () => {
               setGameState("myPlayer", "direction", direction);            
           }}>spawn point</Button>
         </div>
-        <Show when={gameState.editMode}>
-          <TileInformation param={useCurrentTileAttribute()}/>
-          <TileSelector/>
-        </Show>
+      </Show>
+      <Show when={gameState.editMode}>
+        {/* Top right */}
+        <TileInformation param={useCurrentTileAttribute()}/>
+        {/* Bottom left */}
+        <TileSelector/>
       </Show>
     </Show>
   );

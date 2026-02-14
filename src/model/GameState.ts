@@ -16,10 +16,12 @@ export type GameState = {
   /** Remote players */
   remotePlayers: Player[];
   
-  // TODO: objects similar to Player
   /** (Interactive) objects */
   objects: Object[];
 
+  /** The object nearby */
+  currentObject?: Object;
+ 
   /** Map size in tile units, determined on image load */
   mapSize: Vector2;
 

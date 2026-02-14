@@ -21,7 +21,7 @@ export const WorldObject: Component<Props> = (props) => {
         dimensions: { width: 64, height: 64 },
         smoothingQuality: "none",
       }}
-      image={props.entity.image}
+      image={props.entity.active ? props.entity.activeImage : props.entity.image}
     />
   }>
     <Character

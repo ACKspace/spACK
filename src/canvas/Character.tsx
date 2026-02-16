@@ -71,43 +71,14 @@ export const Character: Component<Props> = (props) => {
     })
   })
 
-  // Debug dot
-  // return <Arc
-  //   transform={{
-  //     // Note: this is centered, but currently on the edge of a tile (using 100x100 map)      
-  //     position: {x: props.x * tileSize, y: props.y * tileSize}
-  //   }}
-  //   style={{
-  //     radius: (tileSize/2),
-  //     fill: "rgba(255, 0, 255, 0.59)",
-  //     stroke: "transparent",
-  //   }}
-  // />;
-
   return <Group
     transform={{
       position: {x: props.position.x - CHAR_OFFSET, y: props.position.y - CHAR_OFFSET - CHAR_OFFSET}
     }}
   >
-    <Show when={gameState.debugMode}>
-      <Text
-        transform={{
-          position: {x: 0, y: -30}
-        }}
-        text={`${props.position.x},${props.position.y}`}
-        outlineStyle="rgba(0,0,0,1)"
-        style={{
-          // TODO: align center
-          fill: "white",
-          fontSize: 24,
-          fontFamily: "FsPixel",
-          lineWidth: 6
-        }}
-      />
-    </Show>
     <Text
       transform={{
-        position: {x: 0, y: -10}
+        position: {x: 0, y: -20}
       }}
       text={props.username}
       outlineStyle="rgba(0,0,0,1)"

@@ -89,7 +89,7 @@ export const SpatialAudioController: Component = () => {
 
         trackRef.publication.on("subscribed", (track) => {
           if (track.kind !== "audio") return;
-          console.log("Subscribed to track publication event");
+          console.info("Subscribed to track publication event");
 
           setPlayerTracks(identity, { mediaStream: track.mediaStream } );
         });

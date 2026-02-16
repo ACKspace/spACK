@@ -18,9 +18,9 @@ import { TileInformation } from "./Tiles/TileInformation";
 import { useLocalParticipant } from "../utils/useLocalParticipant";
 import { AttributeTileGroup } from "../canvas/AttributeTileGroup";
 import { Vector2 } from "../model/Vector2";
-import { type Object } from "../model/Object";
+import { type WorldObject } from "../model/Object";
 import { useCurrentTileAttribute } from "../utils/useCurrentTileAttribute";
-import { WorldObject } from "../canvas/WorldObject";
+import { WorldEntity } from "../canvas/WorldEntity";
 import { TextBubble } from "../canvas/TextBubble";
 
 const GameView: Component = () => {
@@ -58,8 +58,8 @@ const GameView: Component = () => {
 
       batch(() => {
         // Camera
-        setGameState("cameraOffset", "x", (old) => stepDelta(old, -gameState.myPlayer!.position.x + screenSize().x / 2, step));
-        setGameState("cameraOffset", "y", (old) => stepDelta(old, -gameState.myPlayer!.position.y + screenSize().y / 2, step));
+        setGameState("cameraOffset", "x", (old) => stepDelta(old, -gameState.myPlayer!.position.x + Math.round(screenSize().x / 2), step));
+        setGameState("cameraOffset", "y", (old) => stepDelta(old, -gameState.myPlayer!.position.y + Math.round(screenSize().y / 2), step));
         // Player
         setGameState("myPlayer", "position", "x", (old) => stepDelta(old, gameState.myPlayer!.targetPos!.x * tileSize, step));
         setGameState("myPlayer", "position", "y", (old) => stepDelta(old, gameState.myPlayer!.targetPos!.y * tileSize, step));
@@ -78,7 +78,7 @@ const GameView: Component = () => {
     requestAnimationFrame(frame);
   });
 
-  const objects = createMemo<Array<Player | Object>>(() => {
+  const objects = createMemo<Array<Player | WorldObject>>(() => {
     if (!gameState.myPlayer) return [];
 
     // Sorted list of players/objects
@@ -118,7 +118,7 @@ const GameView: Component = () => {
     switch (param.type) {
       case "portal":
         // Send/teleport player to (optional) room, (optional) coordinate
-        if (param.room) console.log("Target room not yet implemented");
+        if (param.room) console.warn("Target room not yet implemented");
         if(param.coordinate) {
           batch(() => {
             setGameState("myPlayer", "targetPos", param.coordinate);
@@ -176,8 +176,8 @@ const GameView: Component = () => {
           }</Show>
           <AttributeTileGroup/>
           <Map image={"world/overlay.png"} overlay />
-          <For each={objects()}>{(worldObject) => (
-            <WorldObject entity={worldObject}/>
+          <For each={objects()}>{(worldEntity) => (
+            <WorldEntity entity={worldEntity}/>
           )}</For>
           <EarshotRadius radius={gameState.earshotRadius} position={gameState.myPlayer?.position ?? {x:0, y: 0}} render />
           <Map image={"world/map.png"} />

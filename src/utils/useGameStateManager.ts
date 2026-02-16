@@ -1,8 +1,9 @@
 import { createEffect, createSignal, on, onCleanup, onMount } from "solid-js";
 import { gameState, setGameState } from "../model/GameState";
 import { useRoomContext } from "../solid-livekit";
-import { type Object } from "../model/Object";
+import { type WorldObject } from "../model/Object";
 import {
+  LocalParticipant,
   ParticipantEvent,
   RoomEvent,
   type RemoteParticipant,
@@ -17,6 +18,7 @@ import { Direction } from "../model/Direction";
 import { loadRoomMetadata } from "./useLiveKitRoom";
 import toast from "solid-toast";
 import { tileSize } from "../model/Tile";
+import { ObjectWorkerData, Outgoing } from "../model/WorkerMessage";
 
 const textEncoder = new TextEncoder();
 const textDecoder = new TextDecoder();
@@ -27,7 +29,8 @@ const textDecoder = new TextDecoder();
 type NetworkPacket = 
   NetworkPosition |
   NetworkDirection |
-  NetworkAnimation;
+  NetworkAnimation |
+  NetworkObject;
 
 type NetworkPosition = {
   channelId: "position";
@@ -40,6 +43,10 @@ type NetworkDirection = {
 type NetworkAnimation = {
   channelId: "animation";
   payload: AnimationState;
+}
+type NetworkObject = {
+  channelId: "object";
+  payload: ObjectWorkerData;
 }
 
 // Up, Down, Left, Right
@@ -63,6 +70,11 @@ export const toggleBit = (bit: 0 | 1 | 2 | 3 | 4, flag: boolean) => {
 /** Direction bits in order of up, down, left, right */
 export const inputBits = keyboardBits;
 
+
+/**
+ * Get random spawn point
+ * @returns Array of Position and optional direction
+ */
 export const getRandomSpawnPosition = (): [Vector2, Direction | undefined] => {
   const spawnKeys = Object.keys(gameState.tileAttributes).filter((key) => gameState.tileAttributes[key].type === "spawn");
 
@@ -97,6 +109,10 @@ const findNearestObjectIndex = (x: number, y: number, radius: number): number | 
 }
 
 let timer: number | undefined;
+
+/**
+ * GameState manager
+ */
 export const useGameStateManager = () => {
   const room = useRoomContext();
   const { localParticipant } = useLocalParticipant({ room: room() });
@@ -181,8 +197,7 @@ export const useGameStateManager = () => {
             gameState.objects[idx].position.y === y)
             return;
 
-          const object = JSON.parse(JSON.stringify(gameState.activeTool)) as Object;
-          object.position = { x: x * tileSize, y: y * tileSize };
+          const object = setupObject(JSON.parse(JSON.stringify(gameState.activeTool)), gameState.objects.length, x * tileSize, y * tileSize, localParticipant());
           setGameState("objects", (objects) => [...objects, object]);
         } else {
           const key = `${x},${y}`
@@ -190,7 +205,12 @@ export const useGameStateManager = () => {
           setGameState("tileAttributes", key, gameState.activeTool ? JSON.parse(JSON.stringify(gameState.activeTool)) : undefined);
 
           // Handle object delete
-          if (idx) setGameState("objects", (objects) => objects.filter((o,i) => i !== idx));
+          if (idx) {
+            // Kill worker thread, if active
+            console.info("Terminating");
+            gameState.objects[idx].worker?.terminate();
+            setGameState("objects", (objects) => objects.filter((o,i) => i !== idx));
+          }
         }
       }
     ),
@@ -209,7 +229,13 @@ export const useGameStateManager = () => {
         setGameState("currentObject", idx && gameState.objects[idx]);
 
         // Toggle active
-        if (a && idx) setGameState("currentObject", "active", (prev) => !prev);
+        if (a && gameState.currentObject) {
+          if (gameState.currentObject.worker) {
+            gameState.currentObject.worker.postMessage({ type: "trigger", payload: gameState.currentObject.active } as Outgoing);
+          } else {
+            setGameState("currentObject", "active", (prev) => !prev);
+          }
+        }
       }
     ),
   );
@@ -272,7 +298,13 @@ export const useGameStateManager = () => {
           setGameState("activeTool", { type: "spotlight" });
           break;
         case "Digit6":
-          setGameState("activeTool", { type: "object" });
+          setGameState("activeTool", {
+            type: "object",
+            image: "world/boombox_off.png",
+            activeImage: "world/boombox_on.png",
+            mediaType: "s",
+            uri: "scripts/sharedActive.js",
+          });
           break;
         case "Delete":
           setGameState("activeTool", undefined);
@@ -307,7 +339,7 @@ export const useGameStateManager = () => {
         if (gameState.myPlayer && !prevParticipants?.includes(participant)) {
           // Send it after room sync is completed
           participant.once(ParticipantEvent.Active, () => {
-            console.log("send mypos to", participant.identity);
+            console.info("Send mypos to", participant.identity);
             const position: Uint8Array = textEncoder.encode(
               JSON.stringify({
                 payload: {
@@ -380,7 +412,7 @@ export const useGameStateManager = () => {
 
   // (Re)Connected
   const onConnected = () => {
-    console.log("Connected");
+    console.info("Connected");
     const { character } = JSON.parse(localParticipant().metadata!) as Player;
     if (!character) console.warn("missing player character");
     if (!localParticipant().identity) console.warn("missing player identity");
@@ -401,9 +433,13 @@ export const useGameStateManager = () => {
     });
   }
 
-  // Incoming messages
+  /**
+   * Incoming messages
+   * @param payload 
+   * @param participant 
+   * @returns 
+   */
   const onDataChannel = (payload: Uint8Array, participant: RemoteParticipant | undefined) => {
-    // console.log("Incoming data", participant, textDecoder.decode(payload));
     if (!participant) return;
 
     const player = gameState.remotePlayers.findIndex((player) => {
@@ -434,16 +470,20 @@ export const useGameStateManager = () => {
         });
         break;
 
+      case "object":
+        setGameState("objects", data.payload.id, "active", data.payload.active);
+        break;
+
       // case "message"
       // case "character"|"username" // Name change, etc
       default:
         // Pass
-        console.info("Incoming message: ", textDecoder.decode(payload))
+        console.info("Unknown incoming message: ", textDecoder.decode(payload))
     }
   };
 
   const onMetadata = (metadata: string) => {
-    console.log("New metadata");
+    console.info("New metadata");
     loadRoomMetadata(room())
   }
 
@@ -466,7 +506,6 @@ export const useGameStateManager = () => {
       })
     );
 
-    // console.log("update position", textDecoder.decode(payload));
     localParticipant().publishData(payload); // packet kind unreliable by default
   });
 
@@ -494,7 +533,40 @@ export const useGameStateManager = () => {
       }),
     );
 
-    // console.log("update animation", textDecoder.decode(payload));
     localParticipant().publishData(payload); // packet kind unreliable by default
   });
 };
+
+/**
+ * Setup object from different types of data
+ */
+export const setupObject = (partialObject: Partial<WorldObject>, id: number, x: number, y: number, participant: LocalParticipant): WorldObject => {
+  partialObject.position = { x, y };
+
+  // Handle worker thread if needed
+  if (partialObject.mediaType === "s") {
+    
+    // TODO: types
+    partialObject.worker = new Worker(partialObject.uri, { type: "classic" });
+
+    partialObject.worker.addEventListener("message", ( {data} ) => {
+      if (data.broadcast) {
+        // 
+        const payload: Uint8Array = textEncoder.encode(
+          JSON.stringify({
+            payload: {
+              id,
+              active: data.active,
+            } as ObjectWorkerData,
+            channelId: "object"
+          })
+        );
+        participant.publishData(payload); // packet kind unreliable by default
+        setGameState("objects", id, "active", data.active);
+
+      }
+    })
+  }
+
+  return partialObject as WorldObject;
+}

@@ -1,15 +1,15 @@
 import { Image } from "../../solid-canvas/src";
-import { type Object } from "../model/Object";
+import { type WorldObject } from "../model/Object";
 import { Player } from "../model/Player";
 import { Component, Show } from "solid-js";
 import { Character } from "./Character";
 
 type Props = {
   /** The center of the earshot radius in tile units within the map */
-  entity: Player | Object;
+  entity: Player | WorldObject;
 };
 
-export const WorldObject: Component<Props> = (props) => {
+export const WorldEntity: Component<Props> = (props) => {
   return <Show when={"character" in props.entity} fallback={
     <Image
       transform={{

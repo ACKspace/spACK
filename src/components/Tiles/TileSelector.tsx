@@ -1,4 +1,4 @@
-import { Component, Match, Switch } from "solid-js";
+import { Component, For, Match, Switch } from "solid-js";
 import { gameState, setGameState } from "../../model/GameState";
 import Button from "../Button/Button";
 import { loadRoomMetadata, saveRoomMetadata } from "../../utils/useLiveKitRoom";
@@ -6,39 +6,75 @@ import { useRoomContext } from "../../solid-livekit";
 import { Direction, directionToArrow as a } from "../../model/Direction";
 import { Vector2 } from "../../model/Vector2";
 import { CoordinateInput } from "../CoordinateInput";
-import { Object } from "../../model/Object";
+import { WorldObject } from "../../model/Object";
 import { TileParam } from "../../model/Tile";
 
-type WorldParam = Object | TileParam
-const DirectionSelect: Component<{value?: Direction; onChange: (value: Direction) => void}> = (props) => {
-  return <select
-    value={props.value ?? ""}
-    onchange={(e) => props.onChange((e.target.value ?? undefined) as Direction)}
-    style={{ "font-family": "Pixeloid"}}
-  >
-    <option value="">none/preserve</option>
-    <option value="N">{a("N")} North</option>
-    <option value="NE">{a("NE")} Northeast</option>
-    <option value="E">{a("E")} East</option>
-    <option value="SE">{a("SE")} Southeast</option>
-    <option value="S">{a("S")} South</option>
-    <option value="SW">{a("SW")} Southwest</option>
-    <option value="W">{a("W")} West</option>
-    <option value="NW">{a("NW")} Northwest</option>
-  </select>
+type WorldParam = WorldObject | TileParam;
+type ParamComponent<T extends WorldParam> = Component<{toolProps: T, name: keyof T, label: string, options: Record<T[keyof T], string>}>;
+
+/**
+ * Tool param input
+ * @param props 
+ * @returns 
+ */
+const ToolInput: Component<{toolProps: WorldParam, name: string, label: string}> = (props) => {
+  return <div>
+    {props.label}:
+    <input value={props.toolProps[props.name as keyof WorldParam] ?? ""} onChange={(d) => setGameState("activeTool", props.name as keyof WorldParam, d.target.value ?? undefined)}/>
+  </div>;
+}
+
+
+/**
+ * Tool param select
+ * @param props 
+ * @returns 
+ */
+const Select: ParamComponent<WorldObject> = (props) => {
+  return <div>
+    {props.label}:
+    <select
+        value={gameState.activeTool[props.name] ?? ""}
+        onChange={(d) => setGameState("activeTool", props.name as keyof WorldParam, d.target.value ?? undefined)}
+        style={{ "font-family": "Pixeloid"}}
+      >
+        <For each={Object.entries(props.options)}>{([value, label]) =>
+          <option value={value}>{label}</option>
+        }</For>
+      </select>
+  </div>;
+}
+
+
+/**
+ * Direction param select
+ * @param props 
+ * @returns 
+ */
+const DirectionSelect: Component<{label: string}> = (props) => {
+  return <Select label="Allow" name="direction" toolProps={props} options={{
+      "": "none/preserve",
+      "NE": `${a("NE")} Northeast`,
+      "E": `${a("E")} East`,
+      "SE": `${a("SE")} Southeast`,
+      "S": `${a("S")} South`,
+      "SW": `${a("SW")} Southwest`,
+      "W": `${a("W")} West`,
+      "NW": `${a("NW")} Northwest`,
+    }} />
 }
 
 const ImpassableTile: Component<{direction?: Direction}> = (props) => {
   return <>
     <div>Impassable:</div>
-    <div>Allow: <DirectionSelect value={props.direction} onChange={(d) => setGameState("activeTool", "direction", d)}/></div>
+    <DirectionSelect label="Allow" />
     </>
 };
 
 const SpawnTile: Component<{direction?: Direction}> = (props) => {
   return <>
     <div>Spawn:</div>
-    <div>Facing: <DirectionSelect value={props.direction} onChange={(d) => setGameState("activeTool", "direction", d)}/></div>
+    <DirectionSelect label="Facing" />
   </>
 };
 
@@ -47,7 +83,7 @@ const PortalTile: Component<{direction?: Direction; coordinate?: Vector2; room?:
     <div>Portal:</div>
     <div>Room: <input value={props.room ?? ""} onChange={(d) => setGameState("activeTool", "room", d.target.value ?? undefined)}/></div>
     <div>Coordinate: <CoordinateInput value={props.coordinate} onChange={(d) => setGameState("activeTool", "coordinate", d)}/></div>
-    <div>Facing: <DirectionSelect value={props.direction} onChange={(d) => setGameState("activeTool", "direction", d)}/></div>
+    <DirectionSelect label="Facing" />
   </>
 };
 
@@ -65,16 +101,13 @@ const SpotlightTile: Component<{identifier: string}> = (props) => {
   </>
 };
 
-const ToolInput: Component<{toolProps: WorldParam, name: string, label: string}> = (props) => {
-  return <div>{props.label}:<input value={props.toolProps[props.name as keyof WorldParam] ?? ""} onChange={(d) => setGameState("activeTool", props.name as keyof WorldParam, d.target.value ?? undefined)}/></div>;
-}
-
-const ObjectEditor: Component<Object> = (props) => {
+const ObjectEditor: Component<WorldObject> = (props) => {
   return <>
     <div>Object:</div>
     <ToolInput name="image" label="Image" toolProps={props} />
     <ToolInput name="activeImage" label="Active image" toolProps={props} />
     <ToolInput name="mediaType" label="Type" toolProps={props} />
+    <Select label="Type" name="mediaType" toolProps={props} options={{"": "none", i: "Image", v: "Video", a: "Audio", s: "Script" }} />
     <ToolInput name="uri" label="Uri" toolProps={props} />
   </>
 };
@@ -100,7 +133,7 @@ const TileSelector: Component = () => {
           {(t) => <SpotlightTile identifier={t().identifier}/>}
         </Match>
         <Match when={gameState.activeTool?.type === "object" && gameState.activeTool}>
-          {(t) => <ObjectEditor image={t().image} activeImage={t().activeImage} type={t().mediaType} uri={t().uri} />}
+          {(t) => <ObjectEditor image={t().image} activeImage={t().activeImage} mediaType={t().mediaType} uri={t().uri} />}
         </Match>
       </Switch>
       <div style={{"padding-top": "16px"}}>
@@ -114,15 +147,6 @@ const TileSelector: Component = () => {
         <Button onClick={() => {
           console.log(JSON.parse(JSON.stringify(gameState)));
         }}>Debugprint gamestate</Button>
-        <Button onClick={() => {
-          setGameState("objects", 0, {
-            position: {x: 1024, y: 1024},
-            image: "world/boombox.png",
-            activeImage: "",
-            mediaType: "i",
-            uri: "",
-          });
-        }}>Fake object 1</Button>
       </div>
     </div>
   );

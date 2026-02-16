@@ -97,7 +97,7 @@ export async function setRoomMetaData(room: string, metadata: string): Promise<n
 {
   const token = await useToken(room);
   if ("error" in token) {
-    console.log("No valid cached token to use");
+    console.warn("No valid cached token to use");
     return 0;
   }
 

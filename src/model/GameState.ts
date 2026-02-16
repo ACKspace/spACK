@@ -2,7 +2,7 @@ import { Player } from "./Player";
 import { TileParam } from "./Tile";
 import { Vector2 } from "./Vector2";
 import { createStore } from "solid-js/store";
-import { Object } from "./Object";
+import { WorldObject } from "./Object";
 
 export type WorldEntity = {
   /** Actual position in pixels */
@@ -17,10 +17,10 @@ export type GameState = {
   remotePlayers: Player[];
   
   /** (Interactive) objects */
-  objects: Object[];
+  objects: WorldObject[];
 
   /** The object nearby */
-  currentObject?: Object;
+  currentObject?: WorldObject;
  
   /** Map size in tile units, determined on image load */
   mapSize: Vector2;

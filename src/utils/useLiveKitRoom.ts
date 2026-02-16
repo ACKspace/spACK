@@ -7,6 +7,8 @@ import { setRoomMetaData } from './useToken';
 import { Direction } from '../model/Direction';
 import toast from "solid-toast";
 import { ObjectMeta, ObjectMetaData } from '../model/Object';
+import { setupObject } from './useGameStateManager';
+import { type WorldObject } from "../model/Object";
 
 const defaultRoomProps: Partial<LiveKitRoomProps> = {
   connect: true,
@@ -25,8 +27,11 @@ const keyLookup: Record<keyof RoomMetaData, TileAttribute | "object"> = {
   O: "object",
 };
 
+
 /**
- * The `useLiveKitRoom` hook is used to implement the `LiveKitRoom` or your custom implementation of it.
+ * Use LiveKit room helper
+ * @param props LiveKit room props
+ * @returns 
  */
 export function useLiveKitRoom<T extends HTMLElement>(
   props: LiveKitRoomProps,
@@ -155,6 +160,12 @@ export function useLiveKitRoom<T extends HTMLElement>(
   return { room };
 }
 
+
+/**
+ * Load room meta data
+ * @param room The LiveKit room
+ * @returns 
+ */
 export const loadRoomMetadata = (room?: Room) => {
   if (!room?.metadata) return;
 
@@ -169,7 +180,10 @@ export const loadRoomMetadata = (room?: Room) => {
       });
     });
 
-    // Erase all objects
+    // Erase all objects and its workers. Kill any worker thread.
+    gameState.objects.forEach((object) => {
+      object.worker?.terminate();
+    })
     setGameState("objects", []);
 
     const subTypes = Object.keys(metadata) as Array<keyof RoomMetaData>;
@@ -186,14 +200,15 @@ export const loadRoomMetadata = (room?: Room) => {
           case "impassable":
             attribute.direction = meta[2] as Direction;
             break;
+
           case "portal":
             attribute.direction = meta[2] as Direction;
             attribute.room = meta[3];
             if (meta.length > 5) {
               attribute.coordinate = { x: meta[4]!, y: meta[5]!}
             }
-
             break;
+
           case "private":
           case "spotlight":
             attribute.identifier = meta[2] as string;
@@ -201,13 +216,15 @@ export const loadRoomMetadata = (room?: Room) => {
 
           case "object":
             // Not a tile attribute
-            setGameState("objects", index, {
-              position: {x: meta[0] * tileSize, y: meta[1] * tileSize},
-              image: meta[2],
-              activeImage: meta[3] || undefined,
-              mediaType: meta[4] || undefined,
-              uri: meta[5] || undefined,
-            });
+            const partialObject = {
+                image: meta[2],
+                activeImage: meta[3] || undefined,
+                mediaType: meta[4] || undefined,
+                uri: meta[5] || undefined,
+            } as WorldObject;
+
+            const object = setupObject(partialObject, index, meta[0] * tileSize, meta[1] * tileSize, room.localParticipant);
+            setGameState("objects", index, object);
             // Don't continue
             return;
 
@@ -224,6 +241,12 @@ export const loadRoomMetadata = (room?: Room) => {
   }
 };
 
+
+/**
+ * Save room meta data
+ * @param room The LiveKit room
+ * @returns void
+ */
 export const saveRoomMetadata = async (room?: Room) => {
   if (!room) return;
 

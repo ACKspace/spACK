@@ -1,6 +1,6 @@
 import { gameState, setGameState } from "../model/GameState";
 import { ConnectionState } from "livekit-client";
-import { batch, Component, createEffect, createMemo, createSignal, For, onMount, Show } from "solid-js";
+import { batch, Component, createEffect, createMemo, createSignal, For, Match, onMount, Show, Switch } from "solid-js";
 import { useConnectionState } from "../solid-livekit";
 import { getRandomSpawnPosition, useGameStateManager } from "../utils/useGameStateManager";
 import { Canvas, Group } from "../../solid-canvas/src";
@@ -22,6 +22,7 @@ import { type WorldObject } from "../model/Object";
 import { useCurrentTileAttribute } from "../utils/useCurrentTileAttribute";
 import { WorldEntity } from "../canvas/WorldEntity";
 import { TextBubble } from "../canvas/TextBubble";
+import Input from "./Input/Input";
 
 const GameView: Component = () => {
   let input: HTMLInputElement;
@@ -29,6 +30,11 @@ const GameView: Component = () => {
   const mobile = useMobile();
   const connectionState = useConnectionState();
   const { localParticipant } = useLocalParticipant();
+  const showOverlay = createMemo(() => {
+    if (gameState.chatMode) return true;
+    if ( gameState.currentObject?.active && ["a", "i", "v", "p"].includes(gameState.currentObject.mediaType!)) return true;
+    return false;
+  });
 
   useGameStateManager();
 
@@ -185,7 +191,7 @@ const GameView: Component = () => {
       </Canvas>
       <SpatialAudioController/>
       {/* Chat popup */}
-      <Show when={gameState.chatMode}>
+      <Show when={showOverlay()}>
         <div style={{
           position: "fixed",
           top: "15vh",
@@ -197,18 +203,45 @@ const GameView: Component = () => {
           padding: "8px",
           display: "flex",
         }}>
-          <span>Chat:</span>
-          <input
-            ref={input!}
-            name="chat"
-            style={{
-              "font-size": "16px",
-              "font-family": "Pixeloid",
-              "flex": "1 1 auto",
-              "width": "100%",
-            }}
-            onKeyDown={keyDown}
-          />
+          <Switch>
+            <Match when={gameState.chatMode}>
+              <span>Chat:</span>
+              <Input
+                ref={input!}
+                name="chat"
+                onKeyDown={keyDown}
+              />
+            </Match>
+            <Match when={gameState.currentObject?.mediaType === "a"}>
+              <audio
+                autoplay
+                controls
+                style={{"max-width":"100%"}}
+                src={gameState.currentObject?.uri}
+                />
+            </Match>
+            <Match when={gameState.currentObject?.mediaType === "i"}>
+              <img
+                style={{"max-width":"100%", "max-height":"100%"}}
+                src={gameState.currentObject?.uri}
+                />
+            </Match>
+            <Match when={gameState.currentObject?.mediaType === "p"}>
+              <iframe
+                allowfullscreen
+                style={{"max-width":"100%", "aspect-ratio":"16/9"}}
+                src={gameState.currentObject?.uri}
+                />
+            </Match>
+            <Match when={gameState.currentObject?.mediaType === "v"}>
+              <video
+                autoplay
+                controls
+                style={{"max-width":"100%", "aspect-ratio":"16/9"}}
+                src={gameState.currentObject?.uri}
+                />
+            </Match>
+          </Switch>
         </div>
       </Show>
       {/* Bottom right */}

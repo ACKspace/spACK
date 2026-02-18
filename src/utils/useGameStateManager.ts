@@ -224,10 +224,14 @@ export const useGameStateManager = () => {
         if (gameState.editMode || x === undefined || y === undefined) return;
 
         // Determine if we need to display or hide a popup
-        setGameState("currentObject", undefined);
         const idx = findNearestObjectIndex(x, y, 2);
-        setGameState("currentObject", idx && gameState.objects[idx]);
-
+        const nearestObject = gameState.objects[idx]
+        if (nearestObject !== gameState.currentObject) {
+          // Erase first (there are issues of other objects disappearing and toggling)
+          setGameState("currentObject", undefined);
+          setGameState("currentObject", nearestObject);
+        }
+ 
         // Toggle active
         if (a && gameState.currentObject) {
           if (gameState.currentObject.worker) {

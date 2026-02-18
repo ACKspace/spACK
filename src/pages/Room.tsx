@@ -1,6 +1,5 @@
 import { Component, createMemo, createSignal, Match, onCleanup, onMount, Show, Switch } from "solid-js";
 import { CharacterSelector, type CharacterName } from "../components/CharacterSelector/CharacterSelector";
-import { UsernameInput } from "../components/UsernameInput";
 import toast from "solid-toast";
 import RoomInfo from "../components/RoomInfo";
 import BottomBar from "../components/BottomBar";
@@ -9,6 +8,10 @@ import { LiveKitRoom } from "../components/LiveKitRoom";
 import { type ConnectionDetails, useToken } from "../utils/useToken";
 import { WebAudioContext } from "../providers/webAudio";
 import { useParticipants } from "../utils/useParticipants";
+import Input from "../components/Input/Input";
+import Button from "../components/Button/Button";
+
+import styles from "./pages.module.css";
 
 type Props = {
   name?: string;
@@ -16,6 +19,8 @@ type Props = {
 
 const Room: Component<Props> = (props) => {
   let password: HTMLInputElement | undefined;
+  let input: HTMLInputElement | undefined;
+  const [username, setUsername] = createSignal(`Dummy${Math.random() * 1000 | 0}`);
   const [connectionDetails, setConnectionDetails] =
     createSignal<ConnectionDetails | null>(null);
   const [selectedCharacter, setSelectedCharacter] =
@@ -24,6 +29,8 @@ const Room: Component<Props> = (props) => {
   const [audioContext, setAudioContext] = createSignal<AudioContext | null>(null);
 
   onMount(async () => {
+    input?.focus();
+
     setAudioContext(new AudioContext());
     const roomInfo = await useParticipants(props.name ?? "");
     if (!roomInfo.list)
@@ -44,32 +51,46 @@ const Room: Component<Props> = (props) => {
 
   return (
     <Switch fallback={
-      <>
+          <form
+            onSubmit={async (e) => {
+              e.preventDefault();
+              try {
+                const result = await useToken(props.name ?? "", username(), selectedCharacter(), password?.value);
+                if ("error" in result) throw new TypeError(result.error);
+
+                setConnectionDetails(result);
+              } catch (e: any) {
+                toast.error(String(e));
+              }
+            }}
+          >
         <h2>{humanRoomName()}</h2>
         <RoomInfo roomName={props.name ?? ""} />
-        <div>Selected: {selectedCharacter()}</div>
         <CharacterSelector
           selectedCharacter={selectedCharacter()}
           onSelectedCharacterChange={setSelectedCharacter}
         />
-        <UsernameInput
-          submitText="Join Room"
-          onSubmit={async (username) => {
-            try {
-              const result = await useToken(props.name ?? "", username, selectedCharacter(), password?.value);
-              if ("error" in result) throw new TypeError(result.error);
-
-              setConnectionDetails(result);
-            } catch (e: any) {
-              toast.error(String(e));
-            }
-          }}
-        />
+        <div class={styles.panel}>
+          <div class={styles.label}>Name:</div>
+          <Input
+            ref={input}
+            value={username()}
+            onChange={(e) => setUsername(e.currentTarget.value)}
+            type="text"
+            autofocus
+            placeholder="Username"
+          />
+        </div>
         {/* TODO: for new rooms, allow initial password to be set */}
         <Show when={securityLevel()}>{(s) =>
-          <>{s() === 1 ? "Admin password:": "Password:"}<input type="password" ref={password}/></>
+          <div class={styles.panel}>
+            <div class={styles.label}>{s() === 1 ? "Admin password:": "Password:"}</div>
+            <Input type="password" ref={password}/>
+            </div>
         }</Show>
-      </>
+        
+        <Button>Join</Button>
+      </form>
     }>
       <Match when={!audioContext()}>NO AUDIO CONTEXT</Match>
       <Match when={connectionDetails()}>

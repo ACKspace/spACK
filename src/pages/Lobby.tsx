@@ -1,6 +1,9 @@
 import { Component, createSignal, onMount } from "solid-js";
 import { useMobile } from "../utils/useMobile";
 import Button from "../components/Button/Button";
+import Input from "../components/Input/Input";
+
+import styles from "./pages.module.css"
 
 type LobbyProps = {
   onRoom?: (room?: string) => void;
@@ -24,17 +27,15 @@ const Lobby: Component<LobbyProps> = (props) => {
           props.onRoom?.(roomName());
         }}
       >
-        <div>
-          <div>
-            <input
-              ref={ref}
-              value={roomName()}
-              onChange={(e) => setRoomName(e.currentTarget.value)}
-              type="text"
-              placeholder="Room Name"
-            />
-            <Button>Enter Room</Button>
-          </div>
+        <div class={styles.panel}>
+          <Input
+            ref={ref}
+            value={roomName()}
+            onChange={(e) => setRoomName(e.currentTarget.value)}
+            type="text"
+            placeholder="Room Name"
+          />
+          <Button>Enter Room</Button>
         </div>
       </form>
     </div>

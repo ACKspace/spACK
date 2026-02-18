@@ -11,12 +11,14 @@ type PreviewCharacterProps = {
   onClick?: () => void;
 };
 const PreviewCharacter: Component<PreviewCharacterProps> = (props) => {
-
   return (
-    <div
-      class={styles.inline}
-      onClick={() => props.onClick?.()}
-    >
+    <label class={styles.inline}>
+      <input type="radio" name="character" value={props.name} checked={props.selected} onChange={() => props.onClick?.()} style={{
+        opacity: 0,
+        cursor: "pointer",
+        height: 0,
+        width: 0,              
+      }} />
       <div class={props.selected ? styles.bounce : ""}>
         <img
           width={64}
@@ -27,7 +29,7 @@ const PreviewCharacter: Component<PreviewCharacterProps> = (props) => {
         />
       </div>
       <div>{props.name}</div>
-    </div>
+    </label>
   );
 };
 

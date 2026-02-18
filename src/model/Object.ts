@@ -4,6 +4,7 @@ type Type =
   | "v" // video media
   | "a" // audio media
   | "i" // image media
+  | "p" // page (embedded url)
   | "s" // script (web worker)
 
 export type WorldObject = WorldEntity & {

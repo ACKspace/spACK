@@ -13,7 +13,13 @@
         font-family: 'Pixeloid';
         src: url('fonts/pixeloid.sans-bold.otf') format('truetype'),
              url('fonts/pixeloid.sans-bold.ttf') format('truetype');
-      }      
+      }
+      * {
+        -webkit-touch-callout: none; /* iOS Safari */
+        -webkit-user-select: none; /* Safari */
+        -khtml-user-select: none; /* Konqueror HTML */
+        user-select: none;
+      }
     </style>
     <title>%VITE_TITLE% %VITE_VERSION%</title>
   </head>

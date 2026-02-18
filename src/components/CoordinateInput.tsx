@@ -1,5 +1,6 @@
 import { Component, createEffect, createSignal } from "solid-js";
 import { Vector2 } from "../model/Vector2";
+import Input from "./Input/Input";
 
 export const CoordinateInput: Component<{coordinate?: Vector2; onChange?: (coordinate?: Vector2) => void}> = (props) => {
   const [x, setX] = createSignal<number | undefined>(props.coordinate?.x);
@@ -20,8 +21,8 @@ export const CoordinateInput: Component<{coordinate?: Vector2; onChange?: (coord
   })
 
   return <>
-    <input type="number" value={x() ?? ""} onChange={(d) => setX(d.target.value ? parseInt(d.target.value) : undefined)} placeholder="X"/>
+    <Input type="number" value={x() ?? ""} onChange={(d) => setX(d.target.value ? parseInt(d.target.value) : undefined)} placeholder="X"/>
     ,
-    <input type="number" value={y() ?? ""} onChange={(d) => setY(d.target.value ? parseInt(d.target.value) : undefined)} placeholder="Y"/>
+    <Input type="number" value={y() ?? ""} onChange={(d) => setY(d.target.value ? parseInt(d.target.value) : undefined)} placeholder="Y"/>
   </>
 };

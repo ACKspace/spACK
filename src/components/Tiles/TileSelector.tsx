@@ -8,6 +8,7 @@ import { Vector2 } from "../../model/Vector2";
 import { CoordinateInput } from "../CoordinateInput";
 import { WorldObject } from "../../model/Object";
 import { TileParam } from "../../model/Tile";
+import Input from "../Input/Input";
 
 type WorldParam = WorldObject | TileParam;
 type ParamComponent<T extends WorldParam> = Component<{toolProps: T, name: keyof T, label: string, options: Record<T[keyof T], string>}>;
@@ -20,7 +21,7 @@ type ParamComponent<T extends WorldParam> = Component<{toolProps: T, name: keyof
 const ToolInput: Component<{toolProps: WorldParam, name: string, label: string}> = (props) => {
   return <div>
     {props.label}:
-    <input value={props.toolProps[props.name as keyof WorldParam] ?? ""} onChange={(d) => setGameState("activeTool", props.name as keyof WorldParam, d.target.value ?? undefined)}/>
+    <Input value={props.toolProps[props.name as keyof WorldParam] ?? ""} onChange={(d) => setGameState("activeTool", props.name as keyof WorldParam, d.target.value ?? undefined)}/>
   </div>;
 }
 
@@ -81,7 +82,7 @@ const SpawnTile: Component<{direction?: Direction}> = (props) => {
 const PortalTile: Component<{direction?: Direction; coordinate?: Vector2; room?: string}> = (props) => {
   return <>
     <div>Portal:</div>
-    <div>Room: <input value={props.room ?? ""} onChange={(d) => setGameState("activeTool", "room", d.target.value ?? undefined)}/></div>
+    <div>Room: <Input value={props.room ?? ""} onChange={(d) => setGameState("activeTool", "room", d.target.value ?? undefined)}/></div>
     <div>Coordinate: <CoordinateInput value={props.coordinate} onChange={(d) => setGameState("activeTool", "coordinate", d)}/></div>
     <DirectionSelect label="Facing" />
   </>
@@ -90,14 +91,14 @@ const PortalTile: Component<{direction?: Direction; coordinate?: Vector2; room?:
 const PrivateTile: Component<{identifier: string}> = (props) => {
   return <>
     <div>Private:</div>
-    <div>Identifier: <input value={props.identifier ?? ""} onChange={(d) => setGameState("activeTool", "identifier", d.target.value ?? undefined)}/></div>
+    <div>Identifier: <Input value={props.identifier ?? ""} onChange={(d) => setGameState("activeTool", "identifier", d.target.value ?? undefined)}/></div>
   </>
 };
 
 const SpotlightTile: Component<{identifier: string}> = (props) => {
   return <>
     <div>Spotlight:</div>
-    <div>Identifier: <input value={props.identifier ?? ""} onChange={(d) => setGameState("activeTool", "identifier", d.target.value ?? undefined)}/></div>
+    <div>Identifier: <Input value={props.identifier ?? ""} onChange={(d) => setGameState("activeTool", "identifier", d.target.value ?? undefined)}/></div>
   </>
 };
 
@@ -106,8 +107,7 @@ const ObjectEditor: Component<WorldObject> = (props) => {
     <div>Object:</div>
     <ToolInput name="image" label="Image" toolProps={props} />
     <ToolInput name="activeImage" label="Active image" toolProps={props} />
-    <ToolInput name="mediaType" label="Type" toolProps={props} />
-    <Select label="Type" name="mediaType" toolProps={props} options={{"": "none", i: "Image", v: "Video", a: "Audio", s: "Script" }} />
+    <Select label="Type" name="mediaType" toolProps={props} options={{"": "none", i: "Image", v: "Video", a: "Audio", p: "Embedded page", s: "Script" }} />
     <ToolInput name="uri" label="Uri" toolProps={props} />
   </>
 };

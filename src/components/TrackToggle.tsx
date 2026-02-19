@@ -2,6 +2,7 @@ import type { CaptureOptionsBySource, ToggleSource } from '@livekit/components-c
 import { createEffect, createSignal, ParentComponent, Show } from 'solid-js';
 import { useRoomContext } from '../solid-livekit';
 import Button from './Button/Button';
+import { gameState } from '../model/GameState';
 
 /** @public */
 export interface TrackToggleProps<T extends ToggleSource = ToggleSource>
@@ -32,7 +33,7 @@ export const TrackToggle: ParentComponent<TrackToggleProps> = (props) => {
   const [enabled, setEnabled] = createSignal(room()?.localParticipant.isMicrophoneEnabled ?? false);
 
   createEffect(() => {
-    room()?.localParticipant.setMicrophoneEnabled(enabled());
+    room()?.localParticipant.setMicrophoneEnabled(enabled() && gameState.focused);
   });
 
   return (

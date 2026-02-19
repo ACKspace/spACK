@@ -41,6 +41,9 @@ export type GameState = {
   editMode?: boolean;
   /** Current active painter's tool */
   activeTool?: TileParam; // and object
+
+  /** Whether the game has focus or not */
+  focused: boolean;
 };
 
 export const [gameState, setGameState] = createStore<GameState>({
@@ -54,6 +57,8 @@ export const [gameState, setGameState] = createStore<GameState>({
     cameraOffset: { x: 0, y: 0 },
 
     tileAttributes: {},
+
+    focused: false,
 
     // For now: enable overlay (and allow edit mode)
     debugMode: true,

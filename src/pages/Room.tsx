@@ -19,7 +19,6 @@ type Props = {
 
 const Room: Component<Props> = (props) => {
   let password: HTMLInputElement | undefined;
-  let input: HTMLInputElement | undefined;
   const [username, setUsername] = createSignal(`Dummy${Math.random() * 1000 | 0}`);
   const [connectionDetails, setConnectionDetails] =
     createSignal<ConnectionDetails | null>(null);
@@ -29,8 +28,6 @@ const Room: Component<Props> = (props) => {
   const [audioContext, setAudioContext] = createSignal<AudioContext | null>(null);
 
   onMount(async () => {
-    input?.focus();
-
     setAudioContext(new AudioContext());
     const roomInfo = await useParticipants(props.name ?? "");
     if (!roomInfo.list)
@@ -73,7 +70,6 @@ const Room: Component<Props> = (props) => {
         <div class={styles.panel}>
           <div class={styles.label}>Name:</div>
           <Input
-            ref={input}
             value={username()}
             onChange={(e) => setUsername(e.currentTarget.value)}
             type="text"

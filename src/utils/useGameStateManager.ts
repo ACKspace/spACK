@@ -245,6 +245,10 @@ export const useGameStateManager = () => {
   );
 
   onMount(() => {
+    document.addEventListener("visibilitychange", () => {
+      setGameState("focused", !document.hidden);
+    });
+
     const keyboardEvent = (event: KeyboardEvent) => {
       if (event.repeat) return;
       const down = event.type === "keydown";

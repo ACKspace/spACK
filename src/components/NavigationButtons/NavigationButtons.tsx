@@ -2,7 +2,7 @@ import { batch, Component, For } from "solid-js"
 import styles from "./NavigationButtons.module.css";
 import { inputBits, toggleBit } from "../../utils/useGameStateManager";
 
-const directions = ["up", "down", "left", "right"];
+const directions = ["up", "down", "left", "right", "action"];
 const pointers = new Set<number>();
 
 /**
@@ -14,16 +14,19 @@ const pointers = new Set<number>();
 export const NavigationButtons: Component = () => {
   let div!: HTMLDivElement;
   const pointerEvent = (event: PointerEvent) => {
+    const xRatio = event.offsetX / div.offsetWidth;
+    const yRatio = event.offsetY / div.offsetHeight;
     if (event.type === "pointerdown") {
       div.setPointerCapture(event.pointerId);
       event.preventDefault();
       event.stopPropagation();
       pointers.add(event.pointerId);
+
+      if (xRatio > 0.4 && xRatio < 0.6 && yRatio > 0.4 && yRatio < 0.6)
+        toggleBit(4, true);
     }
 
     if (!pointers.has(event.pointerId)) return;
-    const xRatio = event.offsetX / div.offsetWidth;
-    const yRatio = event.offsetY / div.offsetHeight;
 
     batch(() => {
       toggleBit(0, false);
@@ -32,6 +35,7 @@ export const NavigationButtons: Component = () => {
       toggleBit(3, false);
       if (["pointercancel", "pointerup"].includes(event.type)) {
         pointers.delete(event.pointerId);
+        toggleBit(4, false);
       } else {
         if (yRatio < 1 / 3) toggleBit(0, true);
         if (yRatio > 2 / 3) toggleBit(1, true);

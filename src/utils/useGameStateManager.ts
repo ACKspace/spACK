@@ -245,8 +245,12 @@ export const useGameStateManager = () => {
   );
 
   onMount(() => {
-    document.addEventListener("visibilitychange", () => {
+    document.addEventListener("visibilitychange", async () => {
       setGameState("focused", !document.hidden);
+      if (document.visibilityState === "visible") {
+        // TODO: maybe only lock when cam or mic are on.
+        await navigator.wakeLock.request("screen");
+      }
     });
 
     const keyboardEvent = (event: KeyboardEvent) => {

@@ -20,7 +20,7 @@ export interface UseParticipantInfoOptions {
   participant?: Participant;
 }
 
-/** @public */
+/** @deprecated */
 export function useParticipantInfo(props: UseParticipantInfoOptions = {}) {
   const p = useEnsureParticipant(props.participant);
   const infoObserver = createMemo(() => participantInfoObserver(p), [p]);

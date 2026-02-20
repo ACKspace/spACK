@@ -54,7 +54,7 @@ export function useLocalParticipant(options: UseLocalParticipantOptions = {}) {
   };
   createEffect(() => {
     const listener = observeParticipantMedia(localParticipant()).subscribe(handleUpdate);
-    // TODO also listen to permission and metadata etc. events
+    // TODO also listen to permission and metadata/attributes etc. events
 
     onCleanup(() => listener.unsubscribe())
   });

@@ -147,6 +147,10 @@ const TileSelector: Component = () => {
         <Button onClick={() => {
           console.log(JSON.parse(JSON.stringify(gameState)));
         }}>Debugprint gamestate</Button>
+        <Button onClick={async () => {
+          await room()?.localParticipant.setAttributes({ character: "doux" });
+          setGameState("myPlayer", "character", room()?.localParticipant.attributes.character);
+        }}>doux</Button>
       </div>
     </div>
   );

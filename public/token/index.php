@@ -96,8 +96,8 @@ $user = isset($data["user"]) ? $data["user"] : "unnamed";
 $character = isset($data["character"]) ? $data["character"] : "vita";
 $password = isset($data["password"]) ? $data["password"] : "";
 
-$metadata = new stdClass();
-$metadata->character = $character;
+$attributes = new stdClass();
+$attributes->character = $character;
 
 $now = time();
 $expires = $now + 3600;
@@ -118,10 +118,10 @@ $payload->video = new stdClass();
 $payload->video->roomList = true; // List
 $payload->video->roomJoin = true; // Join
 $payload->video->roomAdmin = $password === "admin"; // Save room metadata
-
+$payload->video->canUpdateOwnMetadata = true; // Save own metadata and attributes
 $payload->video->room = $room;
-// Optional initial user metadata
-$payload->metadata = json_encode($metadata);
+// Optional initial user attributes
+$payload->attributes = $attributes;
 
 /*
     name: roomName,

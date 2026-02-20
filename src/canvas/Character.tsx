@@ -7,7 +7,6 @@ import { ImageSource } from "../../solid-canvas/src/types";
 import { directionToLeftRight } from "../utils/legacyDirection";
 import { tileSize } from "../model/Tile";
 import { Vector2 } from "../model/Vector2";
-import { gameState } from "../model/GameState";
 
 type Props = {
   /** Offset within the map in pixels */

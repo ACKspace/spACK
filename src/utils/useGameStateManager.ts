@@ -373,7 +373,7 @@ export const useGameStateManager = () => {
           });
         }
 
-        const { character } = JSON.parse(participant.metadata!) as Player;
+        const { character } = participant.attributes;
 
         const player = gameState.remotePlayers.findIndex(r => r.username === participant.identity);
         if (player !== -1 && character) {
@@ -425,7 +425,7 @@ export const useGameStateManager = () => {
   // (Re)Connected
   const onConnected = () => {
     console.info("Connected");
-    const { character } = JSON.parse(localParticipant().metadata!) as Player;
+    const { character } = localParticipant().attributes;
     if (!character) console.warn("missing player character");
     if (!localParticipant().identity) console.warn("missing player identity");
 

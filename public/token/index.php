@@ -118,6 +118,7 @@ $payload->video = new stdClass();
 $payload->video->roomList = true; // List
 $payload->video->roomJoin = true; // Join
 $payload->video->roomAdmin = $password === "admin"; // Save room metadata
+$payload->video->roomCreate = $password === "admin"; // Create/delete room
 $payload->video->canUpdateOwnMetadata = true; // Save own metadata and attributes
 $payload->video->room = $room;
 // Optional initial user attributes

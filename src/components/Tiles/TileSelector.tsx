@@ -9,9 +9,10 @@ import { CoordinateInput } from "../CoordinateInput";
 import { WorldObject } from "../../model/Object";
 import { TileParam } from "../../model/Tile";
 import Input from "../Input/Input";
+import { deleteRoom } from "../../utils/useToken";
 
 type WorldParam = WorldObject | TileParam;
-type ParamComponent<T extends WorldParam> = Component<{toolProps: T, name: keyof T, label: string, options: Record<T[keyof T], string>}>;
+type ParamComponent<T extends WorldParam> = Component<{name: keyof T, label: string, options: Record<T[keyof T], string>}>;
 
 /**
  * Tool param input
@@ -53,8 +54,9 @@ const Select: ParamComponent<WorldObject> = (props) => {
  * @returns 
  */
 const DirectionSelect: Component<{label: string}> = (props) => {
-  return <Select label="Allow" name="direction" toolProps={props} options={{
+  return <Select label={props.label} name="direction" options={{
       "": "none/preserve",
+      "N": `${a("N")} North`,
       "NE": `${a("NE")} Northeast`,
       "E": `${a("E")} East`,
       "SE": `${a("SE")} Southeast`,
@@ -151,6 +153,9 @@ const TileSelector: Component = () => {
           await room()?.localParticipant.setAttributes({ character: "doux" });
           setGameState("myPlayer", "character", room()?.localParticipant.attributes.character);
         }}>doux</Button>
+        <Button onClick={async () => {
+          await deleteRoom(room()!.name);
+        }}>Delete room</Button>    
       </div>
     </div>
   );

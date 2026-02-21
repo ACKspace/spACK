@@ -1,0 +1,891 @@
+{
+  "base": "ACKspace",
+  "earshotRadius": 4,
+  "objects": [
+    {
+      "image": "boombox_off.png",
+      "activeImage": "boombox_on.png",
+      "mediaType": "s",
+      "uri": "sharedActive.js",
+      "position": {
+        "x": 22,
+        "y": 19
+      },
+      "worker": {}
+    }
+  ],
+  "tileAttributes": {
+    "63,29": {
+      "type": "impassable"
+    },
+    "62,29": {
+      "type": "impassable"
+    },
+    "61,29": {
+      "type": "impassable"
+    },
+    "60,29": {
+      "type": "impassable"
+    },
+    "59,29": {
+      "type": "impassable"
+    },
+    "58,29": {
+      "type": "impassable"
+    },
+    "57,29": {
+      "type": "impassable"
+    },
+    "56,29": {
+      "type": "impassable"
+    },
+    "56,28": {
+      "type": "impassable"
+    },
+    "56,27": {
+      "type": "impassable"
+    },
+    "56,26": {
+      "type": "impassable"
+    },
+    "56,25": {
+      "type": "impassable"
+    },
+    "56,24": {
+      "type": "impassable"
+    },
+    "55,23": {
+      "type": "impassable"
+    },
+    "55,22": {
+      "type": "impassable"
+    },
+    "55,21": {
+      "type": "impassable"
+    },
+    "55,20": {
+      "type": "impassable"
+    },
+    "55,24": {
+      "type": "impassable"
+    },
+    "64,22": {
+      "type": "impassable"
+    },
+    "64,23": {
+      "type": "impassable"
+    },
+    "57,24": {
+      "type": "impassable"
+    },
+    "58,24": {
+      "type": "impassable"
+    },
+    "59,24": {
+      "type": "impassable"
+    },
+    "60,25": {
+      "type": "impassable"
+    },
+    "61,25": {
+      "type": "impassable"
+    },
+    "62,25": {
+      "type": "impassable"
+    },
+    "59,25": {
+      "type": "impassable"
+    },
+    "63,25": {
+      "type": "impassable"
+    },
+    "64,25": {
+      "type": "impassable"
+    },
+    "64,24": {
+      "type": "impassable"
+    },
+    "64,21": {
+      "type": "impassable"
+    },
+    "64,20": {
+      "type": "impassable"
+    },
+    "63,20": {
+      "type": "impassable"
+    },
+    "62,20": {
+      "type": "impassable"
+    },
+    "61,20": {
+      "type": "impassable"
+    },
+    "60,20": {
+      "type": "impassable"
+    },
+    "59,20": {
+      "type": "impassable"
+    },
+    "58,20": {
+      "type": "impassable"
+    },
+    "58,21": {
+      "type": "impassable"
+    },
+    "59,21": {
+      "type": "impassable"
+    },
+    "59,22": {
+      "type": "impassable"
+    },
+    "60,22": {
+      "type": "impassable"
+    },
+    "61,22": {
+      "type": "impassable"
+    },
+    "69,15": {
+      "type": "impassable"
+    },
+    "70,15": {
+      "type": "impassable"
+    },
+    "71,15": {
+      "type": "impassable"
+    },
+    "72,15": {
+      "type": "impassable"
+    },
+    "73,15": {
+      "type": "impassable"
+    },
+    "74,15": {
+      "type": "impassable"
+    },
+    "74,16": {
+      "type": "impassable"
+    },
+    "74,17": {
+      "type": "impassable"
+    },
+    "74,18": {
+      "type": "impassable"
+    },
+    "74,19": {
+      "type": "impassable"
+    },
+    "74,20": {
+      "type": "impassable"
+    },
+    "74,21": {
+      "type": "impassable"
+    },
+    "73,21": {
+      "type": "impassable"
+    },
+    "72,21": {
+      "type": "impassable"
+    },
+    "71,21": {
+      "type": "impassable"
+    },
+    "70,21": {
+      "type": "impassable"
+    },
+    "69,21": {
+      "type": "impassable"
+    },
+    "69,22": {
+      "type": "impassable"
+    },
+    "69,23": {
+      "type": "impassable"
+    },
+    "69,24": {
+      "type": "impassable"
+    },
+    "69,25": {
+      "type": "impassable"
+    },
+    "69,26": {
+      "type": "impassable"
+    },
+    "69,27": {
+      "type": "impassable"
+    },
+    "69,28": {
+      "type": "impassable"
+    },
+    "69,29": {
+      "type": "impassable"
+    },
+    "69,30": {
+      "type": "impassable"
+    },
+    "69,31": {
+      "type": "impassable"
+    },
+    "69,32": {
+      "type": "impassable"
+    },
+    "69,33": {
+      "type": "impassable"
+    },
+    "69,34": {
+      "type": "impassable"
+    },
+    "68,34": {
+      "type": "impassable"
+    },
+    "67,34": {
+      "type": "impassable"
+    },
+    "66,34": {
+      "type": "impassable"
+    },
+    "65,34": {
+      "type": "impassable"
+    },
+    "64,34": {
+      "type": "impassable"
+    },
+    "63,34": {
+      "type": "impassable"
+    },
+    "62,34": {
+      "type": "impassable"
+    },
+    "61,34": {
+      "type": "impassable"
+    },
+    "60,34": {
+      "type": "impassable"
+    },
+    "59,34": {
+      "type": "impassable"
+    },
+    "58,34": {
+      "type": "impassable"
+    },
+    "57,34": {
+      "type": "impassable"
+    },
+    "56,34": {
+      "type": "impassable"
+    },
+    "55,34": {
+      "type": "impassable"
+    },
+    "54,34": {
+      "type": "impassable"
+    },
+    "53,34": {
+      "type": "impassable"
+    },
+    "52,34": {
+      "type": "impassable"
+    },
+    "51,34": {
+      "type": "impassable"
+    },
+    "50,34": {
+      "type": "impassable"
+    },
+    "69,16": {
+      "type": "impassable"
+    },
+    "69,20": {
+      "type": "impassable"
+    },
+    "69,19": {
+      "type": "impassable"
+    },
+    "69,18": {
+      "type": "impassable"
+    },
+    "68,15": {
+      "type": "impassable"
+    },
+    "67,15": {
+      "type": "impassable"
+    },
+    "66,15": {
+      "type": "impassable"
+    },
+    "65,15": {
+      "type": "impassable"
+    },
+    "64,15": {
+      "type": "impassable"
+    },
+    "63,15": {
+      "type": "impassable"
+    },
+    "62,15": {
+      "type": "impassable"
+    },
+    "61,15": {
+      "type": "impassable"
+    },
+    "61,14": {
+      "type": "impassable"
+    },
+    "61,13": {
+      "type": "impassable"
+    },
+    "60,13": {
+      "type": "impassable"
+    },
+    "59,13": {
+      "type": "impassable"
+    },
+    "58,13": {
+      "type": "impassable"
+    },
+    "58,14": {
+      "type": "impassable"
+    },
+    "58,15": {
+      "type": "impassable"
+    },
+    "57,15": {
+      "type": "impassable"
+    },
+    "56,15": {
+      "type": "impassable"
+    },
+    "55,15": {
+      "type": "impassable"
+    },
+    "54,15": {
+      "type": "impassable"
+    },
+    "53,15": {
+      "type": "impassable"
+    },
+    "52,15": {
+      "type": "impassable"
+    },
+    "51,15": {
+      "type": "impassable"
+    },
+    "50,15": {
+      "type": "impassable"
+    },
+    "50,16": {
+      "type": "impassable"
+    },
+    "50,17": {
+      "type": "impassable"
+    },
+    "50,18": {
+      "type": "impassable"
+    },
+    "50,19": {
+      "type": "impassable"
+    },
+    "50,20": {
+      "type": "impassable"
+    },
+    "50,21": {
+      "type": "impassable"
+    },
+    "50,22": {
+      "type": "impassable"
+    },
+    "49,22": {
+      "type": "impassable"
+    },
+    "48,22": {
+      "type": "impassable"
+    },
+    "47,22": {
+      "type": "impassable"
+    },
+    "46,22": {
+      "type": "impassable"
+    },
+    "45,22": {
+      "type": "impassable"
+    },
+    "44,22": {
+      "type": "impassable"
+    },
+    "43,22": {
+      "type": "impassable"
+    },
+    "42,22": {
+      "type": "impassable"
+    },
+    "41,22": {
+      "type": "impassable"
+    },
+    "40,22": {
+      "type": "impassable"
+    },
+    "39,22": {
+      "type": "impassable"
+    },
+    "38,22": {
+      "type": "impassable"
+    },
+    "37,22": {
+      "type": "impassable"
+    },
+    "36,22": {
+      "type": "impassable"
+    },
+    "35,22": {
+      "type": "impassable"
+    },
+    "34,22": {
+      "type": "impassable"
+    },
+    "33,22": {
+      "type": "impassable"
+    },
+    "32,22": {
+      "type": "impassable"
+    },
+    "31,22": {
+      "type": "impassable"
+    },
+    "30,22": {
+      "type": "impassable"
+    },
+    "29,22": {
+      "type": "impassable"
+    },
+    "28,22": {
+      "type": "impassable"
+    },
+    "27,22": {
+      "type": "impassable"
+    },
+    "26,22": {
+      "type": "impassable"
+    },
+    "26,21": {
+      "type": "impassable"
+    },
+    "26,20": {
+      "type": "impassable"
+    },
+    "26,19": {
+      "type": "impassable"
+    },
+    "26,18": {
+      "type": "impassable"
+    },
+    "26,17": {
+      "type": "impassable"
+    },
+    "26,16": {
+      "type": "impassable"
+    },
+    "26,15": {
+      "type": "impassable"
+    },
+    "22,26": {
+      "type": "impassable"
+    },
+    "23,26": {
+      "type": "impassable"
+    },
+    "24,26": {
+      "type": "impassable"
+    },
+    "25,26": {
+      "type": "impassable"
+    },
+    "26,26": {
+      "type": "impassable"
+    },
+    "27,26": {
+      "type": "impassable"
+    },
+    "28,26": {
+      "type": "impassable"
+    },
+    "29,26": {
+      "type": "impassable"
+    },
+    "30,26": {
+      "type": "impassable"
+    },
+    "32,26": {
+      "type": "impassable"
+    },
+    "33,26": {
+      "type": "impassable"
+    },
+    "34,26": {
+      "type": "impassable"
+    },
+    "35,26": {
+      "type": "impassable"
+    },
+    "36,26": {
+      "type": "impassable"
+    },
+    "37,26": {
+      "type": "impassable"
+    },
+    "38,26": {
+      "type": "impassable"
+    },
+    "39,26": {
+      "type": "impassable"
+    },
+    "40,26": {
+      "type": "impassable"
+    },
+    "41,26": {
+      "type": "impassable"
+    },
+    "42,26": {
+      "type": "impassable"
+    },
+    "43,26": {
+      "type": "impassable"
+    },
+    "44,26": {
+      "type": "impassable"
+    },
+    "45,26": {
+      "type": "impassable"
+    },
+    "46,26": {
+      "type": "impassable"
+    },
+    "47,26": {
+      "type": "impassable"
+    },
+    "48,26": {
+      "type": "impassable"
+    },
+    "49,26": {
+      "type": "impassable"
+    },
+    "50,26": {
+      "type": "impassable"
+    },
+    "50,27": {
+      "type": "impassable"
+    },
+    "50,29": {
+      "type": "impassable"
+    },
+    "50,30": {
+      "type": "impassable"
+    },
+    "50,31": {
+      "type": "impassable"
+    },
+    "50,32": {
+      "type": "impassable"
+    },
+    "50,33": {
+      "type": "impassable"
+    },
+    "49,32": {
+      "type": "impassable"
+    },
+    "48,32": {
+      "type": "impassable"
+    },
+    "47,32": {
+      "type": "impassable"
+    },
+    "46,32": {
+      "type": "impassable"
+    },
+    "45,32": {
+      "type": "impassable"
+    },
+    "45,31": {
+      "type": "impassable"
+    },
+    "45,30": {
+      "type": "impassable"
+    },
+    "45,29": {
+      "type": "impassable"
+    },
+    "45,28": {
+      "type": "impassable"
+    },
+    "45,27": {
+      "type": "impassable"
+    },
+    "22,27": {
+      "type": "impassable"
+    },
+    "21,33": {
+      "type": "impassable"
+    },
+    "22,33": {
+      "type": "impassable"
+    },
+    "23,33": {
+      "type": "impassable"
+    },
+    "24,33": {
+      "type": "impassable"
+    },
+    "25,33": {
+      "type": "impassable"
+    },
+    "26,33": {
+      "type": "impassable"
+    },
+    "27,33": {
+      "type": "impassable"
+    },
+    "28,33": {
+      "type": "impassable"
+    },
+    "29,33": {
+      "type": "impassable"
+    },
+    "30,33": {
+      "type": "impassable"
+    },
+    "31,33": {
+      "type": "impassable"
+    },
+    "32,33": {
+      "type": "impassable"
+    },
+    "33,33": {
+      "type": "impassable"
+    },
+    "34,33": {
+      "type": "impassable"
+    },
+    "35,33": {
+      "type": "impassable"
+    },
+    "36,33": {
+      "type": "impassable"
+    },
+    "37,33": {
+      "type": "impassable"
+    },
+    "38,33": {
+      "type": "impassable"
+    },
+    "39,33": {
+      "type": "impassable"
+    },
+    "40,33": {
+      "type": "impassable"
+    },
+    "41,33": {
+      "type": "impassable"
+    },
+    "42,33": {
+      "type": "impassable"
+    },
+    "43,33": {
+      "type": "impassable"
+    },
+    "44,33": {
+      "type": "impassable"
+    },
+    "45,33": {
+      "type": "impassable"
+    },
+    "35,32": {
+      "type": "impassable"
+    },
+    "35,31": {
+      "type": "impassable"
+    },
+    "35,30": {
+      "type": "impassable"
+    },
+    "35,29": {
+      "type": "impassable"
+    },
+    "35,28": {
+      "type": "impassable"
+    },
+    "35,27": {
+      "type": "impassable"
+    },
+    "26,28": {
+      "type": "impassable"
+    },
+    "26,29": {
+      "type": "impassable"
+    },
+    "26,30": {
+      "type": "impassable"
+    },
+    "26,31": {
+      "type": "impassable"
+    },
+    "26,32": {
+      "type": "impassable"
+    },
+    "30,32": {
+      "type": "impassable"
+    },
+    "30,31": {
+      "type": "impassable"
+    },
+    "30,30": {
+      "type": "impassable"
+    },
+    "30,29": {
+      "type": "impassable"
+    },
+    "30,28": {
+      "type": "impassable"
+    },
+    "31,28": {
+      "type": "impassable"
+    },
+    "32,28": {
+      "type": "impassable"
+    },
+    "34,28": {
+      "type": "impassable"
+    },
+    "34,29": {
+      "type": "impassable"
+    },
+    "27,28": {
+      "type": "impassable"
+    },
+    "27,29": {
+      "type": "impassable"
+    },
+    "27,30": {
+      "type": "impassable"
+    },
+    "27,31": {
+      "type": "impassable"
+    },
+    "27,32": {
+      "type": "impassable"
+    },
+    "33,32": {
+      "type": "impassable"
+    },
+    "34,32": {
+      "type": "impassable"
+    },
+    "34,31": {
+      "type": "impassable"
+    },
+    "34,30": {
+      "type": "impassable"
+    },
+    "33,31": {
+      "type": "impassable"
+    },
+    "21,32": {
+      "type": "impassable"
+    },
+    "21,31": {
+      "type": "impassable"
+    },
+    "21,30": {
+      "type": "impassable"
+    },
+    "21,29": {
+      "type": "impassable"
+    },
+    "21,28": {
+      "type": "impassable"
+    },
+    "21,27": {
+      "type": "impassable"
+    },
+    "21,26": {
+      "type": "impassable"
+    },
+    "20,26": {
+      "type": "impassable"
+    },
+    "19,26": {
+      "type": "impassable"
+    },
+    "18,26": {
+      "type": "impassable"
+    },
+    "17,26": {
+      "type": "impassable"
+    },
+    "16,26": {
+      "type": "impassable"
+    },
+    "16,25": {
+      "type": "impassable"
+    },
+    "16,24": {
+      "type": "impassable"
+    },
+    "16,23": {
+      "type": "impassable"
+    },
+    "16,22": {
+      "type": "impassable"
+    },
+    "16,21": {
+      "type": "impassable"
+    },
+    "16,20": {
+      "type": "impassable"
+    },
+    "16,19": {
+      "type": "impassable"
+    },
+    "16,18": {
+      "type": "impassable"
+    },
+    "16,17": {
+      "type": "impassable"
+    },
+    "16,16": {
+      "type": "impassable"
+    },
+    "16,15": {
+      "type": "impassable"
+    },
+    "17,15": {
+      "type": "impassable"
+    },
+    "18,15": {
+      "type": "impassable"
+    },
+    "19,15": {
+      "type": "impassable"
+    },
+    "20,15": {
+      "type": "impassable"
+    },
+    "21,15": {
+      "type": "impassable"
+    },
+    "22,15": {
+      "type": "impassable"
+    },
+    "23,15": {
+      "type": "impassable"
+    },
+    "24,15": {
+      "type": "impassable"
+    },
+    "25,15": {
+      "type": "impassable"
+    },
+    "61,30": {
+      "type": "spawn",
+      "direction": "S"
+    }
+  },
+  "debugMode": true
+}

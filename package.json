@@ -9,7 +9,7 @@
     "serve": "vite preview",
     "deploy": "bun tools/deploy.ts",
     "livekit": "find .. -executable -type f,l -iname 'livekit-server*' -exec {} --dev \\;",
-    "token": "php -S 0.0.0.0:8081 -t ./public public/token/index.php"
+    "token": "php -S 0.0.0.0:8081 -t ./public"
   },
   "license": "MIT",
   "devDependencies": {

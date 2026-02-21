@@ -181,12 +181,12 @@ const GameView: Component = () => {
             <TextBubble position={co().position} text="Press 'x' to activate" />
           }</Show>
           <AttributeTileGroup/>
-          <Map image={"world/overlay.png"} overlay />
+          <Map image={`world/${gameState.base}/overlay.png`} overlay />
           <For each={objects()}>{(worldEntity) => (
             <WorldEntity entity={worldEntity}/>
           )}</For>
           <EarshotRadius radius={gameState.earshotRadius} position={gameState.myPlayer?.position ?? {x:0, y: 0}} render />
-          <Map image={"world/map.png"} />
+          <Map image={`world/${gameState.base}/map.png`} />
         </Group>
       </Canvas>
       <SpatialAudioController/>
@@ -249,29 +249,29 @@ const GameView: Component = () => {
         <NavigationButtons/>
       </Show>
       {/* Bottom left */}
-      <Show when={gameState.debugMode}>
-        <div style={{ position: "fixed", top: 0, left: 0 }}>
-          player:{gameState.myPlayer?.position.x},{gameState.myPlayer?.position.y}<br/>
-          player:{gameState.myPlayer?.targetPos?.x},{gameState.myPlayer?.targetPos?.y}<br/>
-          offset:{gameState.cameraOffset.x},{gameState.cameraOffset.y}<br/>
-          map:{gameState.mapSize.x},{gameState.mapSize.x}<br/>
-          current object: {gameState.currentObject?.image} {gameState.currentObject?.active ? "ACTIVE" : "none"}
+      <div style={{ position: "fixed", top: 0, left: 0, "background-color": "rgba(255,255,255,0.6)" }}>
+        <Show when={gameState.debugMode}>
           <div>
             <Button onClick={() => {
-              setGameState("editMode", !gameState.editMode);
-            }}>{gameState.editMode ? "regular mode" : "edit mode"}</Button>
+            setGameState("editMode", !gameState.editMode);
+          }}>{gameState.editMode ? "regular mode" : "edit mode"}</Button>
           </div>
-          <Button onClick={() => {
-            const [spawn, direction] = getRandomSpawnPosition()
-            batch(() => {
-              setGameState("myPlayer", "targetPos", spawn);
-              setGameState("myPlayer", "position", {x: spawn.x * tileSize, y: spawn.y * tileSize});
-            })
-            if (direction)
-              setGameState("myPlayer", "direction", direction);            
-          }}>spawn point</Button>
-        </div>
-      </Show>
+        </Show>
+        player:{gameState.myPlayer?.position.x},{gameState.myPlayer?.position.y}<br/>
+        player:{gameState.myPlayer?.targetPos?.x},{gameState.myPlayer?.targetPos?.y}<br/>
+        offset:{gameState.cameraOffset.x},{gameState.cameraOffset.y}<br/>
+        map:{gameState.mapSize.x},{gameState.mapSize.x}<br/>
+        current object: {gameState.currentObject?.image} {gameState.currentObject?.active ? "ACTIVE" : "none"}<br/>
+        <Button onClick={() => {
+          const [spawn, direction] = getRandomSpawnPosition()
+          batch(() => {
+            setGameState("myPlayer", "targetPos", spawn);
+            setGameState("myPlayer", "position", {x: spawn.x * tileSize, y: spawn.y * tileSize});
+          })
+          if (direction)
+            setGameState("myPlayer", "direction", direction);            
+        }}>spawn point</Button>
+      </div>
       <Show when={gameState.editMode}>
         {/* Top right */}
         <TileInformation param={useCurrentTileAttribute()}/>

@@ -11,7 +11,6 @@ import {
 } from "livekit-client";
 import { Vector2 } from "../model/Vector2";
 import { AnimationState } from "../model/AnimationState";
-import { Player } from "../model/Player";
 import { useLocalParticipant } from "../utils/useLocalParticipant";
 import { useRemoteParticipants } from "../utils/useRemoteParticipants";
 import { Direction } from "../model/Direction";
@@ -559,7 +558,7 @@ export const setupObject = (partialObject: Partial<WorldObject>, id: number, x: 
   if (partialObject.mediaType === "s") {
     
     // TODO: types
-    partialObject.worker = new Worker(partialObject.uri, { type: "classic" });
+    partialObject.worker = new Worker(`world/${gameState.base}${partialObject.uri}`, { type: "classic" });
 
     partialObject.worker.addEventListener("message", ( {data} ) => {
       if (data.broadcast) {

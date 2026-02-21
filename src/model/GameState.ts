@@ -10,6 +10,8 @@ export type WorldEntity = {
 };
 
 export type GameState = {
+  base: string;
+
   myPlayer: Player | null;
   earshotRadius: number;
 
@@ -44,9 +46,13 @@ export type GameState = {
 
   /** Whether the game has focus or not */
   focused: boolean;
+
+  // TODO: admin mode derived from `useParticipants`
 };
 
 export const [gameState, setGameState] = createStore<GameState>({
+    base: "",
+
     myPlayer: null,
     earshotRadius: 8,
 

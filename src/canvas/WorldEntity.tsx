@@ -3,6 +3,7 @@ import { type WorldObject } from "../model/Object";
 import { Player } from "../model/Player";
 import { Component, Show } from "solid-js";
 import { Character } from "./Character";
+import { gameState } from "../model/GameState";
 
 type Props = {
   /** The center of the earshot radius in tile units within the map */
@@ -21,7 +22,7 @@ export const WorldEntity: Component<Props> = (props) => {
         dimensions: { width: 64, height: 64 },
         smoothingQuality: "none",
       }}
-      image={props.entity.active ? props.entity.activeImage : props.entity.image}
+      image={`world/${gameState.base}${props.entity.active ? props.entity.activeImage : props.entity.image}`}
     />
   }>
     <Character

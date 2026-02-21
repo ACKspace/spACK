@@ -6,7 +6,7 @@ import { gameState, setGameState } from '../model/GameState';
 import { setRoomMetaData } from './useToken';
 import { Direction } from '../model/Direction';
 import toast from "solid-toast";
-import { ObjectMeta, ObjectMetaData } from '../model/Object';
+import { GenericMetaData, ObjectMeta, ObjectMetaData } from '../model/Object';
 import { setupObject } from './useGameStateManager';
 import { type WorldObject } from "../model/Object";
 
@@ -16,15 +16,19 @@ const defaultRoomProps: Partial<LiveKitRoomProps> = {
   video: false,
 };
 
-type RoomMetaData = TileMetaData & ObjectMetaData;
+type RoomMetaData = TileMetaData & ObjectMetaData & GenericMetaData;
 
-const keyLookup: Record<keyof RoomMetaData, TileAttribute | "object"> = {
+const keyLookup: Record<keyof RoomMetaData, TileAttribute | "object" | string | number> = {
   A: "spotlight",
+  B: false, // base
   D: "portal",
+  E: false, // earshotradius
   I: "impassable",
+  M: false, // debugmode
+  O: "object",
   P: "private",
   S: "spawn",
-  O: "object",
+  U: false, // updated
 };
 
 
@@ -174,6 +178,11 @@ export const loadRoomMetadata = (room?: Room) => {
 
     const keys = Object.keys(gameState.tileAttributes);
     batch(() => {
+      if (metadata.B) setGameState("base", `${metadata.B}/`);
+      if (metadata.E) setGameState("earshotRadius", metadata.E);
+      if (metadata.M) setGameState("debugMode", true);
+      // if (metadata.U) setGameState("updated", metadata.U); // TODO: trigger reload
+
       keys.forEach((key) => {
         // @ts-ignore -- Erase all old tiles
         setGameState("tileAttributes", key, undefined);
@@ -250,6 +259,10 @@ export const loadRoomMetadata = (room?: Room) => {
 export const saveRoomMetadata = async (room?: Room) => {
   if (!room) return;
 
+  if (metadata.B) setGameState("base", `${metadata.B}/`);
+  if (metadata.E) setGameState("earshotRadius", metadata.E);
+  if (metadata.M) setGameState("debugMode", true);
+
   const metadata: RoomMetaData = {
     A: [],
     D: [],
@@ -257,7 +270,12 @@ export const saveRoomMetadata = async (room?: Room) => {
     P: [],
     S: [],
     O: [],
+    E: gameState.earshotRadius,
   };
+
+  if (gameState.base) metadata.B = gameState.base.replace("/","");
+  if (gameState.debugMode) metadata.M = 1;
+
   const keys = Object.keys(gameState.tileAttributes);
 
   keys.forEach((key) => {
@@ -313,3 +331,28 @@ export const saveRoomMetadata = async (room?: Room) => {
   else
     toast.error("Unable to save metadata");
 };
+
+/**
+ * Download room meta data for upload in a dedicated room directory
+ * @param room The room we want to generate the JSON for
+ * @returns void
+ */
+export const downloadRoomMetadata = async (room?: Room) => {
+  if (!room) return;
+  const metadata = {
+    base: gameState.base.replace("/",""),
+    earshotRadius: gameState.earshotRadius,
+    objects: gameState.objects, //JSON.parse(JSON.stringify(gameState.objects)),
+    tileAttributes: gameState.tileAttributes, //JSON.parse(JSON.stringify(gameState.tileAttributes)),
+    debugMode: gameState.debugMode,
+  };
+
+  // TODO: correct object position, remove worker
+
+  const blob = new Blob([JSON.stringify(metadata, null, 2)], { type: 'text/plain' });
+  const link = document.createElement("a");
+  link.download = "metadata.json";
+  link.href = URL.createObjectURL(blob);
+  link.click();
+  URL.revokeObjectURL(link.href);
+}

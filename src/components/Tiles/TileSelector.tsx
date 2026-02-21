@@ -1,7 +1,7 @@
-import { Component, For, Match, Switch } from "solid-js";
+import { Component, For, Match, Show, Switch } from "solid-js";
 import { gameState, setGameState } from "../../model/GameState";
 import Button from "../Button/Button";
-import { loadRoomMetadata, saveRoomMetadata } from "../../utils/useLiveKitRoom";
+import { downloadRoomMetadata, loadRoomMetadata, saveRoomMetadata } from "../../utils/useLiveKitRoom";
 import { useRoomContext } from "../../solid-livekit";
 import { Direction, directionToArrow as a } from "../../model/Direction";
 import { Vector2 } from "../../model/Vector2";
@@ -9,7 +9,7 @@ import { CoordinateInput } from "../CoordinateInput";
 import { WorldObject } from "../../model/Object";
 import { TileParam } from "../../model/Tile";
 import Input from "../Input/Input";
-import { deleteRoom } from "../../utils/useToken";
+import { deleteRoom } from "../../utils/useParticipants";
 
 type WorldParam = WorldObject | TileParam;
 type ParamComponent<T extends WorldParam> = Component<{name: keyof T, label: string, options: Record<T[keyof T], string>}>;
@@ -141,22 +141,22 @@ const TileSelector: Component = () => {
       <div style={{"padding-top": "16px"}}>
         <Button onClick={() => loadRoomMetadata(room())}>Load metadata</Button>
         <Button onClick={() => saveRoomMetadata(room())}>Save metadata</Button>
+        <Button onClick={() => downloadRoomMetadata(room())}>Download metadata</Button>
       </div>
-      <div style={{"padding-top": "16px"}}>
-        <Button onClick={() => {
-          console.log(JSON.parse(room()?.metadata ?? ""));
-        }}>Debugprint metadata</Button>
-        <Button onClick={() => {
-          console.log(JSON.parse(JSON.stringify(gameState)));
-        }}>Debugprint gamestate</Button>
-        <Button onClick={async () => {
-          await room()?.localParticipant.setAttributes({ character: "doux" });
-          setGameState("myPlayer", "character", room()?.localParticipant.attributes.character);
-        }}>doux</Button>
-        <Button onClick={async () => {
-          await deleteRoom(room()!.name);
-        }}>Delete room</Button>    
-      </div>
+
+      <Show when={gameState.debugMode}>
+        <div style={{"padding-top": "16px"}}>
+          <Button onClick={() => { console.log(JSON.parse(room()?.metadata || "false"));}}>Debugprint metadata</Button>
+          <Button onClick={() => { console.log(JSON.parse(JSON.stringify(gameState))); }}>Debugprint gamestate</Button>
+          <Button onClick={async () => {
+            await room()?.localParticipant.setAttributes({ character: "doux" });
+            setGameState("myPlayer", "character", room()?.localParticipant.attributes.character);
+          }}>doux</Button>
+          <Button onClick={async () => {
+            await deleteRoom(room()!.name);
+          }}>Delete room</Button>    
+        </div>
+      </Show>
     </div>
   );
 }

@@ -31,6 +31,8 @@ const Room: Component<Props> = (props) => {
     setAudioContext(new AudioContext());
     const roomInfo = await useParticipants(props.name ?? "");
     if (!roomInfo.list)
+      setSecurityLevel(3);
+    if (!roomInfo.join)
       setSecurityLevel(2);
     else if (!roomInfo.admin)
       setSecurityLevel(1);
@@ -80,7 +82,7 @@ const Room: Component<Props> = (props) => {
         {/* TODO: for new rooms, allow initial password to be set */}
         <Show when={securityLevel()}>{(s) =>
           <div class={styles.panel}>
-            <div class={styles.label}>{s() === 1 ? "Admin password:": "Password:"}</div>
+            <div class={styles.label}>{s() > 1 ? "Password:": "Admin password:"}</div>
             <Input type="password" ref={password}/>
             </div>
         }</Show>

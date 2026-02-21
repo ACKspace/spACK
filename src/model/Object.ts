@@ -18,5 +18,17 @@ export type WorldObject = WorldEntity & {
 
 export type ObjectMeta = [x: number, y: number, image: string, activeImage?: string, mediaType?: Type, uri?: string];
 export type ObjectMetaData = {
+  /** Object meta data */
   O: ObjectMeta[],
+}
+
+export type GenericMetaData = {
+  /** Base directory */
+  B: string,
+  /** Earshot radius */
+  E: number,
+  /** Debug mode */
+  M: number;
+  /** Updated timestamp */
+  U: number;
 }

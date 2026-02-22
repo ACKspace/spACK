@@ -259,10 +259,6 @@ export const loadRoomMetadata = (room?: Room) => {
 export const saveRoomMetadata = async (room?: Room) => {
   if (!room) return;
 
-  if (metadata.B) setGameState("base", `${metadata.B}/`);
-  if (metadata.E) setGameState("earshotRadius", metadata.E);
-  if (metadata.M) setGameState("debugMode", true);
-
   const metadata: RoomMetaData = {
     A: [],
     D: [],
@@ -272,6 +268,10 @@ export const saveRoomMetadata = async (room?: Room) => {
     O: [],
     E: gameState.earshotRadius,
   };
+
+  if (metadata.B) setGameState("base", `${metadata.B}/`);
+  if (metadata.E) setGameState("earshotRadius", metadata.E);
+  if (metadata.M) setGameState("debugMode", true);
 
   if (gameState.base) metadata.B = gameState.base.replace("/","");
   if (gameState.debugMode) metadata.M = 1;

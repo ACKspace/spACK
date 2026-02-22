@@ -244,6 +244,7 @@ export const useGameStateManager = () => {
   );
 
   onMount(() => {
+    setGameState("focused", !document.hidden);
     document.addEventListener("visibilitychange", async () => {
       setGameState("focused", !document.hidden);
       if (document.visibilityState === "visible") {
@@ -311,10 +312,10 @@ export const useGameStateManager = () => {
         case "Digit6":
           setGameState("activeTool", {
             type: "object",
-            image: "world/boombox_off.png",
-            activeImage: "world/boombox_on.png",
+            image: "boombox_off.png",
+            activeImage: "boombox_on.png",
             mediaType: "s",
-            uri: "scripts/sharedActive.js",
+            uri: "sharedActive.js",
           });
           break;
         case "Delete":
@@ -562,7 +563,6 @@ export const setupObject = (partialObject: Partial<WorldObject>, id: number, x: 
 
     partialObject.worker.addEventListener("message", ( {data} ) => {
       if (data.broadcast) {
-        // 
         const payload: Uint8Array = textEncoder.encode(
           JSON.stringify({
             payload: {
@@ -573,9 +573,9 @@ export const setupObject = (partialObject: Partial<WorldObject>, id: number, x: 
           })
         );
         participant.publishData(payload); // packet kind unreliable by default
-        setGameState("objects", id, "active", data.active);
-
       }
+      // Update locally
+      setGameState("objects", id, "active", data.active);
     })
   }
 

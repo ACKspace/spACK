@@ -4,7 +4,7 @@ import devtools from 'solid-devtools/vite';
 import { execSync } from 'child_process';
 
 export default ({ mode }: ConfigEnv) => {
-  const dev = mode === 'development';
+  const dev = ["development", "test"].includes(mode);
 
   const tagName = execSync('git describe --tags $(git rev-list --tags --max-count=1) || echo "no version"').toString().trimEnd();
   const commitDate = execSync('git log -1 --format=%cI').toString().trimEnd();
@@ -29,6 +29,7 @@ export default ({ mode }: ConfigEnv) => {
     },
     build: {
       target: 'esnext',
+      emptyOutDir: true,
     },
     optimizeDeps: {
       // exclude: ["solid-canvas/*"],

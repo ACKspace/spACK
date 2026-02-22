@@ -9,8 +9,21 @@ const deployCommand = import.meta.env.DEPLOYMENT_SERVER ?? "echo Set your deploy
 
 console.info("Building:", mode, "for", folder);
 
-// Build into {folder}
-await Bun.spawn(["npm", "run", "build", "--", "--mode", mode, "--outDir", folder]).exited;
+// Build into {folder}, kill the process with SIGKILL after 30 seconds
+const buildprocess = Bun.spawn({
+  cmd: ["vite", "build", "--mode", mode, "--outDir", folder],
+  env: {
+    ...process.env,
+  },  
+  timeout: 30000,
+  killSignal: "SIGKILL",
+});
+
+// Show build command result
+const decoder2 = new TextDecoder();
+for await (const chunk of buildprocess.stdout) {
+  console.info(decoder2.decode(chunk));
+}
 
 // Kill the process with SIGKILL after 30 seconds
 const subprocess = Bun.spawn({

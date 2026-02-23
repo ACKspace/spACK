@@ -15,4 +15,6 @@ export type Player = WorldEntity & {
   character: CharacterName;
   /** Direction to look */
   direction: Direction;
+  /** Speaking */
+  speaking?: boolean;
 };

@@ -83,7 +83,7 @@ export const Character: Component<Props> = (props) => {
       outlineStyle="rgba(0,0,0,1)"
       style={{
         // TODO: align center
-        fill: "white",
+        fill: `${props.speaking ? "pink" : "white"}`,
         fontSize: 24,
         fontFamily: "FsPixel",
         lineWidth: 6

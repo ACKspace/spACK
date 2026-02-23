@@ -378,6 +378,7 @@ export const useGameStateManager = () => {
         const player = gameState.remotePlayers.findIndex(r => r.username === participant.identity);
         if (player !== -1 && character) {
           setGameState("remotePlayers", player, "character", character);
+          setGameState("remotePlayers", player, "speaking", participant.isSpeaking);
         } else if (character) {
           setGameState("remotePlayers", (items) => [
             ...items,

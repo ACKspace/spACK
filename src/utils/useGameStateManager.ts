@@ -249,7 +249,12 @@ export const useGameStateManager = () => {
       setGameState("focused", !document.hidden);
       if (document.visibilityState === "visible") {
         // TODO: maybe only lock when cam or mic are on.
-        await navigator.wakeLock.request("screen");
+        try {
+          await navigator.wakeLock.request("screen");
+        } catch (err) {
+          // The wake lock request fails - usually system-related, such as low battery.
+          console.log("Wake lock failed", err);
+        }
       }
     });
 

@@ -6,7 +6,7 @@ type Props = {
   param?: TileParam;
 }
 export const TileInformation: Component<Props> = (props) => {
-  return <div style={{position: "fixed", top: 0, right: 0}}>
+  return <div style={{position: "fixed", top: 0, right: 0, background: "rgba(255,255,255,0.5)"}}>
     <Switch fallback={<>UNKNOWN: {props.param?.type}</>}>
       <Match when={props.param?.type === "impassable" && props.param}>
         {(t) => <>Impassable ({directionToArrow(t().direction) || "any"})</>}

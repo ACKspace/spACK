@@ -3,6 +3,7 @@ import { gameState, loadRoomMetadata, setGameState } from "../model/GameState";
 import { useRoomContext } from "../solid-livekit";
 import { type WorldObject } from "../model/Object";
 import {
+  ConnectionState,
   LocalParticipant,
   ParticipantEvent,
   RoomEvent,
@@ -513,7 +514,7 @@ export const useGameStateManager = () => {
 
   // Publish position
   createEffect(() => {
-    if (!gameState.myPlayer?.position) return;
+    if (!gameState.myPlayer?.position || room()?.state !== ConnectionState.Connected) return;
     const payload: Uint8Array = textEncoder.encode(
       JSON.stringify({
         payload: {
@@ -529,7 +530,7 @@ export const useGameStateManager = () => {
 
   // Publish direction
   createEffect(() => {
-    if (!gameState.myPlayer?.direction) return;
+    if (!gameState.myPlayer?.direction || room()?.state !== ConnectionState.Connected) return;
 
     const payload: Uint8Array = textEncoder.encode(
       JSON.stringify({
@@ -542,7 +543,7 @@ export const useGameStateManager = () => {
 
   // Publish animation
   createEffect(() => {
-    if (!gameState.myPlayer?.animation) return;
+    if (!gameState.myPlayer?.animation || room()?.state !== ConnectionState.Connected) return;
 
     const payload: Uint8Array = textEncoder.encode(
       JSON.stringify({

@@ -8,7 +8,7 @@ import type {
   Room,
 } from 'livekit-client';
 import { RoomContext } from '../solid-livekit';
-import { createMemo, ParentComponent, Show } from 'solid-js';
+import { ParentComponent, Show } from 'solid-js';
 import { useLiveKitRoom } from '../utils/useLiveKitRoom';
 
 export interface FeatureFlags {
@@ -89,12 +89,9 @@ export interface LiveKitRoomProps {
 
 export const LiveKitRoom: ParentComponent<LiveKitRoomProps> = (props) => {
   const { room } = useLiveKitRoom(props);
-  const someRoom = createMemo(() => {
-    return props.room ?? room();
-  })
   return (
-    <Show when={someRoom()}>
-      <RoomContext.Provider value={someRoom}>
+    <Show when={room()}>
+      <RoomContext.Provider value={room}>
           {props.children}
       </RoomContext.Provider>
     </Show>

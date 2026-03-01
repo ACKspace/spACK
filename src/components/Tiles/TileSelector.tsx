@@ -1,7 +1,6 @@
 import { Component, For, Match, Show, Switch } from "solid-js";
-import { gameState, setGameState } from "../../model/GameState";
+import { downloadRoomMetadata, gameState, loadRoomMetadata, saveRoomMetadata, setGameState } from "../../model/GameState";
 import Button from "../Button/Button";
-import { downloadRoomMetadata, loadRoomMetadata, saveRoomMetadata } from "../../utils/useLiveKitRoom";
 import { useRoomContext } from "../../solid-livekit";
 import { Direction, directionToArrow as a } from "../../model/Direction";
 import { Vector2 } from "../../model/Vector2";

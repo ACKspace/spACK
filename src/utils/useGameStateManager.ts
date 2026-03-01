@@ -1,5 +1,5 @@
 import { createEffect, createSignal, on, onCleanup, onMount } from "solid-js";
-import { gameState, setGameState } from "../model/GameState";
+import { gameState, loadRoomMetadata, setGameState } from "../model/GameState";
 import { useRoomContext } from "../solid-livekit";
 import { type WorldObject } from "../model/Object";
 import {
@@ -14,7 +14,6 @@ import { AnimationState } from "../model/AnimationState";
 import { useLocalParticipant } from "../utils/useLocalParticipant";
 import { useRemoteParticipants } from "../utils/useRemoteParticipants";
 import { Direction } from "../model/Direction";
-import { loadRoomMetadata } from "./useLiveKitRoom";
 import toast from "solid-toast";
 import { tileSize } from "../model/Tile";
 import { ObjectWorkerData, Outgoing } from "../model/WorkerMessage";

@@ -10,8 +10,7 @@
       "position": {
         "x": 22,
         "y": 19
-      },
-      "worker": {}
+      }
     }
   ],
   "tileAttributes": {
@@ -19,9 +18,6 @@
       "type": "impassable"
     },
     "62,29": {
-      "type": "impassable"
-    },
-    "61,29": {
       "type": "impassable"
     },
     "60,29": {
@@ -885,6 +881,33 @@
     "61,30": {
       "type": "spawn",
       "direction": "S"
+    },
+    "60,28": {
+      "type": "impassable"
+    },
+    "61,28": {
+      "type": "impassable"
+    },
+    "62,28": {
+      "type": "impassable"
+    },
+    "63,28": {
+      "type": "impassable"
+    },
+    "63,27": {
+      "type": "impassable"
+    },
+    "63,26": {
+      "type": "impassable"
+    },
+    "61,29": {
+      "type": "portal",
+      "room": "ACKspace_outside",
+      "coordinate": {
+        "x": 56,
+        "y": 30
+      },
+      "direction": "NE"
     }
   },
   "debugMode": true

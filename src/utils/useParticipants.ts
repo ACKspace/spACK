@@ -1,4 +1,4 @@
-import { clearCachedToken, useToken } from "./useToken";
+import { clearCachedToken, useToken } from "./token";
 
 export type RoomParticipantsInfo = {
   num_participants: number;
@@ -8,9 +8,8 @@ export type RoomParticipantsInfo = {
   error?: string;
 };
 
-export const useParticipants = async (room: string): Promise<RoomParticipantsInfo> => {
-  // Create a dummy token just for the room.
-  const token = await useToken(room, "DUMMY", "doux");
+export const useParticipants = async (): Promise<RoomParticipantsInfo> => {
+  const token = useToken();
 
   if ("error" in token) {
     console.warn("Failed", token.error);
@@ -24,24 +23,23 @@ export const useParticipants = async (room: string): Promise<RoomParticipantsInf
         "Content-Type": "application/json",
         "Authorization": `Bearer ${token.token}`,
       },
-      body: JSON.stringify({ names: [room] }),    
+      body: JSON.stringify({ names: [token.room] }),    
     })).json();
 
     // Status 401
     if ("msg" in data) {
       // Payload contains `msg` and `code`, not `rooms`.
       console.warn("Failed to list rooms:", data.msg);
-      clearCachedToken(room);
+      clearCachedToken();
       return { num_participants: 0, error: `Could not fetch token: ${data.msg}` };
     }
 
     // If room does not exist, return 0
     const num_participants = data.rooms.length ? data.rooms[0]. num_participants : 0;
-    const { list, join, admin } = token;
-    return { num_participants, list, join, admin };
+    return { num_participants, list: token?.list, join: token?.join, admin: token?.admin };
   } catch (e) {
     console.warn("Failed to list rooms, clearing cached token.", e);
-    clearCachedToken(room);
+    clearCachedToken();
     return { num_participants: 0, error: `Fetch error: ${e?.stack ?? e?.message}` };    
   }
 }
@@ -57,7 +55,7 @@ export const useParticipants = async (room: string): Promise<RoomParticipantsInf
  */
 export async function deleteRoom(room: string): Promise<boolean>
 {
-  const token = await useToken(room);
+  const token = useToken();
   if ("error" in token) {
     console.warn("No valid cached token to use");
     return false;
@@ -87,7 +85,7 @@ export async function deleteRoom(room: string): Promise<boolean>
     return true;
   } catch (e) {
     console.warn("Failed to delete room:", e);
-    clearCachedToken(room);
+    clearCachedToken();
     return false;
   }
 };

@@ -1,10 +1,9 @@
-import { gameState, setGameState } from "../model/GameState";
+import { clearGameState, gameState, setGameState } from "../model/GameState";
 import { ConnectionState } from "livekit-client";
 import { batch, Component, createEffect, createMemo, createSignal, For, Match, onMount, Show, Switch } from "solid-js";
-import { useConnectionState } from "../solid-livekit";
+import { useConnectionState, useRoomContext } from "../solid-livekit";
 import { getRandomSpawnPosition, useGameStateManager } from "../utils/useGameStateManager";
 import { Canvas, Group } from "../../solid-canvas/src";
-import { Character } from "../canvas/Character";
 import { Map } from "../canvas/Map";
 import { Player } from "../model/Player";
 import { SpatialAudioController } from "./SpatialAudioController";
@@ -23,6 +22,7 @@ import { useCurrentTileAttribute } from "../utils/useCurrentTileAttribute";
 import { WorldEntity } from "../canvas/WorldEntity";
 import { TextBubble } from "../canvas/TextBubble";
 import Input from "./Input/Input";
+import { setAttributes, useToken } from "../utils/token";
 
 const GameView: Component = () => {
   let input: HTMLInputElement;
@@ -35,6 +35,8 @@ const GameView: Component = () => {
     if ( gameState.currentObject?.active && ["a", "i", "v", "p"].includes(gameState.currentObject.mediaType!)) return true;
     return false;
   });
+
+  const room = useRoomContext();
 
   useGameStateManager();
 
@@ -123,15 +125,26 @@ const GameView: Component = () => {
 
     switch (param.type) {
       case "portal":
-        // Send/teleport player to (optional) room, (optional) coordinate
-        if (param.room) console.warn("Target room not yet implemented");
-        if(param.coordinate) {
-          batch(() => {
-            setGameState("myPlayer", "targetPos", param.coordinate);
-            setGameState("myPlayer", "position", { x: param.coordinate!.x * tileSize, y: param.coordinate!.y * tileSize });
-          })
-        }
-        if(param.direction) setGameState("myPlayer", "direction", param.direction);
+        batch(() => {
+          // Send/teleport player to (optional) room, (optional) coordinate
+          if (param.room) {
+            room()?.disconnect();
+            // room()?.connect("", "")
+            clearGameState();
+
+            setAttributes("roomName", param.room);
+            // TODO: handle password (when token fails)
+          }
+
+          if(param.coordinate) {
+            batch(() => {
+              setGameState("myPlayer", "targetPos", param.coordinate);
+              setGameState("myPlayer", "position", { x: param.coordinate!.x * tileSize, y: param.coordinate!.y * tileSize });
+            })
+          }
+          if(param.direction) setGameState("myPlayer", "direction", param.direction);
+        });
+
         break;
       case "impassable":
         // TODO: impassable: maybe bump user. Ignore for now
@@ -257,20 +270,23 @@ const GameView: Component = () => {
           }}>{gameState.editMode ? "regular mode" : "edit mode"}</Button>
           </div>
         </Show>
-        player:{gameState.myPlayer?.position.x},{gameState.myPlayer?.position.y}<br/>
-        player:{gameState.myPlayer?.targetPos?.x},{gameState.myPlayer?.targetPos?.y}<br/>
-        offset:{gameState.cameraOffset.x},{gameState.cameraOffset.y}<br/>
-        map:{gameState.mapSize.x},{gameState.mapSize.x}<br/>
-        current object: {gameState.currentObject?.image} {gameState.currentObject?.active ? "ACTIVE" : "none"}<br/>
-        <Button onClick={() => {
-          const [spawn, direction] = getRandomSpawnPosition()
-          batch(() => {
-            setGameState("myPlayer", "targetPos", spawn);
-            setGameState("myPlayer", "position", {x: spawn.x * tileSize, y: spawn.y * tileSize});
-          })
-          if (direction)
-            setGameState("myPlayer", "direction", direction);            
-        }}>spawn point</Button>
+        <Show when={gameState.debugMode}>
+          ROOM: {useToken().room} {gameState.base}<br/>
+          {/* player:{gameState.myPlayer?.position.x},{gameState.myPlayer?.position.y}<br/> */}
+          player:{gameState.myPlayer?.targetPos?.x},{gameState.myPlayer?.targetPos?.y}<br/>
+          {/* offset:{gameState.cameraOffset.x},{gameState.cameraOffset.y}<br/>
+          map:{gameState.mapSize.x},{gameState.mapSize.x}<br/>
+          current object: {gameState.currentObject?.image} {gameState.currentObject?.active ? "ACTIVE" : "none"}<br/> */}
+          <Button onClick={() => {
+            const [spawn, direction] = getRandomSpawnPosition()
+            batch(() => {
+              setGameState("myPlayer", "targetPos", spawn);
+              setGameState("myPlayer", "position", {x: spawn.x * tileSize, y: spawn.y * tileSize});
+            })
+            if (direction)
+              setGameState("myPlayer", "direction", direction);            
+          }}>spawn point</Button>
+        </Show>
       </div>
       <Show when={gameState.editMode}>
         {/* Top right */}

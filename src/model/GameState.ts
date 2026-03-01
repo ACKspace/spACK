@@ -3,6 +3,7 @@ import { TileParam } from "./Tile";
 import { Vector2 } from "./Vector2";
 import { createStore } from "solid-js/store";
 import { WorldObject } from "./Object";
+import { batch } from "solid-js";
 
 export type WorldEntity = {
   /** Actual position in pixels */
@@ -69,3 +70,24 @@ export const [gameState, setGameState] = createStore<GameState>({
     // For now: enable overlay (and allow edit mode)
     debugMode: true,
 });
+
+export const clearGameState = () => {
+  const keys = Object.keys(gameState.tileAttributes);
+
+  batch(() => {
+    setGameState("base", "");
+    setGameState("earshotRadius", 10); // TODO: leave out?
+    setGameState("debugMode", true); // TODO: leave out?
+
+    keys.forEach((key) => {
+      // @ts-ignore -- Erase all old tiles
+      setGameState("tileAttributes", key, undefined);
+    });
+
+    // Erase all objects and its workers. Kill any worker thread.
+    gameState.objects.forEach((object) => {
+      object.worker?.terminate();
+    });
+    setGameState("objects", []);
+  });
+};

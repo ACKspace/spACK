@@ -2,17 +2,13 @@ import { Component, createSignal, Match, onCleanup, onMount, Show, Switch } from
 import { type RoomParticipantsInfo, useParticipants } from "../utils/useParticipants";
 
 
-type Props = {
-  roomName: string;
-};
-
-export const RoomInfo: Component<Props> = (props) => {
+export const RoomInfo: Component = () => {
   const [roomInfo, setRoomInfo] = createSignal<RoomParticipantsInfo>();
 
   let interval: number;
   onMount(() => {
     const fetchRoomInfo = async () => {
-      const roomInfo = await useParticipants(props.roomName);
+      const roomInfo = await useParticipants();
       setRoomInfo(roomInfo);
     };
 

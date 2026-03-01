@@ -430,12 +430,13 @@ export const useGameStateManager = () => {
 
   // (Re)Connected
   const onConnected = () => {
-    console.info("Connected");
     const { character } = localParticipant().attributes;
     if (!character) console.warn("missing player character");
     if (!localParticipant().identity) console.warn("missing player identity");
 
     // Load the room details from the metadata
+    // TODO: batch?
+    setGameState("base", "");
     loadRoomMetadata(room());
 
     const [targetPos, direction] = getRandomSpawnPosition();
@@ -551,6 +552,7 @@ export const useGameStateManager = () => {
       }),
     );
 
+    // TODO: not allowed to emit if not connected!
     localParticipant().publishData(payload); // packet kind unreliable by default
   });
 };

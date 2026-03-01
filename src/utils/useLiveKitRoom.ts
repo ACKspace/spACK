@@ -2,8 +2,8 @@ import { Room, MediaDeviceFailure, RoomEvent, ConnectionState } from 'livekit-cl
 import { type LiveKitRoomProps } from '../components/LiveKitRoom';
 import { Accessor, batch, createEffect, createSignal, mergeProps, onCleanup } from 'solid-js';
 import { TileMetaData, MetaType, TileAttribute, TileParam, tileSize } from '../model/Tile';
-import { gameState, setGameState } from '../model/GameState';
-import { setRoomMetaData } from './useToken';
+import { clearGameState, gameState, setGameState } from '../model/GameState';
+import { setRoomMetaData } from './token';
 import { Direction } from '../model/Direction';
 import toast from "solid-toast";
 import { GenericMetaData, ObjectMeta, ObjectMetaData } from '../model/Object';
@@ -37,13 +37,13 @@ const keyLookup: Record<keyof RoomMetaData, TileAttribute | "object" | string | 
  * @param props LiveKit room props
  * @returns 
  */
-export function useLiveKitRoom<T extends HTMLElement>(
+export function useLiveKitRoom(
   props: LiveKitRoomProps,
 ): {
   room: Accessor<Room | undefined>;
 } {
   const p = mergeProps(defaultRoomProps, props);
-  
+
   if (p.options && p.room) {
     console.warn(
       'when using a manually created room, the options object will be ignored. set the desired options directly when creating the room instead.',
@@ -173,76 +173,66 @@ export function useLiveKitRoom<T extends HTMLElement>(
 export const loadRoomMetadata = (room?: Room) => {
   if (!room?.metadata) return;
 
+  clearGameState();
+
   try {
     const metadata = JSON.parse(room.metadata!) as RoomMetaData;
+    const subTypes = Object.keys(metadata) as Array<keyof RoomMetaData>;
 
-    const keys = Object.keys(gameState.tileAttributes);
     batch(() => {
       if (metadata.B) setGameState("base", `${metadata.B}/`);
       if (metadata.E) setGameState("earshotRadius", metadata.E);
       if (metadata.M) setGameState("debugMode", true);
       // if (metadata.U) setGameState("updated", metadata.U); // TODO: trigger reload
 
-      keys.forEach((key) => {
-        // @ts-ignore -- Erase all old tiles
-        setGameState("tileAttributes", key, undefined);
-      });
-    });
+      subTypes.forEach((subType) => {
+        const type = keyLookup[subType];
+        if (!type) return; // Sanity check
 
-    // Erase all objects and its workers. Kill any worker thread.
-    gameState.objects.forEach((object) => {
-      object.worker?.terminate();
-    })
-    setGameState("objects", []);
+        metadata[subType].forEach((meta, index) => {
+          const key = `${meta[0]},${meta[1]}`;
+          // @ts-ignore -- Partial object; filled in with switch statement.
+          const attribute: TileParam = { type }
+          switch (attribute.type) {
+            case "spawn":
+            case "impassable":
+              attribute.direction = meta[2] as Direction;
+              break;
 
-    const subTypes = Object.keys(metadata) as Array<keyof RoomMetaData>;
-    subTypes.forEach((subType) => {
-      const type = keyLookup[subType];
-      if (!type) return; // Sanity check
+            case "portal":
+              attribute.direction = meta[2] as Direction;
+              attribute.room = meta[3];
+              if (meta.length > 5) {
+                attribute.coordinate = { x: meta[4]!, y: meta[5]!}
+              }
+              break;
 
-      metadata[subType].forEach((meta, index) => {
-        const key = `${meta[0]},${meta[1]}`;
-        // @ts-ignore -- Partial object; filled in with switch statement.
-        const attribute: TileParam = { type }
-        switch (attribute.type) {
-          case "spawn":
-          case "impassable":
-            attribute.direction = meta[2] as Direction;
-            break;
+            case "private":
+            case "spotlight":
+              attribute.identifier = meta[2] as string;
+              break;
 
-          case "portal":
-            attribute.direction = meta[2] as Direction;
-            attribute.room = meta[3];
-            if (meta.length > 5) {
-              attribute.coordinate = { x: meta[4]!, y: meta[5]!}
-            }
-            break;
+            case "object":
+              // Not a tile attribute
+              const partialObject = {
+                  image: meta[2],
+                  activeImage: meta[3] || undefined,
+                  mediaType: meta[4] || undefined,
+                  uri: meta[5] || undefined,
+              } as WorldObject;
 
-          case "private":
-          case "spotlight":
-            attribute.identifier = meta[2] as string;
-            break;
+              const object = setupObject(partialObject, index, meta[0] * tileSize, meta[1] * tileSize, room.localParticipant);
+              setGameState("objects", index, object);
+              // Don't continue
+              return;
 
-          case "object":
-            // Not a tile attribute
-            const partialObject = {
-                image: meta[2],
-                activeImage: meta[3] || undefined,
-                mediaType: meta[4] || undefined,
-                uri: meta[5] || undefined,
-            } as WorldObject;
-
-            const object = setupObject(partialObject, index, meta[0] * tileSize, meta[1] * tileSize, room.localParticipant);
-            setGameState("objects", index, object);
-            // Don't continue
-            return;
-
-          default:
-            console.warn("Unknown type", type);
-            break;
-        }
-        // Set the actual attribute
-        setGameState("tileAttributes", key, attribute);
+            default:
+              console.warn("Unknown type", type);
+              break;
+          }
+          // Set the actual attribute
+          setGameState("tileAttributes", key, attribute);
+        });
       });
     });
   } catch (e) {
@@ -268,10 +258,6 @@ export const saveRoomMetadata = async (room?: Room) => {
     O: [],
     E: gameState.earshotRadius,
   };
-
-  if (metadata.B) setGameState("base", `${metadata.B}/`);
-  if (metadata.E) setGameState("earshotRadius", metadata.E);
-  if (metadata.M) setGameState("debugMode", true);
 
   if (gameState.base) metadata.B = gameState.base.replace("/","");
   if (gameState.debugMode) metadata.M = 1;
@@ -342,10 +328,17 @@ export const downloadRoomMetadata = async (room?: Room) => {
   const metadata = {
     base: gameState.base.replace("/",""),
     earshotRadius: gameState.earshotRadius,
-    objects: gameState.objects, //JSON.parse(JSON.stringify(gameState.objects)),
+    objects: JSON.parse(JSON.stringify(gameState.objects)), // Make a copy so we can modify
     tileAttributes: gameState.tileAttributes, //JSON.parse(JSON.stringify(gameState.tileAttributes)),
     debugMode: gameState.debugMode,
   };
+
+  (metadata.objects as WorldObject[]).forEach((obj) => {
+    delete obj.worker;
+    obj.position.x /= tileSize;
+    obj.position.y /= tileSize;
+  })
+
 
   // TODO: correct object position, remove worker
 

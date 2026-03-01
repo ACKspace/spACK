@@ -17,10 +17,12 @@
   user-select: none;
   pointer-events: none;
   touch-action: none;
+  background-color: rgba(255,255,255,0.1);
+  text-shadow: -1px -1px 0 #fff5, 1px -1px 0 #fff5, -1px 1px 0 #fff5, 1px 1px 0 #fff5;
 
 }
 
-.active {
+span.active {
   background-color: rgba(255,255,255,0.4);
 }
 

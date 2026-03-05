@@ -3,6 +3,7 @@ import { type AnimationState } from "./AnimationState";
 import { type CharacterName } from "../components/CharacterSelector/CharacterSelector";
 import { Direction } from "./Direction";
 import { WorldEntity } from "./GameState";
+import { ImageSource } from "../../solid-canvas/src/types";
 
 export type Player = WorldEntity & {
   /** Participant identity */
@@ -18,3 +19,22 @@ export type Player = WorldEntity & {
   /** Speaking */
   speaking?: boolean;
 };
+
+export type PlayerProps = {
+  /** Offset within the map in pixels */
+  position: Vector2;
+  speaking?: boolean;
+  username: string;
+  animation: AnimationState;
+  character: CharacterName;
+  direction: Direction;
+};
+
+export type SpriteInfo = {
+  image: ImageSource;
+  rows: number;
+  cols: number;
+  width: number;
+  height: number;
+  animations: Record<AnimationState, number[]>;
+}

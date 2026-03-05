@@ -1,5 +1,5 @@
 import { Arc, Group, Image, Text } from "../../solid-canvas/src";
-import { Component, createMemo, createSignal, onCleanup, onMount, Show } from "solid-js";
+import { Component, createMemo, createSignal, onCleanup, onMount } from "solid-js";
 import { directionToLeftRight } from "../utils/legacyDirection";
 import { tileSize } from "../model/Tile";
 import { PlayerProps, SpriteInfo } from "../model/Player";
@@ -20,7 +20,7 @@ const sprite: SpriteInfo = {
   }
 }
 
-export const Character: Component<PlayerProps> = (props) => {
+export const Dino: Component<PlayerProps> = (props) => {
   const [frame, setFrame] = createSignal(0);
   const offset = createMemo(() => {
     // TODO: props.animation sanity check

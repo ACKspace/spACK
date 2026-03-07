@@ -1,8 +1,8 @@
 import { createEffect, createResource, on, ResourceFetcher } from "solid-js";
-import { type CharacterName } from "../components/CharacterSelector/CharacterSelector";
 import { createStore } from "solid-js/store";
 import { Direction } from "../model/Direction";
 import { gameState } from "../model/GameState";
+import { DinoName } from "../canvas/Dino";
 
 export type ConnectionDetails = {
   token: string;
@@ -80,7 +80,7 @@ type TokenData = {
   // Attributes
   position?: {x: number, y: number };
   direction?: Direction;
-  character?: CharacterName;
+  character?: DinoName;
 }
 
 /**

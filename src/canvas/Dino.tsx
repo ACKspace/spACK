@@ -1,8 +1,10 @@
 import { Arc, Group, Image, Text } from "../../solid-canvas/src";
 import { Component, createMemo, createSignal, onCleanup, onMount } from "solid-js";
-import { directionToLeftRight } from "../utils/legacyDirection";
 import { tileSize } from "../model/Tile";
 import { PlayerProps, SpriteInfo } from "../model/Player";
+import { Direction } from "../model/Direction";
+
+export type DinoName = "doux" | "mort" | "targ" | "vita";
 
 const CHAR_SIZE = 72;
 const CHAR_OFFSET = (CHAR_SIZE - tileSize) / 2;
@@ -90,3 +92,15 @@ export const Dino: Component<PlayerProps> = (props) => {
   </Group>;
 };
 
+const directionToLeftRight = (direction: Direction): "left" | "right" => {
+  switch (direction) {
+    case "N":
+    case "NE":
+    case "E":
+    case "SE":
+      return "right";
+    // S, SW, W, NW
+    default:
+      return "left"
+  }
+}

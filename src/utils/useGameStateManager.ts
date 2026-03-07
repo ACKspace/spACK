@@ -262,6 +262,14 @@ export const useGameStateManager = () => {
       if (event.repeat) return;
       const down = event.type === "keydown";
       // TODO: We might want to include all items with focus and tabindex
+      if (down && event.ctrlKey) {
+        switch (event.code) {
+          case "KeyL":
+            toast(`Position:\nx: ${gameState.myPlayer?.targetPos?.x}, y: ${gameState.myPlayer?.targetPos?.y}`);
+            event.preventDefault();
+            return;
+        }
+      }
       const isInput = ["INPUT", "BUTTON", "SELECT", "TEXTAREA"].includes(document.activeElement?.tagName ?? "");
       if (down && isInput) return;
 

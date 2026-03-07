@@ -3,6 +3,7 @@ import { createStore } from "solid-js/store";
 import { Direction } from "../model/Direction";
 import { gameState } from "../model/GameState";
 import { DinoName } from "../canvas/Dino";
+import { CharacterName } from "../canvas/Character";
 
 export type ConnectionDetails = {
   token: string;
@@ -80,7 +81,7 @@ type TokenData = {
   // Attributes
   position?: {x: number, y: number };
   direction?: Direction;
-  character?: DinoName;
+  character?: DinoName | CharacterName;
 }
 
 /**

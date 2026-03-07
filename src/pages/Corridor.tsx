@@ -7,13 +7,14 @@ import styles from "./pages.module.css";
 import Input from "../components/Input/Input";
 import Button from "../components/Button/Button";
 import { DinoName } from "../canvas/Dino";
+import { CharacterName } from "../canvas/Character";
 import CharacterSelector from "../components/CharacterSelector/CharacterSelector";
 
 export const Corridor: Component<{onEnter: () => void}> = (props) => {
   let password: HTMLInputElement | undefined;
   const [username, setUsername] = createSignal(`Dummy${Math.random() * 1000 | 0}`);
   const [selectedCharacter, setSelectedCharacter] =
-    createSignal<DinoName>("doux");
+    createSignal<DinoName | CharacterName>("doux");
   const securityLevel = createMemo(() => {
     const roomInfo = useToken();
     if ("error" in roomInfo || !roomInfo.list) return 3;

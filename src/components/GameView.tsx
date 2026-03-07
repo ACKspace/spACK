@@ -23,6 +23,7 @@ import { WorldEntity } from "../canvas/WorldEntity";
 import { TextBubble } from "../canvas/TextBubble";
 import Input from "./Input/Input";
 import { setAttributes, useToken } from "../utils/token";
+import toast from "solid-toast";
 
 const GameView: Component = () => {
   let input: HTMLInputElement;
@@ -121,7 +122,9 @@ const GameView: Component = () => {
   createEffect(() => {
     // Don't trigger actions in edit mode
     const param = useCurrentTileAttribute();
-    if (gameState.editMode || !param) return;
+    if (!gameState.myPlayer || gameState.editMode) return;
+
+    if (!param) return;
 
     switch (param.type) {
       case "portal":
@@ -153,7 +156,7 @@ const GameView: Component = () => {
         // Ignore
         break;
       case "private":
-        // TODO: private: isolated media streams from participants within the private room
+        // private: isolated media streams from participants within the private room
       case "spotlight":
         // TODO: spotlight: large scale presentation to private room
         console.warn("Not yet implemented");
@@ -272,11 +275,17 @@ const GameView: Component = () => {
         </Show>
         <Show when={gameState.debugMode}>
           ROOM: {useToken().room} {gameState.base}<br/>
-          {/* player:{gameState.myPlayer?.position.x},{gameState.myPlayer?.position.y}<br/> */}
-          player:{gameState.myPlayer?.targetPos?.x},{gameState.myPlayer?.targetPos?.y}<br/>
           {/* offset:{gameState.cameraOffset.x},{gameState.cameraOffset.y}<br/>
           map:{gameState.mapSize.x},{gameState.mapSize.x}<br/>
           current object: {gameState.currentObject?.image} {gameState.currentObject?.active ? "ACTIVE" : "none"}<br/> */}
+          <Button onClick={async () => {
+            try {
+              await navigator.clipboard.writeText(import.meta.env.VITE_VERSION);
+              toast.success("Version copied to clipboard");
+            } catch {
+              toast.error("Clipboard error");
+            }
+          }}>{import.meta.env.VITE_VERSION} 📋</Button><br/>
           <Button onClick={() => {
             const [spawn, direction] = getRandomSpawnPosition()
             batch(() => {

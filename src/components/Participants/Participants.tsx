@@ -1,16 +1,16 @@
 import { Component, createMemo, For, Show } from "solid-js";
 import { gameState } from "../../model/GameState";
-import { Player } from "../../model/Player";
+import { type RemoteParticipant } from "livekit-client";
 
 // import styles from "./Participants.module.css";
 
 type Props = {
-  participants?: Player[];
+  participants?: RemoteParticipant[];
 };
 
 export const Participants: Component<Props> = (props) => {
   const participants = createMemo(() => {
-    if (props.participants) return props.participants;
+    if (props.participants) return props.participants.map(participant => ({username: participant.identity, speaking: false}));
     return gameState.remotePlayers;
   });
 

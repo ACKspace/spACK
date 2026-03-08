@@ -1,11 +1,12 @@
 import { clearCachedToken, useToken } from "./token";
+import { type RemoteParticipant } from "livekit-client";
 
 export type RoomParticipantsInfo = {
-  num_participants: number;
   list?: boolean;
   join?: boolean;
   admin?: boolean;
   error?: string;
+  participants: RemoteParticipant[];
 };
 
 export const useParticipants = async (): Promise<RoomParticipantsInfo> => {
@@ -13,17 +14,17 @@ export const useParticipants = async (): Promise<RoomParticipantsInfo> => {
 
   if ("error" in token) {
     console.warn("Failed", token.error);
-    return { num_participants: 0, error: `Token error: ${token.error}` };
+    return { participants: [], error: `Token error: ${token.error}` };
   }
 
   try {
-    const data = await (await fetch(`${token.ws_url.replace("wss://", "https://")}twirp/livekit.RoomService/ListRooms`, {
+    const data = await (await fetch(`${token.ws_url.replace("wss://", "https://")}twirp/livekit.RoomService/ListParticipants`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${token.token}`,
       },
-      body: JSON.stringify({ names: [token.room] }),    
+      body: JSON.stringify({ room: token.room }),
     })).json();
 
     // Status 401
@@ -31,16 +32,15 @@ export const useParticipants = async (): Promise<RoomParticipantsInfo> => {
       // Payload contains `msg` and `code`, not `rooms`.
       console.warn("Failed to list rooms:", data.msg);
       clearCachedToken();
-      return { num_participants: 0, error: `Could not fetch token: ${data.msg}` };
+      return { participants: [], error: `Could not fetch token: ${data.msg}` };
     }
 
-    // If room does not exist, return 0
-    const num_participants = data.rooms.length ? data.rooms[0]. num_participants : 0;
-    return { num_participants, list: token?.list, join: token?.join, admin: token?.admin };
+    // If room does not exist, return empty list
+    return { participants: data.participants, list: token?.list, join: token?.join, admin: token?.admin };
   } catch (e) {
     console.warn("Failed to list rooms, clearing cached token.", e);
     clearCachedToken();
-    return { num_participants: 0, error: `Fetch error: ${e?.stack ?? e?.message}` };    
+    return { participants: [], error: `Fetch error: ${e?.stack ?? e?.message}` };    
   }
 }
 

@@ -14,6 +14,8 @@ type Props = {
   outline?: string;
   /** Optional arrow to draw */
   direction?: Direction;
+  /** Whether to draw a rect instead of a rounded rect/circle */
+  square?: boolean
   /** Whether to draw a circle instead of a rounded rect */
   round?: boolean
 };
@@ -51,7 +53,7 @@ export const AttributeTile: Component<Props> = (props) => {
         dimensions: { width: tileSize, height: tileSize},
         fill: props.color ?? "rgba(128,128,128,0.6)",
         stroke: props.outline ?? "transparent",
-        rounded: props.round ? tileSize / 2 : 8,
+        rounded: props.square ? 0 : props.round ? tileSize / 2 : 8,
         lineWidth: 3,
       }}
     />

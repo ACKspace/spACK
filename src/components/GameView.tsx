@@ -24,6 +24,7 @@ import { TextBubble } from "../canvas/TextBubble";
 import Input from "./Input/Input";
 import { setAttributes, useToken } from "../utils/token";
 import toast from "solid-toast";
+import { PrivateArea } from "../canvas/PrivateArea";
 
 const GameView: Component = () => {
   let input: HTMLInputElement;
@@ -205,9 +206,13 @@ const GameView: Component = () => {
           <For each={objects()}>{(worldEntity) => (
             <WorldEntity entity={worldEntity}/>
           )}</For>
-          {/* TODO: highlighted joined tiles */}
-          <Show when={!gameState?.myPlayer?.private}>
-            <EarshotRadius radius={gameState.earshotRadius} position={gameState.myPlayer?.position ?? {x:0, y: 0}} render />
+          <Show
+            when={gameState?.myPlayer?.private}
+            keyed
+            fallback={<EarshotRadius radius={gameState.earshotRadius} position={gameState.myPlayer?.position ?? {x:0, y: 0}} render />}
+          >{(privateName) => <>
+            <PrivateArea private={privateName} render />
+          </>}
           </Show>
           <Map image={`world/${gameState.base}/map.png`} />
         </Group>

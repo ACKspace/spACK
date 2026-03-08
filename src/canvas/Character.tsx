@@ -1,5 +1,5 @@
 import { Arc, Group, Image, Text } from "../../solid-canvas/src";
-import { Component, createMemo, createSignal, onCleanup, onMount, Show } from "solid-js";
+import { Component, createEffect, createMemo, createSignal, onCleanup, onMount, Show } from "solid-js";
 import { tileSize } from "../model/Tile";
 import { PlayerProps, SpriteInfo } from "../model/Player";
 import { directionToIndex } from "../utils/direction";

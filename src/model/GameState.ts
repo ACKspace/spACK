@@ -39,14 +39,11 @@ export type GameState = {
   /** Tile attributes addressed by "x,y" for faster lookup */
   tileAttributes: Record<string, TileParam>;
 
-  /** Whether the user is in chat input mode */
-  chatMode?: boolean;
-
   /** Whether the "game" is in debug mode (OSD stats) */
   debugMode?: boolean;
 
-  /** Whether the "game" is in edit mode */
-  editMode?: boolean;
+  /** Which special mode is currently active */
+  mode?: "participants" | "chat" | "settings" | "edit" | "debug";
   /** Current active painter's tool */
   activeTool?: TileParam; // and object
 

@@ -116,7 +116,7 @@ const ObjectEditor: Component<WorldObject> = (props) => {
 const TileSelector: Component = () => {
   const room = useRoomContext();
   return (
-    <div style={{ position: "fixed", bottom: 0, left: 0, background: "rgba(255,255,255,0.5)", padding: "8px" }}>
+    <div>
       <Switch fallback={<>Erase</>}>
         <Match when={gameState.activeTool?.type === "impassable" && gameState.activeTool}>
           {(t) => <ImpassableTile direction={t().direction}/>}

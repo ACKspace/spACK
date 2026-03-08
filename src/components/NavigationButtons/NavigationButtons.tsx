@@ -11,7 +11,7 @@ const pointers = new Set<number>();
  *
  * @returns component with 4 "button"-like elements that show the active direction.
  */
-export const NavigationButtons: Component = () => {
+export const NavigationButtons: Component<{right?: string}> = (props) => {
   let div!: HTMLDivElement;
   const pointerEvent = (event: PointerEvent) => {
     const xRatio = event.offsetX / div.offsetWidth;
@@ -53,6 +53,7 @@ export const NavigationButtons: Component = () => {
     onPointerUp={pointerEvent}
     onPointerMove={pointerEvent}
     onContextMenu={(event) => {event.preventDefault();}}
+    style={{right: props.right}}
   >
     <For each={directions}>{(direction, idx) =>
       <>

@@ -1,5 +1,4 @@
-import { Component, createEffect, createMemo, createSignal, onCleanup, onMount, Show } from "solid-js";
-import BottomBar from "../components/BottomBar";
+import { Component, createEffect, createSignal, onCleanup, onMount, Show } from "solid-js";
 import GameView from "../components/GameView";
 import { LiveKitRoom } from "../components/LiveKitRoom";
 import { useToken, type ConnectionDetails } from "../utils/token";
@@ -49,7 +48,6 @@ const Room: Component<Props> = (props) => {
       >
         <WebAudioContext.Provider value={audioContext()!}>
           <GameView />
-          <BottomBar />
         </WebAudioContext.Provider>
       </LiveKitRoom>
     </Show>

@@ -6,7 +6,7 @@ import { useCurrentTileAttribute } from "../utils/useCurrentTileAttribute";
 
 export const AttributeTileGroup: Component = (props) => {
 
-  return <Show when={gameState.editMode}>
+  return <Show when={gameState.mode === "edit"}>
     <>
       {/* Portal target, if on top of portal */}
       <Show when={useCurrentTileAttribute()?.type === "portal" && useCurrentTileAttribute()}>{(t) =>

@@ -25,6 +25,8 @@ import Input from "./Input/Input";
 import { setAttributes, useToken } from "../utils/token";
 import toast from "solid-toast";
 import { PrivateArea } from "../canvas/PrivateArea";
+import { MicrophoneMuteButton } from "./MicrophoneMuteButton";
+import { MicrophoneSelector } from "./MicrophoneSelector";
 
 const GameView: Component = () => {
   let input: HTMLInputElement;
@@ -33,7 +35,6 @@ const GameView: Component = () => {
   const connectionState = useConnectionState();
   const { localParticipant } = useLocalParticipant();
   const showOverlay = createMemo(() => {
-    if (gameState.chatMode) return true;
     if ( gameState.currentObject?.active && ["a", "i", "v", "p"].includes(gameState.currentObject.mediaType!)) return true;
     return false;
   });
@@ -123,7 +124,7 @@ const GameView: Component = () => {
   createEffect(() => {
     // Don't trigger actions in edit mode
     const param = useCurrentTileAttribute();
-    if (!gameState.myPlayer || gameState.editMode) return;
+    if (!gameState.myPlayer || gameState.mode === "edit") return;
 
     // Handle private tiles
     setGameState("myPlayer", "private", param?.type === "private" ? param.identifier : undefined);
@@ -173,7 +174,7 @@ const GameView: Component = () => {
   })
 
   createEffect(() => {
-    if (gameState.chatMode) {
+    if (gameState.mode === "chat") {
       input!.focus();
     }
   });
@@ -183,14 +184,17 @@ const GameView: Component = () => {
       case "Enter":
         if (input!.value)
           localParticipant().sendText(input!.value);
-        // Fall through
+        input!.value = "";
+        break;
+
       case "Escape":
-        setGameState("chatMode", false);
+        // Close dialog
+        setGameState("mode", undefined);
         break;
     }
   }
 
-  return (
+  return (<>
     <Show when={connectionState() === ConnectionState.Connected} fallback={<>Not connected</>}>
       <Canvas>
         <Group
@@ -218,6 +222,7 @@ const GameView: Component = () => {
         </Group>
       </Canvas>
       <SpatialAudioController/>
+
       {/* Chat popup */}
       <Show when={showOverlay()}>
         <div style={{
@@ -232,14 +237,6 @@ const GameView: Component = () => {
           display: "flex",
         }}>
           <Switch>
-            <Match when={gameState.chatMode}>
-              <span>Chat:</span>
-              <Input
-                ref={input!}
-                name="chat"
-                onKeyDown={keyDown}
-              />
-            </Match>
             <Match when={gameState.currentObject?.mediaType === "a"}>
               <audio
                 autoplay
@@ -272,20 +269,62 @@ const GameView: Component = () => {
           </Switch>
         </div>
       </Show>
-      {/* Bottom right */}
+
+      {/* TODO: Make sure everything still fits on the screen */}
       <Show when={mobile}>
-        <NavigationButtons/>
+        <NavigationButtons right={gameState.mode ? "30em": "0"} />
       </Show>
-      {/* Bottom left */}
-      <div style={{ position: "fixed", top: 0, left: 0, "background-color": "rgba(255,255,255,0.6)" }}>
-        <Show when={gameState.debugMode}>
+    </Show>
+    <div
+      style={{
+        "box-sizing": "border-box",
+        position: "fixed",
+        top: 0,
+        bottom: 0,
+        right: 0,
+        width: gameState.mode ? "30em": 0,
+        "background-color": "rgba(255,255,255,0.6)",
+        padding: gameState.mode ? "8px" : 0
+      }}
+    >
+      <div>
+      <Button title="Participants" onClick={() => setGameState("mode", "participants")}>👥</Button>
+      <Button title="Chat" onClick={() => setGameState("mode", "chat")}>💬</Button>
+      <Button title="Settings" onClick={() => setGameState("mode", "settings")}>⚙️</Button>
+      <Button title="Edit" onClick={() => setGameState("mode", "edit")}>📝</Button>
+      <Show when={gameState.debugMode}>
+        <Button title="Debug" onClick={() => setGameState("mode", "debug")}>🪳</Button>
+      </Show>      
+      <Button title="Close" onClick={() => setGameState("mode", undefined)}>✖</Button>
+      </div>
+      <Switch>
+        <Match when={gameState.mode === "participants"}>
+          <div>participants</div>
+        </Match>
+        <Match when={gameState.mode === "chat"}>
           <div>
-            <Button onClick={() => {
-            setGameState("editMode", !gameState.editMode);
-          }}>{gameState.editMode ? "regular mode" : "edit mode"}</Button>
+            <span>Chat:</span>
+            <Input
+              ref={input!}
+              name="chat"
+              autocomplete="off"
+              onKeyDown={keyDown}
+            />
           </div>
-        </Show>
-        <Show when={gameState.debugMode}>
+        </Match>
+        <Match when={gameState.mode === "settings"}>
+          <div>
+          <MicrophoneMuteButton />
+          <MicrophoneSelector />            
+          </div>
+        </Match>
+        <Match when={gameState.mode === "edit"}>
+          <div>
+            <TileInformation param={useCurrentTileAttribute()}/>
+            <TileSelector/>
+          </div>
+        </Match>
+        <Match when={gameState.mode === "debug"}>
           ROOM: {useToken().room} {gameState.base}<br/>
           {/* offset:{gameState.cameraOffset.x},{gameState.cameraOffset.y}<br/>
           map:{gameState.mapSize.x},{gameState.mapSize.x}<br/>
@@ -307,16 +346,16 @@ const GameView: Component = () => {
             if (direction)
               setGameState("myPlayer", "direction", direction);            
           }}>spawn point</Button>
-        </Show>
-      </div>
-      <Show when={gameState.editMode}>
-        {/* Top right */}
-        <TileInformation param={useCurrentTileAttribute()}/>
-        {/* Bottom left */}
-        <TileSelector/>
-      </Show>
+        </Match>
+      </Switch>
+    </div>
+    <Show when={!gameState.mode}>
+      <Button
+        style={{ position: "fixed", top: 0, right: 0, padding: "8px 16px"}}
+        onClick={() => setGameState("mode", "participants")}
+      >☰</Button>
     </Show>
-  );
+  </>);
 };
 
 export default GameView;

@@ -181,7 +181,7 @@ export const useGameStateManager = () => {
       const tileAttribute = gameState.tileAttributes[`${x},${y}`];
 
       // Handle impassible state before actually updating.
-      if (!gameState.editMode
+      if (gameState.mode !== "edit"
         && tileAttribute?.type === "impassable"
         && tileAttribute.direction !== gameState.myPlayer?.direction) {
           return false
@@ -205,7 +205,7 @@ export const useGameStateManager = () => {
     on<[number | undefined,number | undefined, boolean], void>(
       () => [gameState.myPlayer?.targetPos?.x, gameState.myPlayer?.targetPos?.y, keyboardBits()[4]],
       ([x, y, a]) => {
-        if (!gameState.editMode || !a || x === undefined || y === undefined) return;
+        if (gameState.mode !== "edit" || !a || x === undefined || y === undefined) return;
 
         // Used for level developing
         const idx = findNearestObjectIndex(x, y, 2);
@@ -243,7 +243,7 @@ export const useGameStateManager = () => {
     on<[number | undefined,number | undefined, boolean], void>(
       () => [gameState.myPlayer?.targetPos?.x, gameState.myPlayer?.targetPos?.y, keyboardBits()[4]],
       ([x, y, a]) => {
-        if (gameState.editMode || x === undefined || y === undefined) return;
+        if (gameState.mode === "edit" || x === undefined || y === undefined) return;
 
         // Determine if we need to display or hide a popup
         const idx = findNearestObjectIndex(x, y, 2);
@@ -324,11 +324,11 @@ export const useGameStateManager = () => {
           break;
         case "KeyT":
           if (!down && !isInput)
-            setGameState("chatMode", true);
+            setGameState("mode", "chat");
       }
 
       // Hacky keyboard shortcuts
-      if (!gameState.editMode || !down) return;
+      if (gameState.mode !== "edit" || !down) return;
       switch (event.code) {
         case "Digit1":
           setGameState("activeTool", { type: "impassable" });
@@ -484,6 +484,8 @@ export const useGameStateManager = () => {
     if (player === -1) return;
 
     const data = JSON.parse(textDecoder.decode(payload)) as NetworkPacket;
+
+    // TODO: optimize case statement
     switch (data.channelId) {
       case "position":
         // TODO: maybe filter out players that are outside of the view; maintain animation when appearing.

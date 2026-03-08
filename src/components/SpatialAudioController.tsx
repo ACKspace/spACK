@@ -1,11 +1,12 @@
 import { RemoteTrackPublication, RoomEvent, Track } from "livekit-client";
-import { batch, Component, createEffect, For, on } from "solid-js";
+import { batch, Component, createEffect, For, on, Show } from "solid-js";
 import { useRoomContext, useTracks } from "../solid-livekit";
 import { gameState } from "../model/GameState";
 import { useWebAudioContext } from "../providers/webAudio";
 import { createStore } from "solid-js/store";
 import { Vector2 } from "../model/Vector2";
 import { clamp } from "../utils/clamp";
+import { Player } from "../model/Player";
 
 /** Store that keeps track of players, track publications and relative position */
 type PlayerTracks = Record<string, {
@@ -22,6 +23,28 @@ type PlayerTracks = Record<string, {
   /** Spatial controller to do the actual sound manipulation on */
   spatialController?: PannerNode | GainNode;
 }>;
+
+/**
+ * Determine relative position; return large distance if the private area differs.
+ * @param self The myPlayer object
+ * @param other The other 9remote) player 
+ * @returns Vector that contains the relative distance for setting up audio
+ */
+function determineRelativePosition(self: Player | null, other: Player): Vector2 {
+  // Self not initialized or both not in the same (private) area
+  if (!self?.targetPos || !other.targetPos || self.private !== other.private)
+    return { x: -1000, y: -1000 };
+
+  // Same private area, no offset
+  if (self.private && other.private)
+    return {x: 0, y: 0};
+
+  // Return real offset
+  return {
+    x: other.targetPos.x - self.targetPos.x,
+    y: other.targetPos.y - self.targetPos.y,
+  };
+}
 
 export const SpatialAudioController: Component = () => {
   const room = useRoomContext();
@@ -53,10 +76,7 @@ export const SpatialAudioController: Component = () => {
           userNames.delete(player.username);
           if (!player.targetPos || !gameState.myPlayer?.targetPos) return;
 
-          const relativePosition: Vector2 = {
-            x: player.targetPos.x - gameState.myPlayer.targetPos.x,
-            y: player.targetPos.y - gameState.myPlayer.targetPos.y,
-          };
+          const relativePosition = determineRelativePosition(gameState.myPlayer, player);
   
           // Set/update relative position (note that other properties will get kept)
           setPlayerTracks(player.username, { relativePosition } );
@@ -97,7 +117,7 @@ export const SpatialAudioController: Component = () => {
         // Only audio tracks
         if (trackRef.publication.kind !== "audio") return;
 
-        // Initial subscription, if within hearing distance
+        // Initial subscription, if within hearing distance or same private tile
         const relativePosition = playerTracks[identity].relativePosition;
         const hearable = Math.hypot(relativePosition.x, relativePosition.y) <= gameState.earshotRadius;
         trackRef.publication.setSubscribed(hearable);
@@ -115,10 +135,11 @@ export const SpatialAudioController: Component = () => {
     // Do the gain
     createEffect(() => {
       const relativePosition = playerTracks[identity].relativePosition;
-      // Update subscription
+      // Update subscription (earshot radius private tile)
       const hearable = Math.hypot(relativePosition.x, relativePosition.y) <= gameState.earshotRadius;
       playerTracks[identity].publication?.setSubscribed(hearable);
 
+      // TODO: override with private tile logic if needed
       if (playerTracks[identity].spatialController instanceof GainNode) {
         const gain = 1 - clamp(0, Math.hypot(relativePosition.x, relativePosition.y) / gameState.earshotRadius, 1);
         playerTracks[identity].spatialController.gain.setValueAtTime(gain, audioContext.currentTime);
@@ -184,7 +205,12 @@ export const SpatialAudioController: Component = () => {
 
     return <div>
       <audio ref={ref}/>
-      {identity}:{playerTracks[identity].relativePosition.x},{playerTracks[identity].relativePosition.y}
+      {/* TODO: remove */}
+      <Show when={gameState.debugMode}>
+        <div style={{position:"absolute", bottom:0, left:0, background: "rgba(255,255,255,0.2)" }}>
+          {identity}:{playerTracks[identity].relativePosition.x},{playerTracks[identity].relativePosition.y}
+        </div>
+      </Show>
     </div>
   }}</For>
 };

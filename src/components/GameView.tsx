@@ -124,6 +124,8 @@ const GameView: Component = () => {
     const param = useCurrentTileAttribute();
     if (!gameState.myPlayer || gameState.editMode) return;
 
+    // Handle private tiles
+    setGameState("myPlayer", "private", param?.type === "private" ? param.identifier : undefined);
     if (!param) return;
 
     switch (param.type) {
@@ -157,6 +159,8 @@ const GameView: Component = () => {
         break;
       case "private":
         // private: isolated media streams from participants within the private room
+        // Already handled at the top
+        break;
       case "spotlight":
         // TODO: spotlight: large scale presentation to private room
         console.warn("Not yet implemented");
@@ -201,7 +205,10 @@ const GameView: Component = () => {
           <For each={objects()}>{(worldEntity) => (
             <WorldEntity entity={worldEntity}/>
           )}</For>
-          <EarshotRadius radius={gameState.earshotRadius} position={gameState.myPlayer?.position ?? {x:0, y: 0}} render />
+          {/* TODO: highlighted joined tiles */}
+          <Show when={!gameState?.myPlayer?.private}>
+            <EarshotRadius radius={gameState.earshotRadius} position={gameState.myPlayer?.position ?? {x:0, y: 0}} render />
+          </Show>
           <Map image={`world/${gameState.base}/map.png`} />
         </Group>
       </Canvas>

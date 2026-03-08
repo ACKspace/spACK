@@ -17,6 +17,8 @@ export type Player<T extends string = string> = WorldEntity & {
   direction: Direction;
   /** Speaking */
   speaking?: boolean;
+  /** Private tile mode */
+  private?: string;
 };
 
 export type PlayerProps<T extends string = string> = {

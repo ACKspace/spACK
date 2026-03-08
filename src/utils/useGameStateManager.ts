@@ -18,6 +18,7 @@ import { Direction } from "../model/Direction";
 import toast from "solid-toast";
 import { tileSize } from "../model/Tile";
 import { ObjectWorkerData, Outgoing } from "../model/WorkerMessage";
+import { Player } from "../model/Player";
 
 const textEncoder = new TextEncoder();
 const textDecoder = new TextDecoder();
@@ -29,6 +30,7 @@ type NetworkPacket =
   NetworkPosition |
   NetworkDirection |
   NetworkAnimation |
+  NetworkPrivateRoom |
   NetworkObject;
 
 type NetworkPosition = {
@@ -42,6 +44,10 @@ type NetworkDirection = {
 type NetworkAnimation = {
   channelId: "animation";
   payload: AnimationState;
+}
+type NetworkPrivateRoom = {
+  channelId: "private";
+  payload: string | undefined | null; // TODO: which one?
 }
 type NetworkObject = {
   channelId: "object";
@@ -116,6 +122,23 @@ export const useGameStateManager = () => {
   const room = useRoomContext();
   const { localParticipant } = useLocalParticipant({ room: room() });
   const remoteParticipants = useRemoteParticipants();
+
+  // Internal packet publish helper
+  function packetPublish(player: Player | null, key: keyof Player, channel?: string, participant?: RemoteParticipant) {
+      if (!player || !player[key] || room()?.state !== ConnectionState.Connected) return;
+
+      const channelId = channel ?? key;
+
+      const payload: Uint8Array = textEncoder.encode(
+        JSON.stringify({
+          payload: player[key],
+          channelId,
+        }),
+      );
+
+      const options = participant ? { destinationIdentities:[participant.identity] } : undefined;
+      localParticipant().publishData(payload, options); // packet kind unreliable by default
+  }
 
   createEffect(() => {
     // Don't do anything before we have a player
@@ -365,24 +388,8 @@ export const useGameStateManager = () => {
           // Send it after room sync is completed
           participant.once(ParticipantEvent.Active, () => {
             console.info("Send mypos to", participant.identity);
-            const position: Uint8Array = textEncoder.encode(
-              JSON.stringify({
-                payload: {
-                  x: gameState.myPlayer!.targetPos!.x,
-                  y: gameState.myPlayer!.targetPos!.y
-                },
-                channelId: "position" // TODO: differentiate between teleport and walk
-              })
-            );
-            const direction: Uint8Array = textEncoder.encode(
-              JSON.stringify({
-                payload: gameState.myPlayer!.direction,
-                channelId: "direction",
-              }),
-            );
-
-            localParticipant().publishData(position, { destinationIdentities:[participant.identity] }); // packet kind unreliable by default
-            localParticipant().publishData(direction, { destinationIdentities:[participant.identity] }); // packet kind unreliable by default
+            packetPublish(gameState.myPlayer, "targetPos", "position", participant);
+            packetPublish(gameState.myPlayer, "direction", "direction", participant);
           });
         }
 
@@ -497,6 +504,12 @@ export const useGameStateManager = () => {
         });
         break;
 
+      case "private":
+        setGameState("remotePlayers", player, {
+          private: data.payload || undefined
+        });
+        break;
+
       case "object":
         setGameState("objects", data.payload.id, "active", data.payload.active);
         break;
@@ -520,49 +533,11 @@ export const useGameStateManager = () => {
     toast(`${participant.identity}: ${text}`, { duration: 10000 })
   };
 
-  // Publish position
-  createEffect(() => {
-    if (!gameState.myPlayer?.position || room()?.state !== ConnectionState.Connected) return;
-    const payload: Uint8Array = textEncoder.encode(
-      JSON.stringify({
-        payload: {
-          x: gameState.myPlayer.targetPos?.x,
-          y: gameState.myPlayer.targetPos?.y
-        },
-        channelId: "position"
-      })
-    );
-
-    localParticipant().publishData(payload); // packet kind unreliable by default
-  });
-
   // Publish direction
-  createEffect(() => {
-    if (!gameState.myPlayer?.direction || room()?.state !== ConnectionState.Connected) return;
-
-    const payload: Uint8Array = textEncoder.encode(
-      JSON.stringify({
-        payload: gameState.myPlayer.direction,
-        channelId: "direction",
-      }),
-    );
-    localParticipant().publishData(payload); // packet kind unreliable by default
-  });
-
-  // Publish animation
-  createEffect(() => {
-    if (!gameState.myPlayer?.animation || room()?.state !== ConnectionState.Connected) return;
-
-    const payload: Uint8Array = textEncoder.encode(
-      JSON.stringify({
-        payload: gameState.myPlayer.animation,
-        channelId: "animation",
-      }),
-    );
-
-    // TODO: not allowed to emit if not connected!
-    localParticipant().publishData(payload); // packet kind unreliable by default
-  });
+  createEffect(() => { packetPublish(gameState.myPlayer, "targetPos", "position") });
+  createEffect(() => { packetPublish(gameState.myPlayer, "direction") });
+  createEffect(() => { packetPublish(gameState.myPlayer, "animation") });
+  createEffect(() => { packetPublish(gameState.myPlayer, "private") });
 };
 
 /**

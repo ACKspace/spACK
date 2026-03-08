@@ -34,6 +34,18 @@ export const AttributeTileGroup: Component = (props) => {
           direction={t().direction}
           />
       }</Show>
+      {/* Current active "tool" */}
+      <Show when={gameState.activeTool?.type && gameState.activeTool}>{(t) =>
+        <AttributeTile
+          color={tileColors[t().type]}
+          outline={"rgba(255,255,255,0.6)"}
+          position={{
+            x: (gameState.myPlayer?.position.x ?? -1000) / 32,
+            y: (gameState.myPlayer?.position.y ?? -1000) / 32,
+          }}
+          direction={t().direction}
+          />
+      }</Show>
       <For each={Object.keys(gameState.tileAttributes)}>{(key) => {
         const [x,y] = key.split(",").map(axis => parseInt(axis));
         const tile = gameState.tileAttributes[key];

@@ -2,7 +2,7 @@ import { clearGameState, gameState, setGameState } from "../model/GameState";
 import { ConnectionState } from "livekit-client";
 import { batch, Component, createEffect, createMemo, createSignal, For, Match, onMount, Show, Switch } from "solid-js";
 import { useConnectionState, useRoomContext } from "../solid-livekit";
-import { getRandomSpawnPosition, useGameStateManager } from "../utils/useGameStateManager";
+import { useGameStateManager } from "../utils/useGameStateManager";
 import { Canvas, Group } from "../../solid-canvas/src";
 import { Map } from "../canvas/Map";
 import { Player } from "../model/Player";
@@ -12,28 +12,24 @@ import { tileSize } from "../model/Tile";
 import { NavigationButtons } from "./NavigationButtons/NavigationButtons";
 import { useMobile } from "../utils/useMobile";
 import Button from "./Button/Button";
-import TileSelector from "./Tiles/TileSelector";
-import { TileInformation } from "./Tiles/TileInformation";
-import { useLocalParticipant } from "../utils/useLocalParticipant";
 import { AttributeTileGroup } from "../canvas/AttributeTileGroup";
 import { Vector2 } from "../model/Vector2";
 import { type WorldObject } from "../model/Object";
 import { useCurrentTileAttribute } from "../utils/useCurrentTileAttribute";
 import { WorldEntity } from "../canvas/WorldEntity";
 import { TextBubble } from "../canvas/TextBubble";
-import Input from "./Input/Input";
-import { setAttributes, useToken } from "../utils/token";
-import toast from "solid-toast";
+import { setAttributes } from "../utils/token";
 import { PrivateArea } from "../canvas/PrivateArea";
-import { MicrophoneMuteButton } from "./MicrophoneMuteButton";
-import { MicrophoneSelector } from "./MicrophoneSelector";
+import Participants from "./Participants/Participants";
+import Chat from "./Chat";
+import Settings from "./Settings";
+import Editor from "./Editor";
+import Debug from "./Debug";
 
 const GameView: Component = () => {
-  let input: HTMLInputElement;
   const [screenSize, setScreenSize] = createSignal<Vector2>({ x:0, y: 0 });
   const mobile = useMobile();
   const connectionState = useConnectionState();
-  const { localParticipant } = useLocalParticipant();
   const showOverlay = createMemo(() => {
     if ( gameState.currentObject?.active && ["a", "i", "v", "p"].includes(gameState.currentObject.mediaType!)) return true;
     return false;
@@ -173,27 +169,6 @@ const GameView: Component = () => {
     }
   })
 
-  createEffect(() => {
-    if (gameState.mode === "chat") {
-      input!.focus();
-    }
-  });
-
-  const keyDown = (event: KeyboardEvent) => {
-    switch (event.code) {
-      case "Enter":
-        if (input!.value)
-          localParticipant().sendText(input!.value);
-        input!.value = "";
-        break;
-
-      case "Escape":
-        // Close dialog
-        setGameState("mode", undefined);
-        break;
-    }
-  }
-
   return (<>
     <Show when={connectionState() === ConnectionState.Connected} fallback={<>Not connected</>}>
       <Canvas>
@@ -299,53 +274,19 @@ const GameView: Component = () => {
       </div>
       <Switch>
         <Match when={gameState.mode === "participants"}>
-          <div>participants</div>
+          <Participants />
         </Match>
         <Match when={gameState.mode === "chat"}>
-          <div>
-            <span>Chat:</span>
-            <Input
-              ref={input!}
-              name="chat"
-              autocomplete="off"
-              onKeyDown={keyDown}
-            />
-          </div>
+          <Chat/>
         </Match>
         <Match when={gameState.mode === "settings"}>
-          <div>
-          <MicrophoneMuteButton />
-          <MicrophoneSelector />            
-          </div>
+          <Settings/>
         </Match>
         <Match when={gameState.mode === "edit"}>
-          <div>
-            <TileInformation param={useCurrentTileAttribute()}/>
-            <TileSelector/>
-          </div>
+          <Editor/>
         </Match>
         <Match when={gameState.mode === "debug"}>
-          ROOM: {useToken().room} {gameState.base}<br/>
-          {/* offset:{gameState.cameraOffset.x},{gameState.cameraOffset.y}<br/>
-          map:{gameState.mapSize.x},{gameState.mapSize.x}<br/>
-          current object: {gameState.currentObject?.image} {gameState.currentObject?.active ? "ACTIVE" : "none"}<br/> */}
-          <Button onClick={async () => {
-            try {
-              await navigator.clipboard.writeText(import.meta.env.VITE_VERSION);
-              toast.success("Version copied to clipboard");
-            } catch {
-              toast.error("Clipboard error");
-            }
-          }}>{import.meta.env.VITE_VERSION} 📋</Button><br/>
-          <Button onClick={() => {
-            const [spawn, direction] = getRandomSpawnPosition()
-            batch(() => {
-              setGameState("myPlayer", "targetPos", spawn);
-              setGameState("myPlayer", "position", {x: spawn.x * tileSize, y: spawn.y * tileSize});
-            })
-            if (direction)
-              setGameState("myPlayer", "direction", direction);            
-          }}>spawn point</Button>
+          <Debug/>
         </Match>
       </Switch>
     </div>

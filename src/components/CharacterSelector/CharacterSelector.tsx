@@ -71,13 +71,13 @@ type Props<T = DinoName | CharacterName> = {
 
 export const CharacterSelector: Component<Props> = (props) => {
   // const characters: CharacterName[] = [ "doux", "mort", "targ", "vita" ];
-  const [body, setBody] = createSignal("0");
+  const [body, setBody] = createSignal("1");
   const [headGear, setHeadGear] = createSignal(" ");
-  const [hair, setHair] = createSignal("0");
+  const [hair, setHair] = createSignal(" ");
   const [facialHair, setFacialHair] = createSignal(" ");
   const [attribute, setAttribute] = createSignal(" ");
-  const [jacket, setJacket] = createSignal("0");
-  const [top, setTop] = createSignal("0");
+  const [jacket, setJacket] = createSignal(" ");
+  const [top, setTop] = createSignal(" ");
   const [bottom, setBottom] = createSignal(" ");
   const [shoes, setShoes] = createSignal(" ");
   const character = createMemo<CharacterName>(() => {

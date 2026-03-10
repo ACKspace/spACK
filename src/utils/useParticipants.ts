@@ -1,4 +1,4 @@
-import { clearCachedToken, useToken } from "./token";
+import { clearCachedToken, Token } from "./token";
 import { type RemoteParticipant } from "livekit-client";
 
 export type RoomParticipantsInfo = {
@@ -9,22 +9,20 @@ export type RoomParticipantsInfo = {
   participants: RemoteParticipant[];
 };
 
-export const useParticipants = async (): Promise<RoomParticipantsInfo> => {
-  const token = useToken();
-
-  if ("error" in token) {
-    console.warn("Failed", token.error);
-    return { participants: [], error: `Token error: ${token.error}` };
+export const useParticipants = async (roomInfo: Token): Promise<RoomParticipantsInfo> => {
+  if ("error" in roomInfo) {
+    console.warn("Failed", roomInfo.error);
+    return { participants: [], error: `Token error: ${roomInfo.error}` };
   }
 
   try {
-    const data = await (await fetch(`${token.ws_url.replace("wss://", "https://")}twirp/livekit.RoomService/ListParticipants`, {
+    const data = await (await fetch(`${roomInfo.ws_url.replace("wss://", "https://")}twirp/livekit.RoomService/ListParticipants`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${token.token}`,
+        "Authorization": `Bearer ${roomInfo.token}`,
       },
-      body: JSON.stringify({ room: token.room }),
+      body: JSON.stringify({ room: roomInfo.room }),
     })).json();
 
     // Status 401
@@ -36,7 +34,7 @@ export const useParticipants = async (): Promise<RoomParticipantsInfo> => {
     }
 
     // If room does not exist, return empty list
-    return { participants: data.participants, list: token?.list, join: token?.join, admin: token?.admin };
+    return { participants: data.participants, list: roomInfo?.list, join: roomInfo?.join, admin: roomInfo?.admin };
   } catch (e) {
     console.warn("Failed to list rooms, clearing cached token.", e);
     clearCachedToken();
@@ -53,9 +51,8 @@ export const useParticipants = async (): Promise<RoomParticipantsInfo> => {
  * @param room The name of the room
  * @returns true upon success
  */
-export async function deleteRoom(room: string): Promise<boolean>
+export async function deleteRoom(room: string, token: Token): Promise<boolean>
 {
-  const token = useToken();
   if ("error" in token) {
     console.warn("No valid cached token to use");
     return false;

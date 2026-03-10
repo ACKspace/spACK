@@ -4,6 +4,7 @@ import { Direction } from "../model/Direction";
 import { gameState } from "../model/GameState";
 import { DinoName } from "../canvas/Dino";
 import { CharacterName } from "../canvas/Character";
+import { useTokenContext } from "../providers/token";
 
 export type ConnectionDetails = {
   token: string;
@@ -23,7 +24,7 @@ type ErrorResponse = {
   error: string;
 };
 
-type ReturnType = ConnectionDetails & Rights | ErrorResponse;
+export type Token = ConnectionDetails & Rights | ErrorResponse;
 
 /**
  * Inspect token validity
@@ -35,7 +36,8 @@ type ReturnType = ConnectionDetails & Rights | ErrorResponse;
  *
  * @returns Token if valid and not expired over 5 minutes; error otherwise
  */
-function inspectToken(token?: string, ws_url?: string, room?: string, user?: string): ReturnType
+let timer: number | undefined;
+function inspectToken(token?: string, ws_url?: string, room?: string, user?: string): Token
 {
   if(!token || !ws_url) return { error: "No token"};
 
@@ -45,7 +47,12 @@ function inspectToken(token?: string, ws_url?: string, room?: string, user?: str
   if (user && jwtData.sub !== user) return { error: "Invalid user"};
   if (room && jwtData.video.room !== room) return  { error: "Invalid room"};
   const expires = jwtData.exp;
-  if (expires < (Date.now() / 1000) - 300) return { error: "Expiring"};
+
+  const expiringSeconds = expires - (Date.now() / 1000);
+  if (expiringSeconds < 300) return { error: "Expiring"};
+
+  if (timer) clearTimeout(timer);
+  timer = window.setTimeout(() => refetch("expiring"), (expiringSeconds - 300) * 1000);
 
   const { roomList: list, roomJoin: join, roomAdmin: admin } = jwtData.video;
   const result = { token, ws_url, list, join, admin, expires, room: jwtData.video.room, user: jwtData.sub };
@@ -89,7 +96,7 @@ type TokenData = {
  * @param tokenData The token data to generate a token for
  * @returns token or error on failure
  */
-const fetchToken: ResourceFetcher<TokenData, ReturnType, string> = async (tokenData: TokenData, { refetching, value }) => {
+const fetchToken: ResourceFetcher<TokenData, Token, string> = async (tokenData: TokenData, { refetching, value }) => {
   // Try and find cached token depending on the room and user
   const token = inspectToken(sessionStorage["token"], sessionStorage["url"], tokenData.roomName, tokenData.user);
 
@@ -107,8 +114,8 @@ const fetchToken: ResourceFetcher<TokenData, ReturnType, string> = async (tokenD
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ room: tokenData.roomName, user: tokenData.user, character: tokenData.character, password: tokenData.password }),    
-    })).json() as ReturnType;
+      body: JSON.stringify({ room: tokenData.roomName, user: tokenData.user, character: tokenData.character, password: tokenData.password, debug: gameState.debugMode }),    
+    })).json() as Token;
 
     if ("error" in liveKitToken) return liveKitToken;
 
@@ -130,7 +137,7 @@ const [attributes, setAttributes] = createStore<TokenData>({
   character: "doux"
 });
 
-const [useToken, { refetch, mutate }] = createResource<ReturnType, TokenData, string>(
+const [token, { refetch, mutate }] = createResource<Token, TokenData, string>(
   attributes,
   fetchToken,
   { initialValue: { error: "not initialized" } },
@@ -152,7 +159,8 @@ createEffect(
 // attributes.direction
 // attributes.position
 
-export { setAttributes, useToken };
+export { setAttributes };
+export const useToken = token;
 
 /**
  * Set room meta data (used for room admins/editors)
@@ -163,8 +171,8 @@ export { setAttributes, useToken };
  */
 export async function setRoomMetaData(room: string, metadata: string): Promise<number>
 {
-  const result = useToken();
-  if ("error" in result) {
+  const roomInfo = useTokenContext();
+  if ("error" in roomInfo()) {
     console.warn("No valid cached token to use");
     return 0;
   }
@@ -172,11 +180,11 @@ export async function setRoomMetaData(room: string, metadata: string): Promise<n
   // TODO: we can check for token.admin or just let it error out
 
   try {
-    const data = await (await fetch(`${result.ws_url.replace("wss://", "https://")}twirp/livekit.RoomService/UpdateRoomMetadata`, {
+    const data = await (await fetch(`${roomInfo().ws_url.replace("wss://", "https://")}twirp/livekit.RoomService/UpdateRoomMetadata`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${result.token}`,
+        "Authorization": `Bearer ${roomInfo().token}`,
       },
       body: JSON.stringify({ room, metadata }),    
     })).json();
@@ -203,5 +211,3 @@ export function clearCachedToken() {
   sessionStorage.removeItem("token");
   sessionStorage.removeItem("url");  
 }
-
-// export function extractRoom

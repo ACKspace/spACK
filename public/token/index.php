@@ -33,6 +33,7 @@ $data = json_decode(file_get_contents('php://input'), true);
 $room = isset($data["room"]) ? $data["room"] : "Dark";
 $user = isset($data["user"]) ? $data["user"] : "unnamed";
 $character = isset($data["character"]) ? $data["character"] : "vita";
+$debug = isset($data["debug"]) ? $data["debug"] : false;
 
 // TODO: HMAC encoded
 $password = isset($data["password"]) ? $data["password"] : "";
@@ -44,7 +45,7 @@ $attributes = new stdClass();
 $attributes->character = $character;
 
 $now = time();
-$expires = $now + 3600;
+$expires = $now + ($debug ? 360 : 3600);
 
 $header = new stdClass();
 $header->typ = "JWT";

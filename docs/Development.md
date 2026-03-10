@@ -147,6 +147,10 @@ Make sure, if using VSCode to set the commit message editor:
 git config --global core.editor "code --wait"
 ```
 
+Note that creating a tag requires the following syntax: `git tag -a v0.9.1 -m "beta 2"`
+Don't forget to update the `.env` files accordingly.
+
+
 ## Builds and deployments <a id="3"></a>
 
 

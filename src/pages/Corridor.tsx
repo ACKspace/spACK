@@ -1,27 +1,37 @@
 import { batch, Component, createEffect, createMemo, createSignal, Show } from "solid-js";
-import { setAttributes, useToken } from "../utils/token";
-import { humanRoomName } from "../utils/roomHelpers";
+import { setAttributes } from "../utils/token";
 import RoomInfo from "../components/RoomInfo";
-
-import styles from "./pages.module.css";
 import Input from "../components/Input/Input";
 import Button from "../components/Button/Button";
 import { DinoName } from "../canvas/Dino";
 import { CharacterName } from "../canvas/Character";
 import CharacterSelector from "../components/CharacterSelector/CharacterSelector";
+import { useTokenContext } from "../providers/token";
+import SafeRoomName from "../components/SafeRoomName";
+
+import styles from "./pages.module.css";
 
 export const Corridor: Component<{onEnter: () => void}> = (props) => {
   let password: HTMLInputElement | undefined;
+  const [enter, setEnter] = createSignal(false);
   const [username, setUsername] = createSignal(`Dummy${Math.random() * 1000 | 0}`);
   const [selectedCharacter, setSelectedCharacter] =
     createSignal<DinoName | CharacterName>("doux");
+  const roomInfo = useTokenContext();
   const securityLevel = createMemo(() => {
-    const roomInfo = useToken();
-    if ("error" in roomInfo || !roomInfo.list) return 3;
-    if (!roomInfo.join) return 2;
-    if (!roomInfo.admin) return 1;
+    const info = roomInfo();
+    if ("error" in info || !info.list) return 3;
+    if (!info.join) return 2;
+    if (!info.admin) return 1;
     return 0;
   });
+
+  createEffect(() => {
+    if (!enter()) return;
+    if (roomInfo().user === username()) {
+      props.onEnter();
+    }
+  })
 
   return <form
       onSubmit={(e) => {
@@ -32,17 +42,10 @@ export const Corridor: Component<{onEnter: () => void}> = (props) => {
           setAttributes("password", password?.value);
         });
 
-        // await new token
-        createEffect(() => {
-          const roomInfo = useToken();
-          if (roomInfo.user === username()) {
-            props.onEnter();
-          }
-        });
-
+        setEnter(true);
       }}
     >
-  <h2>{humanRoomName()}</h2>
+  <h2><SafeRoomName/></h2>
   <RoomInfo />
   <CharacterSelector
     selectedCharacter={selectedCharacter()}

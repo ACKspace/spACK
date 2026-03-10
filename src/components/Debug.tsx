@@ -1,16 +1,17 @@
 import { batch, Component } from "solid-js";
-import { useToken } from "../utils/token";
 import { gameState, setGameState } from "../model/GameState";
 import Button from "./Button/Button";
 import toast from "solid-toast";
 import { getRandomSpawnPosition } from "../utils/useGameStateManager";
 import { tileSize } from "../model/Tile";
+import { useTokenContext } from "../providers/token";
 
 
 export const Debug: Component = () => {
+  const roomInfo = useTokenContext();
   return (
     <div>
-        ROOM: {useToken().room} {gameState.base}<br/>
+        ROOM: {roomInfo().room} {gameState.base}<br/>
         {/* offset:{gameState.cameraOffset.x},{gameState.cameraOffset.y}<br/>
         map:{gameState.mapSize.x},{gameState.mapSize.x}<br/>
         current object: {gameState.currentObject?.image} {gameState.currentObject?.active ? "ACTIVE" : "none"}<br/> */}

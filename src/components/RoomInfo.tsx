@@ -1,15 +1,17 @@
 import { Component, createSignal, Match, onCleanup, onMount, Show, Switch } from "solid-js";
 import { type RoomParticipantsInfo, useParticipants } from "../utils/useParticipants";
 import Participants from "./Participants/Participants";
+import { useTokenContext } from "../providers/token";
 
 
 export const RoomInfo: Component = () => {
   const [roomInfo, setRoomInfo] = createSignal<RoomParticipantsInfo>();
+  const token = useTokenContext();
 
   let interval: number;
   onMount(() => {
     const fetchRoomInfo = async () => {
-      const roomInfo = await useParticipants();
+      const roomInfo = await useParticipants(token());
       setRoomInfo(roomInfo);
     };
 

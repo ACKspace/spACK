@@ -1,9 +1,10 @@
 import { Component, createEffect, createSignal, onCleanup, onMount, Show } from "solid-js";
 import GameView from "../components/GameView";
 import { LiveKitRoom } from "../components/LiveKitRoom";
-import { useToken, type ConnectionDetails } from "../utils/token";
+import { type ConnectionDetails } from "../utils/token";
 import { WebAudioContext } from "../providers/webAudio";
 import { Corridor } from "./Corridor";
+import { useTokenContext } from "../providers/token";
 
 type Props = {
   name?: string;
@@ -14,6 +15,7 @@ const Room: Component<Props> = (props) => {
   const [connectionDetails, setConnectionDetails] =
     createSignal<ConnectionDetails | null>(null);
   const [audioContext, setAudioContext] = createSignal<AudioContext | null>(null);
+  const roomInfo = useTokenContext();
 
   onMount(() => {
     setAudioContext(new AudioContext());
@@ -26,11 +28,11 @@ const Room: Component<Props> = (props) => {
   });
 
   createEffect(() => {
-    const result = useToken();
-    if ("error" in result) {
+    const info = roomInfo();
+    if ("error" in info) {
       setConnectionDetails(null);
     } else {
-      setConnectionDetails(result);
+      setConnectionDetails(info);
     }
   });
 

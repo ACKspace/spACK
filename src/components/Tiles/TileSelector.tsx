@@ -9,6 +9,7 @@ import { WorldObject } from "../../model/Object";
 import { TileParam } from "../../model/Tile";
 import Input from "../Input/Input";
 import { deleteRoom } from "../../utils/useParticipants";
+import { useTokenContext } from "../../providers/token";
 
 type WorldParam = WorldObject | TileParam;
 type ParamComponent<T extends WorldParam> = Component<{name: keyof T, label: string, options: Record<T[keyof T], string>}>;
@@ -114,6 +115,7 @@ const ObjectEditor: Component<WorldObject> = (props) => {
 };
 
 const TileSelector: Component = () => {
+  const token = useTokenContext();
   const room = useRoomContext();
   return (
     <div>
@@ -152,7 +154,7 @@ const TileSelector: Component = () => {
             setGameState("myPlayer", "character", room()?.localParticipant.attributes.character);
           }}>doux</Button>
           <Button onClick={async () => {
-            await deleteRoom(room()!.name);
+            await deleteRoom(room()!.name, token());
           }}>Delete room</Button>    
         </div>
       </Show>

@@ -1,0 +1,30 @@
+# Build output
+dist
+/spack
+/spack_*
+
+# Dependencies (installed inside container)
+node_modules
+
+# Git
+.git
+.gitignore
+.gitmodules
+
+# Environment files (secrets — pass via docker-compose environment: instead)
+.env
+.env.*
+
+# Docker files themselves (not needed in build context)
+docker-compose.yml
+docker/
+
+# IDE & OS
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Docs & tools (not needed at runtime)
+docs/
+tools/
+README.md

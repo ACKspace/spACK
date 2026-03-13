@@ -114,7 +114,8 @@ function getMetadata($room)
 
     $roomFolder = preg_replace('/[^A-Za-z0-9\-_]/', '_', $roomFolder);
 
-    $path = "../world/".$roomFolder."/metadata.json";
+    // __DIR__ is public/token/; /../world/ resolves to public/world/
+    $path = __DIR__."/../world/".$roomFolder."/metadata.json";
     if (file_exists($path)) {
         // Load metadata
         $metadata = json_decode(file_get_contents($path));
@@ -153,9 +154,10 @@ function createRoom($token, $metadata)
 
     // error_log(json_encode($data), 0);
 
-    // Do LiveKit request.
+    // Do LiveKit request (use INTERNAL_URL to support Docker/reverse-proxy setups
+    // where the browser-facing URL differs from the server-side API endpoint).
     postJson(
-        $token->ws_url."twirp/livekit.RoomService/CreateRoom",
+        INTERNAL_URL."twirp/livekit.RoomService/CreateRoom",
         $token->token,
         $data
     );

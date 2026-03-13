@@ -16,7 +16,7 @@ export const useParticipants = async (roomInfo: Token): Promise<RoomParticipants
   }
 
   try {
-    const data = await (await fetch(`${roomInfo.ws_url.replace("wss://", "https://")}twirp/livekit.RoomService/ListParticipants`, {
+    const data = await (await fetch(`${roomInfo.ws_url.replace("wss://", "https://").replace("ws://", "http://")}twirp/livekit.RoomService/ListParticipants`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -25,20 +25,19 @@ export const useParticipants = async (roomInfo: Token): Promise<RoomParticipants
       body: JSON.stringify({ room: roomInfo.room }),
     })).json();
 
-    // Status 401
+    // Status 401 or room not found — don't clear the token, just report
+    // the issue and fall back to the token's own permissions so join/admin
+    // state remains correct in the UI.
     if ("msg" in data) {
-      // Payload contains `msg` and `code`, not `rooms`.
-      console.warn("Failed to list rooms:", data.msg);
-      clearCachedToken();
-      return { participants: [], error: `Could not fetch token: ${data.msg}` };
+      console.warn("Failed to list participants:", data.msg);
+      return { participants: [], list: roomInfo?.list, join: roomInfo?.join, admin: roomInfo?.admin };
     }
 
     // If room does not exist, return empty list
     return { participants: data.participants, list: roomInfo?.list, join: roomInfo?.join, admin: roomInfo?.admin };
   } catch (e) {
-    console.warn("Failed to list rooms, clearing cached token.", e);
-    clearCachedToken();
-    return { participants: [], error: `Fetch error: ${e?.stack ?? e?.message}` };    
+    console.warn("Failed to list participants:", e);
+    return { participants: [], list: roomInfo?.list, join: roomInfo?.join, admin: roomInfo?.admin };
   }
 }
 
@@ -61,7 +60,7 @@ export async function deleteRoom(room: string, token: Token): Promise<boolean>
   // TODO: we can check for token.admin or just let it error out
 
   try {
-    const data = await (await fetch(`${token.ws_url.replace("wss://", "https://")}twirp/livekit.RoomService/DeleteRoom`, {
+    const data = await (await fetch(`${token.ws_url.replace("wss://", "https://").replace("ws://", "http://")}twirp/livekit.RoomService/DeleteRoom`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

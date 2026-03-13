@@ -32,7 +32,9 @@ export default ({ mode }: ConfigEnv) => {
       emptyOutDir: true,
     },
     optimizeDeps: {
-      // exclude: ["solid-canvas/*"],
+      // Limit dependency scanning to the app's own source so Vite doesn't
+      // crawl solid-canvas/dev/ which has self-referential dev-only imports.
+      entries: ["index.html", "src/**/*.{ts,tsx}"],
     },
   };
 }

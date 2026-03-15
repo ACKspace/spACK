@@ -154,7 +154,7 @@ You will need a local LiveKit server running that handles the conference and Web
 
 ### Local token server <a id="2.2"></a>
 
-`spACK_config.php` is already present in the repository and reads its settings from environment variables with built-in defaults suitable for local development (`devkey` / `secret` / `ws://localhost:7880/`). No manual creation is needed.
+`spACK_config.php` is already present in the repository and reads its settings from environment variables. The defaults (`devkey` / `secret`) point at the production LiveKit server, so no manual creation is needed for basic use.
 
 To use the token server locally without Docker:
 

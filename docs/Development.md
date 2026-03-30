@@ -9,6 +9,7 @@ This document describes to set up and run your local instance, deployment and de
   * [MacOS](#1.2)
   * [Linux](#1.3)
 * [Developing](#2)
+  * [Docker Compose (alternative)](#2.0)
   * [Client](#2.1)
   * [Local token server](#2.2)
   * [Committing code](#2.3)
@@ -80,20 +81,16 @@ $ sudo apt install ./vscode.deb
 Checkout this repository from GitHub and make sure the submodules are also cloned:
 ```bash
 git clone https://github.com/ACKspace/spACK.git
-# or git clone git@github.com:ACKspace/spACK.git
 cd spACK
 git submodule update --init --recursive
 ```
+
+> **Note:** the `solid-canvas` submodule uses HTTPS, so no SSH key is required for it.
 
 After the initial repository and submodules are cloned, you can pull in updates (from within the project's directory) with:
 ```bash
 git pull
 git submodule update --recursive --remote
-```
-
-Provide your local instance with the latest node modules:
-```bash
-$ npm install # or npm i
 ```
 
 Copy over the `.env.example` file to `.env`:
@@ -102,7 +99,48 @@ $ cp .env.example .env
 ```
 
 
+### Docker Compose (alternative) <a id="2.0"></a>
+
+If you have Docker and Docker Compose installed, you can run a full local stack (frontend, token server, LiveKit) without installing Node.js, PHP, or the LiveKit binary manually.
+
+```bash
+$ docker compose up --build
+```
+
+This starts three services:
+
+| Service | URL | Description |
+|---|---|---|
+| `frontend` | http://localhost:3001 | Vite dev server with hot reload |
+| `token` | http://localhost:8083 | PHP JWT token server |
+| `livekit` | ws://localhost:7880 | LiveKit WebRTC server (dev mode) |
+
+Update your `.env` file to point at the Docker token server:
+```
+VITE_TOKEN_URL=http://localhost:8083
+```
+
+The frontend service mounts the project source as a volume, so edits to `src/` hot-reload automatically. The token service mounts `public/` and `spACK_config.php` directly, so PHP changes also take effect immediately without a rebuild.
+
+To override LiveKit credentials or URLs, set environment variables before running:
+```bash
+export LIVEKIT_API_KEY=mykey
+export LIVEKIT_PASSWORD=mypassword
+docker compose up
+```
+
+To stop all services:
+```bash
+$ docker compose down
+```
+
+
 ### Client <a id="2.1"></a>
+
+Install dependencies:
+```bash
+$ npm install # or npm i
+```
 
 Start local development instance:
 ```bash
@@ -116,22 +154,24 @@ You will need a local LiveKit server running that handles the conference and Web
 
 ### Local token server <a id="2.2"></a>
 
+`spACK_config.php` is already present in the repository and reads its settings from environment variables. The defaults (`devkey` / `secret`) point at the production LiveKit server, so no manual creation is needed for basic use.
+
+To use the token server locally without Docker:
+
 * Update the `.env` file: `VITE_TOKEN_URL=http://localhost:8081`
-* Create `spACK_config.php` in the project root (just outside the `public` directory) with the following content:
-```php
-<?php
-define("API_KEY", "devkey");
-define("PASSWORD", "secret");
-// Used for LiveKitRoom websocket serverUrl and Twirp Roomservice POST
-define("URL", "ws://127.0.0.1:7880");
-// Alternatively, use online server
-//define("URL", "https://pauper.tel/livekit/");
-```
 * Run local php instance of token service:
 ```bash
 npm run token
 # or:
 php -S 0.0.0.0:8081 -t ./public public/token/index.php
+```
+
+To override the defaults, set environment variables before starting the token server:
+```bash
+export LIVEKIT_API_KEY=mykey
+export LIVEKIT_PASSWORD=mypassword
+export LIVEKIT_URL=ws://127.0.0.1:7880/
+npm run token
 ```
 
 ### Committing code <a id="2.3"></a>
@@ -210,13 +250,25 @@ Environment defaults to `test`.
 
 ### Token server config <a id="3.4"></a>
 
-* Create `spACK_config.php` just outside the public html directory with the following content:
-```php
-<?php
-define("API_KEY", "devkey");
-define("PASSWORD", "secret");
-// Point to LiveKit server; used for LiveKitRoom websocket serverUrl and Twirp Roomservice POST
-define("URL", "https://pauper.tel/livekit/");
+`spACK_config.php` is included in the repository and reads credentials from environment variables. On the deployment server, set these variables in your web server configuration (e.g. Apache `SetEnv`, nginx `fastcgi_param`) or a server-side environment file:
+
+```
+LIVEKIT_API_KEY=<your-api-key>
+LIVEKIT_PASSWORD=<your-admin-password>
+LIVEKIT_URL=https://your-livekit-host/
+```
+
+`LIVEKIT_INTERNAL_URL` can optionally be set if the server-side API endpoint differs from the browser-facing WebSocket URL (e.g. in Docker or behind a reverse proxy). It defaults to the value of `LIVEKIT_URL`.
+
+For Apache, environment variables can be set per virtual host:
+```conf
+<VirtualHost *:443>
+    #... current settings
+
+    SetEnv LIVEKIT_API_KEY     your-api-key
+    SetEnv LIVEKIT_PASSWORD    your-admin-password
+    SetEnv LIVEKIT_URL         https://your-livekit-host/
+</VirtualHost>
 ```
 
 
@@ -252,3 +304,4 @@ And add the following two lines to your virtualhost config:
     ProxyPass /livekit ws://127.0.0.1:7880
     ProxyPassReverse /livekit ws://127.0.0.1:7880
 </VirtualHost>
+```

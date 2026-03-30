@@ -180,7 +180,7 @@ export async function setRoomMetaData(room: string, metadata: string): Promise<n
   // TODO: we can check for token.admin or just let it error out
 
   try {
-    const data = await (await fetch(`${roomInfo().ws_url.replace("wss://", "https://")}twirp/livekit.RoomService/UpdateRoomMetadata`, {
+    const data = await (await fetch(`${roomInfo().ws_url.replace("wss://", "https://").replace("ws://", "http://")}twirp/livekit.RoomService/UpdateRoomMetadata`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

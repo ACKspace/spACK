@@ -54,10 +54,11 @@ const GameView: Component = () => {
       return value;
     }
 
-    let time = performance.now();
-    const frame = () => {
-      const deltaTime = performance.now() - time!;
-      time = performance.now();
+    let prevTime: number;
+    const frame = (time: DOMHighResTimeStamp) => {
+      const deltaTime = prevTime ? (prevTime - time) : 1;
+      prevTime = time;
+      time = Date.now();
       requestAnimationFrame(frame);
       if (!gameState.myPlayer) return;
       // Typically in steps of 32, but gets smaller every frame

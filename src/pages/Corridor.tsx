@@ -1,4 +1,4 @@
-import { batch, Component, createEffect, createMemo, createSignal, Show } from "solid-js";
+import { batch, Component, createEffect, createMemo, createSignal, onMount, Show } from "solid-js";
 import { setAttributes } from "../utils/token";
 import RoomInfo from "../components/RoomInfo";
 import Input from "../components/Input/Input";
@@ -24,6 +24,10 @@ export const Corridor: Component<{onEnter: () => void}> = (props) => {
     if (!info.join) return 2;
     if (!info.admin) return 1;
     return 0;
+  });
+
+  onMount(() => {
+    document.querySelector("[autofocus]").focus();
   });
 
   createEffect(() => {

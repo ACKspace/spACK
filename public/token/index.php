@@ -42,55 +42,9 @@ $debug = isset($data["debug"]) ? $data["debug"] : false;
 // TODO: HMAC encoded
 $password = isset($data["password"]) ? $data["password"] : "";
 $metadata = getMetadata($room);
-$isUser = $password === ($metadata->pass ?? "") || $password === ($metadata->admin ?? "");
-$isAdmin = $password === ($metadata->admin ?? "");
 
-$attributes = new stdClass();
-$attributes->character = $character;
-
-$now = time();
-$expires = $now + ($debug ? 360 : 3600);
-
-$header = new stdClass();
-$header->typ = "JWT";
-$header->alg = "HS256";
-
-$payload = new stdClass();
-$payload->sub = $user; // subject
-// $payload->jti = $user; // JWT ID TODO: remove?
-$payload->exp = $expires; // expires at
-// $payload->nbf = $now; // not before TODO: remove?
-$payload->iat = $now; // issued at
-$payload->iss = API_KEY; // issuer
-$payload->video = new stdClass();
-// Permissions
-$payload->video->roomList = true; // List
-$payload->video->roomJoin = $isUser; // Join
-$payload->video->roomAdmin = $isAdmin; // Save room metadata
-$payload->video->roomCreate = $isUser; // Create/delete room TODO: create secondary token to create room
-$payload->video->canUpdateOwnMetadata = true; // Save own metadata and attributes
-$payload->video->room = $room;
-// Optional initial user attributes
-$payload->attributes = $attributes;
-
-$header_encoded = Base64url_encode(json_encode($header));
-$payload_encoded = Base64url_encode(json_encode($payload));
-$hmac = Base64url_encode(
-    hash_hmac(
-        'sha256',
-        $header_encoded.".".$payload_encoded,
-        PASSWORD,
-        true,
-    )
-);
-
-$output = new stdClass();
-$output->token = $header_encoded.".".$payload_encoded.".".$hmac;
-$output->ws_url = URL;
-
-if ($payload->video->roomCreate) {
-    createRoom($output, $metadata);
-}
+$livekitToken = createLivekitToken($room, $metadata, $user, $character, $password, $debug);
+createRoom($livekitToken, $metadata, $room); // TODO: room diacritics?
 
 header("Content-Type", "application/json");
-echo json_encode($output);
+echo json_encode($livekitToken);

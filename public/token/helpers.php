@@ -18,6 +18,15 @@ if (__FILE__ == $_SERVER['SCRIPT_FILENAME']) {
     exit(0);
 }
 
+// Use __DIR__ to locate spACK_config.php reliably regardless of how the PHP
+// server sets DOCUMENT_ROOT (built-in server, Apache, Docker, etc.).
+// __DIR__ = public/token/, so ../../ = project root.
+if (!@include_once __DIR__ . "/../../../spACK_config.php") {
+    header("HTTP/1.1 500 Internal server error", true, 500);
+    echo '{"error":"Config file not found!"}';
+    exit(0);
+}
+
 /**
  * Base64 URL encode data.
  *
@@ -131,38 +140,37 @@ function getMetadata($room)
 /**
  *  Create LiveKit room with meta data
  *
- * @param $token    {string} The token that allows the room to be created.
- * @param $metadata {object} The metadata from the filesystem to add to LiveKit
+ * @param $livekitToken {string} The livekit token that allows the room to be created.
+ * @param $metadata     {object} The metadata from the filesystem to add to LiveKit
  *
  * @return {boolean} true on success
  */
-function createRoom($token, $metadata)
+function createRoom($livekitToken, $metadata, $roomName = "")
 {
-    if (!$metadata) {
-        return;
-    }
+    $name = $metadata ? $metadata->base : $roomName;
 
     // https://docs.livekit.io/reference/other/roomservice-api/#createroom
 
     // TODO: use utf8 room name?
     $data = new stdClass();
-    $data->name = $metadata->base;
+    $data->name = $name;
     $data->emptyTimeout = 120;
     $data->maxParticipants = 20;
     // $data->departureTimeout: 10 * 24 * 60 * 60, // 10 days
-    $data->metadata = json_encode(gameStateToMetadata($metadata));
+    // Have the stored metadata set as local room metadata (in game state format)
+    if ($metadata) {
+        $data->metadata = json_encode(metadataToGameState($metadata));
+    }
 
     // error_log(json_encode($data), 0);
 
     // Do LiveKit request (use INTERNAL_URL to support Docker/reverse-proxy setups
     // where the browser-facing URL differs from the server-side API endpoint).
-    postJson(
+    return postJson(
         INTERNAL_URL."twirp/livekit.RoomService/CreateRoom",
-        $token->token,
+        $livekitToken->token,
         $data
     );
-
-    return false;
 }
 
 
@@ -181,7 +189,7 @@ function postJson($url, $token, $data)
     $postdata = json_encode($data);
 
     if (!$postdata) {
-        return;
+        return '{"error": "No data"}';
     }
 
     $opts = array("http" =>
@@ -198,41 +206,41 @@ function postJson($url, $token, $data)
 }
 
 /**
- *  Convert game state to LiveKit metadata
+ *  Convert LiveKit metadata to game state
  *
- * @param $gameState {stdClass} The Game state.
+ * @param $metadata {stdClass} The (verbose) meta data.
  *
- * @return {stdClass} true on success
+ * @return {stdClass} the game state or null on failure.
  */
-function gameStateToMetadata($gameState)
+function metadataToGameState($metadata)
 {
-    if (!$gameState) {
+    if (!$metadata) {
         return null;
     }
 
     // Fields left: CFGHJKLNQRTVWXYZ
-    $metadata = new stdClass();
-    $metadata->B = $gameState->base; // Base directory
-    $metadata->E = $gameState->earshotRadius; // Earshot radius
-    $metadata->M = $gameState->debugMode ? 1 : 0; // Debug mode
-    $metadata->U = $gameState->updated; // Updated timestamp
+    $gameState = new stdClass();
+    $gameState->B = $metadata->base; // Base directory
+    $gameState->E = $metadata->earshotRadius; // Earshot radius
+    $gameState->M = $metadata->debugMode ? 1 : 0; // Debug mode
+    $gameState->U = $metadata->updated; // Updated timestamp
 
-    $metadata->A = []; // "spotlight" x y  identifier
-    $metadata->D = []; // "portal" x y direction room tx ty
-    $metadata->I = []; // "impassable" x y direction
-    $metadata->O = []; // objects[] x y image activeImage mediaType uri 
-    $metadata->P = []; // "private" x y identifier
-    $metadata->S = []; // "spawn" x y direction
+    $gameState->A = []; // "spotlight" x y  identifier
+    $gameState->D = []; // "portal" x y direction room tx ty
+    $gameState->I = []; // "impassable" x y direction
+    $gameState->O = []; // objects[] x y image activeImage mediaType uri 
+    $gameState->P = []; // "private" x y identifier
+    $gameState->S = []; // "spawn" x y direction
 
     // Handle tile attributes
-    foreach ($gameState->tileAttributes as $key => $tileAttribute) {
+    foreach ($metadata->tileAttributes as $key => $tileAttribute) {
         list($x, $y) = explode(',', $key);
         $data = [(int)$x, (int)$y];
 
         switch ($tileAttribute->type) {
         case "spotlight":
             $data[] = $tileAttribute->identifier;
-            $metadata->A[] = $data;
+            $gameState->A[] = $data;
             break;
 
         case "portal":
@@ -244,32 +252,32 @@ function gameStateToMetadata($gameState)
                 $data[] = $tileAttribute->coordinate->x;
                 $data[] = $tileAttribute->coordinate->y;
             }
-            $metadata->D[] = $data;
+            $gameState->D[] = $data;
             break;
 
         case "impassable":
             if ($tileAttribute->direction ?? false) {
                 $data[] = $tileAttribute->direction;
             }
-            $metadata->I[] = $data;
+            $gameState->I[] = $data;
             break;
 
         case "private":
             $data[] = $tileAttribute->identifier;
-            $metadata->P[] = $data;
+            $gameState->P[] = $data;
             break;
 
         case "spawn":
             if ($tileAttribute->direction ?? false) {
                 $data[] = $tileAttribute->direction;
             }
-            $metadata->S[] = $data;
+            $gameState->S[] = $data;
             break;
         }
     }
 
     // Handle objects
-    foreach ($gameState->objects as $object) {
+    foreach ($metadata->objects as $object) {
         $mo = [
           $object->position->x,
           $object->position->y,
@@ -278,8 +286,88 @@ function gameStateToMetadata($gameState)
           $object->mediaType ?? 0,
           $object->uri ?? 0
         ];
-        $metadata->O[] = $mo;
+        $gameState->O[] = $mo;
     }
 
-    return $metadata;
+    return $gameState;
+}
+
+/**
+ * Create JWT payload
+ *
+ * @param $room      {string} room name to create the payload for
+ * @param $metadata  {stdClass} Room meta data that may contain join/admin password
+ * @param $user      {string}     User name to display
+ * @param $character {string} Character we built/selected
+ * @param $password  {string} Optional room password
+ * @param $debug     {boolean}    Whether debug is enabled
+ *
+ * @return {stdClass} payload object
+ */
+function JWTPayload($room, $metadata, $user, $character, $password, $debug)
+{
+    $now = time();
+    $expires = $now + ($debug ? 360 : 3600);
+
+    $isUser = $password === ($metadata->pass ?? "") || $password === ($metadata->admin ?? "");
+    $isAdmin = $password === ($metadata->admin ?? "");
+
+    $payload = new stdClass();
+    $payload->sub = $user; // subject
+    // $payload->jti = $user; // JWT ID TODO: remove?
+    $payload->exp = $expires; // expires at
+    // $payload->nbf = $now; // not before TODO: remove?
+    $payload->iat = $now; // issued at
+    $payload->iss = API_KEY; // issuer
+    $payload->video = new stdClass();
+    // Permissions
+    $payload->video->roomList = true; // List
+    $payload->video->roomJoin = $isUser; // Join
+    $payload->video->roomAdmin = $isAdmin; // Save room metadata
+    $payload->video->roomCreate = $isUser; // Create/delete room TODO: create secondary token to create room
+    $payload->video->canUpdateOwnMetadata = true; // Save own metadata and attributes
+    $payload->video->room = $room;
+    // Optional initial user attributes
+    $payload->attributes = new stdClass();
+    $payload->attributes->character = $character;
+
+    return $payload;
+}
+
+/**
+ * Create Livekit token
+ *
+ * @param $room      {string} room name to create the payload for
+ * @param $metadata  {stdClass} Room meta data that may contain join/admin password
+ * @param $user      {string}     User name to display
+ * @param $character {string} Character we built/selected
+ * @param $password  {string} Optional room password
+ * @param $debug     {boolean}    Whether debug is enabled
+ *
+ * @return {stdClass} Livekit token
+ */
+function createLivekitToken($room, $metadata, $user, $character, $password, $debug)
+{
+    $header = new stdClass();
+    $header->typ = "JWT";
+    $header->alg = "HS256";
+
+    $payload = JWTPayload($room, $metadata, $user, $character, $password, $debug);
+
+    $header_encoded = Base64url_encode(json_encode($header));
+    $payload_encoded = Base64url_encode(json_encode($payload));
+    $hmac = Base64url_encode(
+        hash_hmac(
+            'sha256',
+            $header_encoded.".".$payload_encoded,
+            PASSWORD,
+            true,
+        )
+    );
+
+    $livekitToken = new stdClass();
+    $livekitToken->token = $header_encoded.".".$payload_encoded.".".$hmac;
+    $livekitToken->ws_url = URL;
+
+    return $livekitToken;
 }

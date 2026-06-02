@@ -30,6 +30,7 @@ export default ({ mode }: ConfigEnv) => {
     build: {
       target: 'esnext',
       emptyOutDir: true,
+      sourcemap: dev,
     },
     optimizeDeps: {
       // Limit dependency scanning to the app's own source so Vite doesn't

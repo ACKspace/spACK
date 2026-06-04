@@ -81,6 +81,14 @@ export const inputBits = keyboardBits;
  * @returns Array of Position and optional direction
  */
 export const getRandomSpawnPosition = (): [Vector2, Direction | undefined] => {
+  // Portal spawn!
+  if (gameState.myPlayer?.targetPos) {
+    return [
+      {x: gameState.myPlayer.targetPos.x, y: gameState.myPlayer.targetPos.y},
+      gameState.myPlayer.direction,
+    ];
+  }
+
   const spawnKeys = Object.keys(gameState.tileAttributes).filter((key) => gameState.tileAttributes[key].type === "spawn");
 
   if (spawnKeys.length) {
@@ -119,7 +127,7 @@ let timer: number | undefined;
  * GameState manager
  */
 export const useGameStateManager = () => {
-  const room = useRoomContext();
+  const { room } = useRoomContext();
   const { localParticipant } = useLocalParticipant({ room: room() });
   const remoteParticipants = useRemoteParticipants();
 
@@ -450,8 +458,6 @@ export const useGameStateManager = () => {
     if (!localParticipant().identity) console.warn("missing player identity");
 
     // Load the room details from the metadata
-    // TODO: batch?
-    setGameState("base", "");
     loadRoomMetadata(room());
 
     const [targetPos, direction] = getRandomSpawnPosition();

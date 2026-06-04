@@ -28,7 +28,7 @@ export interface TrackToggleProps<T extends ToggleSource = ToggleSource>
  * @public
  */
 export const TrackToggle: ParentComponent<TrackToggleProps> = (props) => {
-  const room = useRoomContext();
+  const { room } = useRoomContext();
 
   const [enabled, setEnabled] = createSignal(room()?.localParticipant.isMicrophoneEnabled ?? false);
 

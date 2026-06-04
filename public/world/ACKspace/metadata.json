@@ -16,11 +16,11 @@
   "tileAttributes": {
     "61,29": {
       "type": "portal",
-      "direction": "NE",
+      "direction": "S",
       "room": "ACKspace_outside",
       "coordinate": {
-        "x": 56,
-        "y": 30
+        "x": 62,
+        "y": 45
       }
     },
     "63,29": {
@@ -1124,6 +1124,15 @@
     "61,30": {
       "type": "spawn",
       "direction": "S"
+    },
+    "60,21": {
+      "type": "portal",
+      "room": "ACKspace_outside",
+      "coordinate": {
+        "x": 58,
+        "y": 37
+      },
+      "direction": "E"
     }
   },
   "debugMode": true

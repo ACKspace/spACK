@@ -47,7 +47,7 @@ function determineRelativePosition(self: Player | null, other: Player): Vector2 
 }
 
 export const SpatialAudioController: Component = () => {
-  const room = useRoomContext();
+  const { room } = useRoomContext();
   const audioContext = useWebAudioContext();
 
   const [playerTracks, setPlayerTracks] = createStore<PlayerTracks>({});

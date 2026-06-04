@@ -5,7 +5,7 @@ import type { Room } from 'livekit-client'
 import { Accessor, createContext, useContext } from 'solid-js'
 
 /** @public */
-export const RoomContext = createContext<Accessor<Room | undefined>>(undefined)
+export const RoomContext = createContext<{ room: Accessor<Room | undefined>, connected: Accessor<boolean> }>(undefined)
 
 /**
  * Ensures that a room is provided via context.
@@ -36,7 +36,7 @@ export function useMaybeRoomContext() {
 export function useEnsureRoom(room?: Room) {
   const context = useMaybeRoomContext()
   return () => {
-    const r = room ?? context?.()
+    const r = room ?? context?.room()
     if (!r) {
       throw new Error(
         'No room provided, make sure you are inside a Room context or pass the room explicitly',

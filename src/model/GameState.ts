@@ -88,7 +88,7 @@ export const [gameState, setGameState] = createStore<GameState>({
     debugMode: true,
 });
 
-export const clearGameState = () => {
+const clearGameState = () => {
   const keys = Object.keys(gameState.tileAttributes);
 
   batch(() => {
@@ -117,17 +117,27 @@ export const clearGameState = () => {
 export const loadRoomMetadata = (room?: Room) => {
   if (!room?.metadata) return;
 
-  clearGameState();
-
   try {
     const metadata = JSON.parse(room.metadata!) as RoomMetaData;
     const subTypes = Object.keys(metadata) as Array<keyof RoomMetaData>;
 
     batch(() => {
-      if (metadata.B) setGameState("base", `${metadata.B}/`);
-      if (metadata.E) setGameState("earshotRadius", metadata.E);
-      if (metadata.M) setGameState("debugMode", true);
+      setGameState("base", metadata.B ? `${metadata.B}/` : "");
+      setGameState("earshotRadius", metadata.E ?? 10);
+      setGameState("debugMode", metadata.M ? true : false);
       // if (metadata.U) setGameState("updated", metadata.U); // TODO: trigger reload
+
+      const keys = Object.keys(gameState.tileAttributes);
+      keys.forEach((key) => {
+        // @ts-ignore -- Erase all old tiles
+        setGameState("tileAttributes", key, undefined);
+      });
+
+      // Erase all objects and its workers. Kill any worker thread.
+      gameState.objects.forEach((object) => {
+        object.worker?.terminate();
+      });
+      setGameState("objects", []);
 
       subTypes.forEach((subType) => {
         const type = keyLookup[subType];
@@ -181,6 +191,7 @@ export const loadRoomMetadata = (room?: Room) => {
     });
   } catch (e) {
     console.warn("Failed to parse room meta data:", e);
+    clearGameState();
   }
 };
 
@@ -223,8 +234,8 @@ export const saveRoomMetadata = async (room?: Room) => {
         // TODO: make sure not to skip elements when coordinate is provided
         metaChunk.push(attribute.direction);
         metaChunk.push(attribute.room)
-        metaChunk.push(attribute.coordinate.x)
-        metaChunk.push(attribute.coordinate.y)
+        metaChunk.push(attribute.coordinate?.x)
+        metaChunk.push(attribute.coordinate?.y)
         metadata.D.push(metaChunk);
         break;
       case "private":

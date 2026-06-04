@@ -8,17 +8,17 @@
       "direction": "S",
       "room": "ACKspace",
       "coordinate": {
-        "x": 60,
-        "y": 32
+        "x": 61,
+        "y": 30
       }
     },
     "58,36": {
       "type": "portal",
-      "direction": "S",
+      "direction": "E",
       "room": "ACKspace",
       "coordinate": {
-        "x": 60,
-        "y": 32
+        "x": 61,
+        "y": 21
       }
     },
     "46,64": {

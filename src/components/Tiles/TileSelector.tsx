@@ -116,7 +116,7 @@ const ObjectEditor: Component<WorldObject> = (props) => {
 
 const TileSelector: Component = () => {
   const token = useTokenContext();
-  const room = useRoomContext();
+  const { room } = useRoomContext();
   return (
     <div>
       <Switch fallback={<>Erase</>}>

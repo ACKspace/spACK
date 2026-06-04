@@ -88,10 +88,10 @@ export interface LiveKitRoomProps {
 }
 
 export const LiveKitRoom: ParentComponent<LiveKitRoomProps> = (props) => {
-  const { room } = useLiveKitRoom(props);
+  const { room, connected } = useLiveKitRoom(props);
   return (
     <Show when={room()}>
-      <RoomContext.Provider value={room}>
+      <RoomContext.Provider value={{room, connected}}>
           {props.children}
       </RoomContext.Provider>
     </Show>

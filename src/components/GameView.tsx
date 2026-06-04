@@ -1,8 +1,7 @@
-import { clearGameState, gameState, setGameState } from "../model/GameState";
-import { ConnectionState } from "livekit-client";
+import { gameState, setGameState } from "../model/GameState";
 import { batch, Component, createEffect, createMemo, createSignal, For, Match, onMount, Show, Switch } from "solid-js";
 import { useConnectionState, useRoomContext } from "../solid-livekit";
-import { useGameStateManager } from "../utils/useGameStateManager";
+import { toggleBit, useGameStateManager } from "../utils/useGameStateManager";
 import { Canvas, Group } from "../../solid-canvas/src";
 import { Map } from "../canvas/Map";
 import { Player } from "../model/Player";
@@ -25,6 +24,7 @@ import Chat from "./Chat";
 import Settings from "./Settings";
 import Editor from "./Editor";
 import Debug from "./Debug";
+import { Loading } from "./Loading/Loading";
 
 const GameView: Component = () => {
   const [screenSize, setScreenSize] = createSignal<Vector2>({ x:0, y: 0 });
@@ -35,7 +35,7 @@ const GameView: Component = () => {
     return false;
   });
 
-  const room = useRoomContext();
+  const { room, connected } = useRoomContext();
 
   useGameStateManager();
 
@@ -132,15 +132,18 @@ const GameView: Component = () => {
           // Send/teleport player to (optional) room, (optional) coordinate
           if (param.room) {
             room()?.disconnect();
-            // room()?.connect("", "")
-            clearGameState();
-
             setAttributes("roomName", param.room);
             // TODO: handle password (when token fails)
           }
 
           if(param.coordinate) {
             batch(() => {
+              // Stop the walk animation
+              toggleBit(0, false);
+              toggleBit(1, false);
+              toggleBit(2, false);
+              toggleBit(3, false);
+              toggleBit(4, false);
               setGameState("myPlayer", "targetPos", param.coordinate);
               setGameState("myPlayer", "position", { x: param.coordinate!.x * tileSize, y: param.coordinate!.y * tileSize });
             })
@@ -170,7 +173,7 @@ const GameView: Component = () => {
   })
 
   return (<>
-    <Show when={connectionState() === ConnectionState.Connected} fallback={<>Not connected</>}>
+    <Show when={connected()} fallback={<Loading/>}>
       <Canvas>
         <Group
           transform={{

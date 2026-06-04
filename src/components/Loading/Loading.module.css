@@ -1,0 +1,12 @@
+.loading {
+  color: white;
+  background-color: #070010;
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+
+  & h1 {
+    margin: auto;
+  }
+}

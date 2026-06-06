@@ -1,6 +1,6 @@
 import { Room } from 'livekit-client';
 import { Player } from "./Player";
-import { MetaType, TileAttribute, TileMetaData, TileParam, tileSize } from "./Tile";
+import { MetaType, PortalMeta, PrivateMeta, SpotlightMeta, TileAttribute, TileMetaData, TileParam, tileSize } from "./Tile";
 import { Vector2 } from "./Vector2";
 import { createStore } from "solid-js/store";
 import { GenericMetaData, ObjectMeta, ObjectMetaData, WorldObject } from "./Object";
@@ -45,7 +45,7 @@ export type GameState = {
   /** Which special mode is currently active */
   mode?: "participants" | "chat" | "settings" | "edit" | "debug";
   /** Current active painter's tool */
-  activeTool?: TileParam; // and object
+  activeTool?: TileParam | Object; // and object
 
   /** Whether the game has focus or not */
   focused: boolean;
@@ -217,7 +217,7 @@ export const saveRoomMetadata = async (room?: Room) => {
   if (gameState.base) metadata.B = gameState.base.replace("/","");
   if (gameState.debugMode) metadata.M = 1;
 
-  const keys = Object.keys(gameState.tileAttributes);
+  const keys = Object.keys(gameState.tileAttributes) as string[];
 
   keys.forEach((key) => {
     const metaChunk = key.split(",").map(axis => parseInt(axis)) as MetaType;
@@ -232,16 +232,16 @@ export const saveRoomMetadata = async (room?: Room) => {
       case "portal":
         // Most are optional, but either room or coordinate is required
         // TODO: make sure not to skip elements when coordinate is provided
-        metaChunk.push(attribute.direction);
-        metaChunk.push(attribute.room)
-        metaChunk.push(attribute.coordinate?.x)
-        metaChunk.push(attribute.coordinate?.y)
-        metadata.D.push(metaChunk);
+        (metaChunk as PortalMeta).push(attribute.direction);
+        (metaChunk as PortalMeta).push(attribute.room);
+        (metaChunk as PortalMeta).push(attribute.coordinate?.x);
+        (metaChunk as PortalMeta).push(attribute.coordinate?.y);
+        metadata.D.push(metaChunk as PortalMeta);
         break;
       case "private":
         // Identifier is mandatory
-        metaChunk.push(attribute.identifier);
-        metadata.P.push(metaChunk)
+        (metaChunk as PrivateMeta).push(attribute.identifier);
+        metadata.P.push(metaChunk as PrivateMeta)
         break;
       case "spawn":
         // Direction is optional
@@ -251,8 +251,8 @@ export const saveRoomMetadata = async (room?: Room) => {
         break;
       case "spotlight":
         // Identifier is mandatory
-        metaChunk.push(attribute.identifier);
-        metadata.A.push(metaChunk)
+        (metaChunk as SpotlightMeta).push(attribute.identifier);
+        metadata.A.push(metaChunk as SpotlightMeta)
         break;
     }
   });

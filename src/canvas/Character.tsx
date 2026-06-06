@@ -165,7 +165,7 @@ export const Character: Component<PlayerProps<CharacterName>> = (props) => {
       }}
     />
 
-    {/* HeadGear: TODO */}
+    {/* TODO: HeadGear */}
 
     {/* Hair */}
     <Show when={hairOffset() !== undefined}>
@@ -180,9 +180,9 @@ export const Character: Component<PlayerProps<CharacterName>> = (props) => {
       />
     </Show>
 
-    {/* FacialHair: TODO */}
+    {/* TODO: FacialHair */}
 
-    {/* Attribute: TODO */}
+    {/* TODO: Attribute */}
 
     {/* Jacket */}
     <Show when={jacketOffset() !== undefined}>

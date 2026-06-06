@@ -327,7 +327,7 @@ function JWTPayload($room, $metadata, $user, $character, $password, $debug)
     $payload->video->roomCreate = $isUser; // Create/delete room TODO: create secondary token to create room
     $payload->video->canUpdateOwnMetadata = true; // Save own metadata and attributes
     $payload->video->room = $room;
-    // Optional initial user attributes
+    // Optional initial player attributes
     $payload->attributes = new stdClass();
     $payload->attributes->character = $character;
 

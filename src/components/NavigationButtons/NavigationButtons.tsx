@@ -7,7 +7,7 @@ const pointers = new Set<number>();
 
 /**
  * Simple navigation buttons component.
- * This could user a lot of love, but for now, it works.
+ * This could use a lot of love, but for now, it works.
  *
  * @returns component with 4 "button"-like elements that show the active direction.
  */

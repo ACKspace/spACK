@@ -27,7 +27,7 @@ export const Corridor: Component<{onEnter: () => void}> = (props) => {
   });
 
   onMount(() => {
-    document.querySelector("[autofocus]").focus();
+    document.querySelector<HTMLInputElement>("[autofocus]")?.focus();
   });
 
   createEffect(() => {

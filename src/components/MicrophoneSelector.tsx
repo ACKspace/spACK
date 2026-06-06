@@ -2,7 +2,7 @@ import { Component, For } from "solid-js";
 import { useMediaDeviceSelect, useRoomContext } from "../solid-livekit";
 
 export const MicrophoneSelector: Component = () => {
-  // TODO remove roomContext, this is only needed because of a bug in `useMediaDeviceSelect`
+  // TODO: remove roomContext, this is only needed because of a bug in `useMediaDeviceSelect`
   const { room } = useRoomContext();
   const { devices, activeDeviceId, setActiveMediaDevice } =
     useMediaDeviceSelect({ kind: "audioinput", room: room() });

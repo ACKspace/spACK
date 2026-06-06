@@ -153,7 +153,7 @@ const GameView: Component = () => {
 
         break;
       case "impassable":
-        // TODO: impassable: maybe bump user. Ignore for now
+        // TODO: impassable: maybe bump player. Ignore for now
       case "spawn":
         // spawn: possible join spawn point: ignore
         // Ignore

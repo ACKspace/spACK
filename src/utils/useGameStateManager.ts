@@ -199,7 +199,7 @@ export const useGameStateManager = () => {
       return true;
     };
 
-    // TODO 32px per 100ms = 23px diagonal or per 141ms
+    // TODO: 32px per 100ms = 23px diagonal or per 141ms
     if (direction && !timer) {
       timer = window.setInterval(doWalk, 100);
     } else if (!direction) {
@@ -400,7 +400,7 @@ export const useGameStateManager = () => {
         if (gameState.myPlayer && !prevParticipants?.includes(participant)) {
           // Send it after room sync is completed
           participant.once(ParticipantEvent.Active, () => {
-            console.info("Send mypos to", participant.identity);
+            console.info("Send position to", participant.identity);
             packetPublish(gameState.myPlayer, "targetPos", "position", participant);
             packetPublish(gameState.myPlayer, "direction", "direction", participant);
           });
@@ -524,7 +524,7 @@ export const useGameStateManager = () => {
         break;
 
       case "object":
-        setGameState("objects", data.payload.id, "active", data.payload.active);
+        setGameState("objects", data.payload.id, "active", !!data.payload.active);
         break;
 
       // case "message"

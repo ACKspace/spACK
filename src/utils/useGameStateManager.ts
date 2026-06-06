@@ -290,6 +290,11 @@ export const useGameStateManager = () => {
     });
 
     const keyboardEvent = (event: KeyboardEvent) => {
+      // Prevent select changes with arrow keys (only space and enter to open the native popup)
+      if (document.activeElement?.tagName === "SELECT" && !["Space", "Enter"].includes(event.code)) {
+        event.preventDefault();
+      }
+
       if (event.repeat) return;
       const down = event.type === "keydown";
       // TODO: We might want to include all items with focus and tabindex
@@ -301,7 +306,7 @@ export const useGameStateManager = () => {
             return;
         }
       }
-      const isInput = ["INPUT", "BUTTON", "SELECT", "TEXTAREA"].includes(document.activeElement?.tagName ?? "");
+      const isInput = ["INPUT", "TEXTAREA"].includes(document.activeElement?.tagName ?? "");
       if (down && isInput) return;
 
       // Compatible with other layouts using `code`

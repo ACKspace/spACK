@@ -154,7 +154,7 @@ export const Character: Component<PlayerProps<CharacterName>> = (props) => {
       transform={{
         position: {x: 0, y: -20}
       }}
-      text={props.username}
+      text={props.name ?? props.username}
       outlineStyle="rgba(0,0,0,1)"
       style={{
         // TODO: align center

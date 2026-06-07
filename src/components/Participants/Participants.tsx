@@ -10,7 +10,7 @@ type Props = {
 
 export const Participants: Component<Props> = (props) => {
   const participants = createMemo(() => {
-    if (props.participants) return props.participants.map(participant => ({username: participant.identity, speaking: false}));
+    if (props.participants) return props.participants.map(participant => ({username: participant.identity, name: participant.attributes.name, speaking: false}));
     return gameState.remotePlayers;
   });
 
@@ -18,10 +18,10 @@ export const Participants: Component<Props> = (props) => {
     <div>
       <div>Participant list</div>
       <Show when={gameState.myPlayer} keyed>{(myPlayer)=>
-        <div>{myPlayer.username} (you)</div>
+        <div>{myPlayer.name ?? myPlayer.username} (you)</div>
       }</Show>
       <For each={participants()}>{(participant) => <div>
-        {participant.username}{participant.speaking ? "🗣️" : ""}
+        {participant.name ?? participant.username}{participant.speaking ? "🗣️" : ""}
       </div>}</For>
     </div>
   );

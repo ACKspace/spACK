@@ -14,6 +14,7 @@ export const WorldEntity: Component<Props> = (props) => {
   return <Switch fallback={<Object {...props}/>}>
     <Match when={[ "doux", "mort", "targ", "vita" ].includes(props.entity.character)}>
       <Dino
+        name={props.entity.name}
         username={props.entity.username}
         position={{ x: props.entity.position.x, y: props.entity.position.y }}
         speaking={props.entity.speaking}
@@ -24,6 +25,7 @@ export const WorldEntity: Component<Props> = (props) => {
     </Match>
     <Match when={"character" in props.entity}>
       <Character
+        name={props.entity.name}
         username={props.entity.username}
         position={{ x: props.entity.position.x, y: props.entity.position.y }}
         speaking={props.entity.speaking}

@@ -5,6 +5,8 @@ import { WorldEntity } from "./GameState";
 import { ImageSource } from "../../solid-canvas/src/types";
 
 export type Player<T extends string = string> = WorldEntity & {
+  /** Participant name */
+  name: string;
   /** Participant identity */
   username: string;
   /** Desired position in tile units */
@@ -22,13 +24,20 @@ export type Player<T extends string = string> = WorldEntity & {
 };
 
 export type PlayerProps<T extends string = string> = {
+  /** Display name */
+  name: string;
+  /** Identity */
+  username: string;
   /** Offset within the map in pixels */
   position: Vector2;
-  speaking?: boolean;
-  username: string;
+  /** Animation state */
   animation: AnimationState;
+  /** Character */
   character: T;
+  /** Direction to look */
   direction: Direction;
+  /** Speaking */
+  speaking?: boolean;
 };
 
 export type SpriteInfo = {

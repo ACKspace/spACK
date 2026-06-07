@@ -98,7 +98,8 @@ export const CharacterSelector: Component<Props> = (props) => {
             character={character()}
             direction="S"
             position={{x:30, y: 80}}
-            username="Player"
+            name="Player"
+            username="IDENTIFiER"
           />
         </Canvas>
       </div>

@@ -35,7 +35,8 @@ if (!@include_once __DIR__ . "/../../../spACK_config.php") {
 
 $data = json_decode(file_get_contents('php://input'), true);
 $room = isset($data["room"]) ? $data["room"] : "Dark";
-$user = isset($data["user"]) ? $data["user"] : "unnamed";
+$identity = isset($data["identity"]) ? $data["identity"] : "unnamed";
+$name = isset($data["name"]) ? $data["name"] : (isset($data["identity"]) ? $data["identity"] : "unnamed");
 $character = isset($data["character"]) ? $data["character"] : "vita";
 $debug = isset($data["debug"]) ? $data["debug"] : false;
 
@@ -43,7 +44,7 @@ $debug = isset($data["debug"]) ? $data["debug"] : false;
 $password = isset($data["password"]) ? $data["password"] : "";
 $metadata = getMetadata($room);
 
-$livekitToken = createLivekitToken($room, $metadata, $user, $character, $password, $debug);
+$livekitToken = createLivekitToken($room, $metadata, $identity, $name, $character, $password, $debug);
 createRoom($livekitToken, $metadata, $room); // TODO: room diacritics?
 
 header("Content-Type", "application/json");

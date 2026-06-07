@@ -31,7 +31,8 @@ It needs a webserver that is able to run PHP code.
 
 It is called by the WebApp doing an HTTP POST with the following JSON data fields:
 * `room`: Name of the room
-* `user': Display name of the participant
+* `identity`: internal identity of the participant
+* `name`: Display name of the participant
 * `character`: Name of the character, currently one of: `doux`, `mort`, `targ` or `vita`, the coloured [dino characters](https://arks.itch.io/dino-characters) created by [Arks](https://arks.digital/)
 * `password`: password that might be required to join the room or become admin.
 

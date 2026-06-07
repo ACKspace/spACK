@@ -14,7 +14,7 @@ import styles from "./pages.module.css";
 export const Corridor: Component<{onEnter: () => void}> = (props) => {
   let password: HTMLInputElement | undefined;
   const [enter, setEnter] = createSignal(false);
-  const [username, setUsername] = createSignal(`Dummy${Math.random() * 1000 | 0}`);
+  const [name, setName] = createSignal(`Dummy${Math.random() * 1000 | 0}`);
   const [selectedCharacter, setSelectedCharacter] =
     createSignal<DinoName | CharacterName>("doux");
   const roomInfo = useTokenContext();
@@ -26,13 +26,15 @@ export const Corridor: Component<{onEnter: () => void}> = (props) => {
     return 0;
   });
 
+  const identity = Math.random().toString(36).substring(2, 8+2);
+
   onMount(() => {
     document.querySelector<HTMLInputElement>("[autofocus]")?.focus();
   });
 
   createEffect(() => {
     if (!enter()) return;
-    if (roomInfo().user === username()) {
+    if (roomInfo().identity === identity) {
       props.onEnter();
     }
   })
@@ -41,7 +43,8 @@ export const Corridor: Component<{onEnter: () => void}> = (props) => {
       onSubmit={(e) => {
         e.preventDefault();
         batch(() => {
-          setAttributes("user", username());
+          setAttributes("identity", identity);
+          setAttributes("name", name());
           setAttributes("character", selectedCharacter());
           setAttributes("password", password?.value);
         });
@@ -58,11 +61,11 @@ export const Corridor: Component<{onEnter: () => void}> = (props) => {
   <div class={styles.panel}>
     <div class={styles.label}>Name:</div>
     <Input
-      value={username()}
-      onChange={(e) => setUsername(e.currentTarget.value)}
+      value={name()}
+      onChange={(e) => setName(e.currentTarget.value)}
       type="text"
       autofocus
-      placeholder="Username"
+      placeholder="Nickname"
     />
   </div>
   {/* TODO: for new rooms, allow initial password to be set */}

@@ -297,14 +297,15 @@ function metadataToGameState($metadata)
  *
  * @param $room      {string} room name to create the payload for
  * @param $metadata  {stdClass} Room meta data that may contain join/admin password
- * @param $user      {string}     User name to display
+ * @param $user      {string}     User's identity
+ * @param $name      {string}     User name to display
  * @param $character {string} Character we built/selected
  * @param $password  {string} Optional room password
  * @param $debug     {boolean}    Whether debug is enabled
  *
  * @return {stdClass} payload object
  */
-function JWTPayload($room, $metadata, $user, $character, $password, $debug)
+function JWTPayload($room, $metadata, $user, $name, $character, $password, $debug)
 {
     $now = time();
     $expires = $now + ($debug ? 360 : 3600);
@@ -330,6 +331,7 @@ function JWTPayload($room, $metadata, $user, $character, $password, $debug)
     // Optional initial player attributes
     $payload->attributes = new stdClass();
     $payload->attributes->character = $character;
+    $payload->attributes->name = $name;
 
     return $payload;
 }
@@ -339,20 +341,21 @@ function JWTPayload($room, $metadata, $user, $character, $password, $debug)
  *
  * @param $room      {string} room name to create the payload for
  * @param $metadata  {stdClass} Room meta data that may contain join/admin password
- * @param $user      {string}     User name to display
+ * @param $user      {string}     User's identity
+ * @param $name      {string}     User name to display
  * @param $character {string} Character we built/selected
  * @param $password  {string} Optional room password
  * @param $debug     {boolean}    Whether debug is enabled
  *
  * @return {stdClass} Livekit token
  */
-function createLivekitToken($room, $metadata, $user, $character, $password, $debug)
+function createLivekitToken($room, $metadata, $user, $name, $character, $password, $debug)
 {
     $header = new stdClass();
     $header->typ = "JWT";
     $header->alg = "HS256";
 
-    $payload = JWTPayload($room, $metadata, $user, $character, $password, $debug);
+    $payload = JWTPayload($room, $metadata, $user, $name, $character, $password, $debug);
 
     $header_encoded = Base64url_encode(json_encode($header));
     $payload_encoded = Base64url_encode(json_encode($payload));

@@ -17,7 +17,8 @@ type Rights = {
   admin: boolean;
   expires: number;
   room: string;
-  user: string;
+  identity: string;
+  name: string;
 }
 
 type ErrorResponse = {
@@ -32,19 +33,21 @@ export type Token = ConnectionDetails & Rights | ErrorResponse;
  * @param token The JWT to inspect; optional to allow empty cache
  * @param ws_url The corresponding LiveKit URL for the token; optional to allow empty cache
  * @param room The name of the room to verify; optional
- * @param user The name of the user to verify; optional
+ * @param identity User's identity to verify; optional
  *
  * @returns Token if valid and not expired over 5 minutes; error otherwise
  */
 let timer: number | undefined;
-function inspectToken(token?: string, ws_url?: string, room?: string, user?: string): Token
+function inspectToken(token?: string, ws_url?: string, metadata?: TokenData): Token
 {
-  if(!token || !ws_url) return { error: "No token"};
+  if (!token || !ws_url) return { error: "No token"};
+  if (!metadata) return { error: "No metadata"};
+  const {roomName: room, identity, name} = metadata;
 
   const [_header, payload, _signature] = token.split(".").map(base64urlDecode);
   const jwtData = JSON.parse(payload);
 
-  if (user && jwtData.sub !== user) return { error: "Invalid user"};
+  if (identity && jwtData.sub !== identity) return { error: "Invalid user"};
   if (room && jwtData.video.room !== room) return  { error: "Invalid room"};
   const expires = jwtData.exp;
 
@@ -55,11 +58,11 @@ function inspectToken(token?: string, ws_url?: string, room?: string, user?: str
   timer = window.setTimeout(() => refetch("expiring"), (expiringSeconds - 300) * 1000);
 
   const { roomList: list, roomJoin: join, roomAdmin: admin } = jwtData.video;
-  const result = { token, ws_url, list, join, admin, expires, room: jwtData.video.room, user: jwtData.sub };
+  const result: Token = { token, ws_url, list, join, admin, expires, room: jwtData.video.room, identity: jwtData.sub, name };
 
   // Debug data:
   if (gameState.debugMode) {
-    result.JWT = jwtData;
+    (result as any).JWT = jwtData;
   }
 
   // Valid, return full token and details
@@ -82,7 +85,8 @@ const delay = async (t: number) => new Promise((r) => setTimeout(r, t));
 // Need to have something cross-room: direction and position as well
 type TokenData = {
   roomName: string;
-  user: string; // TODO: separate name and username
+  identity: string; // TODO: separate name and username
+  name: string;
   password?: string;
 
   // Attributes
@@ -97,8 +101,8 @@ type TokenData = {
  * @returns token or error on failure
  */
 const fetchToken: ResourceFetcher<TokenData, Token, string> = async (tokenData: TokenData, { refetching, value }) => {
-  // Try and find cached token depending on the room and user
-  const token = inspectToken(sessionStorage["token"], sessionStorage["url"], tokenData.roomName, tokenData.user);
+  // Try and find cached token depending on the room and identity
+  const token = inspectToken(sessionStorage["token"], sessionStorage["url"], tokenData);
 
   // TODO:
   // attributes.character
@@ -114,7 +118,14 @@ const fetchToken: ResourceFetcher<TokenData, Token, string> = async (tokenData: 
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ room: tokenData.roomName, user: tokenData.user, character: tokenData.character, password: tokenData.password, debug: gameState.debugMode }),    
+      body: JSON.stringify({
+        room: tokenData.roomName,
+        identity: tokenData.identity,
+        name: tokenData.name,
+        character: tokenData.character,
+        password: tokenData.password,
+        debug: gameState.debugMode
+      }),    
     })).json() as Token;
 
     if ("error" in liveKitToken) return liveKitToken;
@@ -123,7 +134,7 @@ const fetchToken: ResourceFetcher<TokenData, Token, string> = async (tokenData: 
     // TODO: per-room?
     sessionStorage["token"] = liveKitToken.token;
     sessionStorage["url"] = liveKitToken.ws_url;
-    return inspectToken(liveKitToken.token, liveKitToken.ws_url, tokenData.roomName, tokenData.user);
+    return inspectToken(liveKitToken.token, liveKitToken.ws_url, tokenData);
   }
 
   return token;
@@ -131,7 +142,8 @@ const fetchToken: ResourceFetcher<TokenData, Token, string> = async (tokenData: 
 
 const [attributes, setAttributes] = createStore<TokenData>({
   roomName: "Dark",
-  user: "DUMMY",
+  identity: "DUMMY",
+  name: "DUMMY",
   position: {x: 0, y: 0},
   direction: "N",
   character: "doux"
@@ -144,9 +156,9 @@ const [token, { refetch, mutate }] = createResource<Token, TokenData, string>(
 );
 
 createEffect(
-  on(() => [attributes.roomName, attributes.user, attributes.password],
-  ([_room, _user, password], oldValues) => {
-    // When room, user or password change, force a token refetch
+  on(() => [attributes.roomName, attributes.identity, attributes.password],
+  ([_room, _identity, password], oldValues) => {
+    // When room, identity or password change, force a token refetch
     if (oldValues && oldValues[2] !== password)
       refetch("password");
     else

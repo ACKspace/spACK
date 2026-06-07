@@ -406,16 +406,18 @@ export const useGameStateManager = () => {
           });
         }
 
-        const { character } = participant.attributes;
+        const { character, name } = participant.attributes;
 
         const player = gameState.remotePlayers.findIndex(r => r.username === participant.identity);
         if (player !== -1 && character) {
           setGameState("remotePlayers", player, "character", character);
+          setGameState("remotePlayers", player, "name", name);
           setGameState("remotePlayers", player, "speaking", participant.isSpeaking);
         } else if (character) {
           setGameState("remotePlayers", (items) => [
             ...items,
             {
+              name,
               username: participant.identity,
               position: { x: 10, y: 0 },
               animation: "idle",
@@ -458,7 +460,7 @@ export const useGameStateManager = () => {
 
   // (Re)Connected
   const onConnected = () => {
-    const { character } = localParticipant().attributes;
+    const { character, name } = localParticipant().attributes;
     if (!character) console.warn("missing player character");
     if (!localParticipant().identity) console.warn("missing player identity");
 
@@ -469,6 +471,7 @@ export const useGameStateManager = () => {
 
     // Create
     setGameState("myPlayer", {
+        name,
         username: localParticipant().identity,
         position: {x: targetPos.x * tileSize, y: targetPos.y * tileSize},
         targetPos,

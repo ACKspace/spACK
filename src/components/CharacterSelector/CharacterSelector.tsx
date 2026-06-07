@@ -1,7 +1,7 @@
 import { Component, createEffect, createMemo, createSignal, For } from "solid-js";
 
 import styles from "./CharacterSelector.module.css";
-import { Canvas } from "../../../solid-canvas/src";
+import { Canvas, Image } from "../../../solid-canvas/src";
 import { Attribute, Body, Bottom, Character, CharacterName, FacialHair, Hair, HeadGear, Jacket, Shoes, Top } from "../../canvas/Character";
 import { DinoName } from "../../canvas/Dino";
 
@@ -42,7 +42,7 @@ type OptionListProps = {
 }
 const OptionList: Component<OptionListProps> = (props) => {
   return <>
-    <span>{props.name}:</span>
+    {/* <span>{props.name}:</span> */}
     <For each={Object.entries(props.obj)}>{([key, value]) =>
       <label class={styles.inline}>
         <input
@@ -52,13 +52,29 @@ const OptionList: Component<OptionListProps> = (props) => {
           checked={props.value === value}
           onChange={() => props.onChange(value)}
           style={{
+            position: "absolute",
             opacity: 0,
-            cursor: "pointer",
             height: 0,
             width: 0,              
           }}
         />
-        <div>{key}</div>
+        <Canvas style={{background: "transparent"}} width={32} height={64}>
+          <Image
+            transform={{
+              position: {
+                x: -16,
+                y: 0,
+              }
+            }}
+            style={{
+              sourceOffset: { x: 0, y: 32 * parseInt(value) },
+              sourceDimensions: { width: 32, height: 32 },
+              dimensions: { width: 64, height: 64 },
+              smoothingQuality: "none",
+            }}
+            image={`characters/${props.name}.png`}
+          />          
+        </Canvas>
       </label>  
     }</For>
   </>
@@ -67,19 +83,20 @@ const OptionList: Component<OptionListProps> = (props) => {
 type Props<T = DinoName | CharacterName> = {
   selectedCharacter: T;
   onSelectedCharacterChange: (character: T) => void;
+  name?: string;
 };
 
 export const CharacterSelector: Component<Props> = (props) => {
-  // const characters: CharacterName[] = [ "doux", "mort", "targ", "vita" ];
-  const [body, setBody] = createSignal("1");
-  const [headGear, setHeadGear] = createSignal(" ");
-  const [hair, setHair] = createSignal(" ");
-  const [facialHair, setFacialHair] = createSignal(" ");
-  const [attribute, setAttribute] = createSignal(" ");
-  const [jacket, setJacket] = createSignal(" ");
-  const [top, setTop] = createSignal(" ");
-  const [bottom, setBottom] = createSignal(" ");
-  const [shoes, setShoes] = createSignal(" ");
+  const parts = props.selectedCharacter.split("");
+  const [body, setBody] = createSignal(parts[0]);
+  const [headGear, setHeadGear] = createSignal(parts[1]);
+  const [hair, setHair] = createSignal(parts[2]);
+  const [facialHair, setFacialHair] = createSignal(parts[3]);
+  const [attribute, setAttribute] = createSignal(parts[4]);
+  const [jacket, setJacket] = createSignal(parts[5]);
+  const [top, setTop] = createSignal(parts[6]);
+  const [bottom, setBottom] = createSignal(parts[7]);
+  const [shoes, setShoes] = createSignal(parts[8]);
   const character = createMemo<CharacterName>(() => {
     // TODO: check if dino
     return `${body()}${headGear()}${hair()}${facialHair()}${attribute()}${jacket()}${top()}${bottom()}${shoes()}` as CharacterName;
@@ -87,7 +104,21 @@ export const CharacterSelector: Component<Props> = (props) => {
 
   createEffect(() => {
     props.onSelectedCharacterChange(character());
-  })
+  });
+
+  createEffect(() => {
+    const parts = props.selectedCharacter.split("");
+    setBody(parts[0]);
+    setHeadGear(parts[1]);
+    setHair(parts[2]);
+    setFacialHair(parts[3]);
+    setAttribute(parts[4]);
+    setJacket(parts[5]);
+    setTop(parts[6]);
+    setBottom(parts[7]);
+    setShoes(parts[8]);
+  });
+
   return (
     <div class={styles.container}>
       <div>
@@ -98,7 +129,7 @@ export const CharacterSelector: Component<Props> = (props) => {
             character={character()}
             direction="S"
             position={{x:30, y: 80}}
-            name="Player"
+            name={props.name ?? "Player"}
             username="IDENTIFiER"
           />
         </Canvas>
@@ -123,7 +154,7 @@ export const CharacterSelector: Component<Props> = (props) => {
           <OptionList name="Jacket" obj={Jacket} onChange={setJacket} value={jacket()}/>
         </div>
         <div>
-          <OptionList name="Outfit" obj={Top} onChange={setTop} value={top()}/>
+          <OptionList name="Top" obj={Top} onChange={setTop} value={top()}/>
         </div>
         <div>
           {/* <OptionList name="Bottom" obj={Bottom} onChange={setBottom} value={bottom()}/> */}

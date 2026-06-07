@@ -16,7 +16,7 @@ export const Corridor: Component<{onEnter: () => void}> = (props) => {
   const [enter, setEnter] = createSignal(false);
   const [name, setName] = createSignal(`Dummy${Math.random() * 1000 | 0}`);
   const [selectedCharacter, setSelectedCharacter] =
-    createSignal<DinoName | CharacterName>("doux");
+    createSignal<DinoName | CharacterName>("1        ");
   const roomInfo = useTokenContext();
   const securityLevel = createMemo(() => {
     const info = roomInfo();
@@ -57,6 +57,7 @@ export const Corridor: Component<{onEnter: () => void}> = (props) => {
   <CharacterSelector
     selectedCharacter={selectedCharacter()}
     onSelectedCharacterChange={setSelectedCharacter}
+    name={name()}
   />
   <div class={styles.panel}>
     <div class={styles.label}>Name:</div>

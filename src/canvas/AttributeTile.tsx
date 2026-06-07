@@ -35,12 +35,12 @@ export const AttributeTile: Component<Props> = (props) => {
     <Show when={props.direction}>
       <Text
         transform={{
-          position: {x: 12, y: 8}
+          position: {x: tileSize / 2, y: 8}
         }}
         text={directionToArrow(props.direction)}
         outlineStyle="rgba(0,0,0,1)"
         style={{
-          // TODO: align center
+          align: "center",
           fill: "white",
           fontSize: 24,
           fontFamily: "FsPixel",

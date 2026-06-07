@@ -152,12 +152,12 @@ export const Character: Component<PlayerProps<CharacterName>> = (props) => {
   >
     <Text
       transform={{
-        position: {x: 0, y: -20}
+        position: {x: CHAR_SIZE / 2, y: -20}
       }}
       text={props.name ?? props.username}
       outlineStyle="rgba(0,0,0,1)"
       style={{
-        // TODO: align center
+        align: "center",
         fill: `${props.speaking ? "pink" : "white"}`,
         fontSize: 24,
         fontFamily: "FsPixel",

@@ -559,7 +559,8 @@ export const useGameStateManager = () => {
   // Incoming chat
   const onChat: TextStreamHandler = async (reader, participant) => {
     const text = await reader.readAll();
-    toast(`${participant.identity}: ${text}`, { duration: 10000 })
+    const player = gameState.remotePlayers.find(r => r.username === participant.identity);
+    toast(`${player?.name ?? participant.identity}: ${text}`, { duration: 10000 })
   };
 
   // Publish direction

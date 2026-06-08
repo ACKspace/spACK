@@ -31,6 +31,7 @@ type NetworkPacket =
   NetworkDirection |
   NetworkAnimation |
   NetworkPrivateRoom |
+  NetworkSpeaking |
   NetworkObject;
 
 type NetworkPosition = {
@@ -48,6 +49,10 @@ type NetworkAnimation = {
 type NetworkPrivateRoom = {
   channelId: "private";
   payload: string | undefined | null; // TODO: which one?
+}
+type NetworkSpeaking = {
+  channelId: "speaking";
+  payload: boolean;
 }
 type NetworkObject = {
   channelId: "object";
@@ -133,7 +138,7 @@ export const useGameStateManager = () => {
 
   // Internal packet publish helper
   function packetPublish(player: Player | null, key: keyof Player, channel?: string, participant?: RemoteParticipant) {
-      if (!player || !player[key] || room()?.state !== ConnectionState.Connected) return;
+      if (!player || !(key in player) || room()?.state !== ConnectionState.Connected) return;
 
       const channelId = channel ?? key;
 
@@ -406,13 +411,13 @@ export const useGameStateManager = () => {
           });
         }
 
-        const { character, name } = participant.attributes;
+        const { character, name, speaking } = participant.attributes;
 
         const player = gameState.remotePlayers.findIndex(r => r.username === participant.identity);
         if (player !== -1 && character) {
           setGameState("remotePlayers", player, "character", character);
           setGameState("remotePlayers", player, "name", name);
-          setGameState("remotePlayers", player, "speaking", participant.isSpeaking);
+          setGameState("remotePlayers", player, "speaking", speaking ?? participant.isSpeaking);
         } else if (character) {
           setGameState("remotePlayers", (items) => [
             ...items,
@@ -452,9 +457,10 @@ export const useGameStateManager = () => {
   // Connection handler
   createEffect(() => {
     localParticipant().on(ParticipantEvent.Active, onConnected);
-
+    localParticipant().on(ParticipantEvent.IsSpeakingChanged, onSpeaking);
     onCleanup(() => {
-    localParticipant().off(ParticipantEvent.Active, onConnected);
+      localParticipant().off(ParticipantEvent.Active, onConnected);
+      localParticipant().off(ParticipantEvent.IsSpeakingChanged, onSpeaking);
     })
   });
 
@@ -530,8 +536,11 @@ export const useGameStateManager = () => {
         setGameState("objects", data.payload.id, "active", !!data.payload.active);
         break;
 
+      case "speaking":
+        setGameState("remotePlayers", player, "speaking", !!data.payload);
+        break;
+
       // case "message"
-      // case "character"|"username" // Name change, etc
       default:
         // Pass
         console.info("Unknown incoming message: ", textDecoder.decode(payload))
@@ -541,6 +550,10 @@ export const useGameStateManager = () => {
   const onMetadata = (metadata: string) => {
     console.info("New metadata");
     loadRoomMetadata(room())
+  }
+
+  const onSpeaking = (speaking: boolean) => {
+    setGameState("myPlayer", "speaking", speaking);
   }
 
   // Incoming chat
@@ -554,6 +567,7 @@ export const useGameStateManager = () => {
   createEffect(() => { packetPublish(gameState.myPlayer, "direction") });
   createEffect(() => { packetPublish(gameState.myPlayer, "animation") });
   createEffect(() => { packetPublish(gameState.myPlayer, "private") });
+  createEffect(() => { packetPublish(gameState.myPlayer, "speaking") });
 };
 
 /**

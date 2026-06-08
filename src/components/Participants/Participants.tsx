@@ -10,7 +10,7 @@ type Props = {
 
 export const Participants: Component<Props> = (props) => {
   const participants = createMemo(() => {
-    if (props.participants) return props.participants.map(participant => ({username: participant.identity, name: participant.attributes.name, speaking: false}));
+    if (props.participants) return props.participants.map(participant => ({username: participant.identity, name: participant.attributes.name, speaking: participant.isSpeaking}));
     return gameState.remotePlayers;
   });
 
